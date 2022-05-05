@@ -5,16 +5,16 @@ where
 import Data.Typeable
 import Data.Maybe
 import Data.Either
-import Plutus.Contracts.V1.MarketPlace (Market(Market, mTreasury, mPrimarySaleFee, mSecondarySaleFee, mOperator), marketValidator, marketHundredPercent)
+import Plutus.Contracts.V1.Marketplace (Market(Market, mTreasury, mPrimarySaleFee, mSecondarySaleFee, mOperator), marketValidator, marketHundredPercent)
 import Plutus.Contracts.V1.Auction (auctionValidator, auctionHundredPercent)
-import Cardano.Contrib.Easy.Context
+import Cardano.Contrib.Kubær.ChainInfo
 import Cardano.Api
-import Cardano.Contrib.Easy.Util
+import Cardano.Contrib.Kubær.Util
 import qualified Data.Text as T
 import System.Environment
 import System.Directory (doesFileExist)
 import Data.Functor ((<&>))
-import Cardano.Contrib.Easy.Parsers
+import Cardano.Contrib.Kubær.Parsers
 import qualified System.IO as IO
 import Cardano.Marketplace.V1.RequestModels (addressParser)
 import Text.Read (readMaybe)
@@ -34,7 +34,7 @@ data AuctionConfig = AuctionConfig {
 }
 
 data RuntimeContext=RuntimeContext{
-  runtimeContextCardanoConn :: FullNetworkContext,
+  runtimeContextCardanoConn :: DetailedChainInfo,
   runtimeContextMarket :: Market,
   runtimeContextAuctionConfig :: AuctionConfig,
   runtimeContextOperator :: AddressInEra AlonzoEra,
@@ -55,14 +55,14 @@ getLeft (Right v) = []
 
 populateTestnetConfig :: IO ()
 populateTestnetConfig =do
-  setEnv "MARKET_OPERATOR_ADDR" "addr_test1vptykc3xu445cxdd9zae9j5sn7gmn0axsqnlqnkes9xgqcslcj8re"
-  setEnv "MARKET_OPERATOR_SKEY" "addr_sk1gn0p9a8w3d67jz2ean6rlq784mzgxc748e2ks65kc6cjmmt2lm8sztt2pl"
-  setEnv "TREASURY_ADDRESS" "addr_test1vzwtcfwd0ghawn6z8m6cqhz9zgdjf0mvj58dge6m3u08a7qmt80uf"
+  setEnv "MARKET_OPERATOR_ADDR" "addr_test1vzz6kpfgav34rzycphlnsuzfh8cyc094kl8s5wapyrqv7yghmdkuf"
+  setEnv "MARKET_OPERATOR_SKEY" "addr_test1vzz6kpfgav34rzycphlnsuzfh8cyc094kl8s5wapyrqv7yghmdkuf"
+  setEnv "TREASURY_ADDRESS" "addr_test1vzz6kpfgav34rzycphlnsuzfh8cyc094kl8s5wapyrqv7yghmdkuf"
 
 resolveContext::  IO ( Either [ErrorMessage] RuntimeContext)
 resolveContext =do
-  context <- readContextFromEnv  >>=toFullNetworkContext
-  if networkCtxNetwork context /= Mainnet then populateTestnetConfig else pure ()
+  context <- readContextFromEnv  >>=withDetails
+  if getNetworkId context /= Mainnet then populateTestnetConfig else pure ()
   marketOperatorAddrEither  <- resolveEnv $ createEnvConfigNoDefault addressParser "MARKET_OPERATOR_ADDR"
   marketOperatorSkeyEither  <- resolveEnv $ createSecretConfigNoDefault  (parseSignKey . T.pack) "MARKET_OPERATOR_SKEY"
   treasuryAddressEither     <- resolveEnv $ createEnvConfigNoDefault  addressParser "TREASURY_ADDRESS"
@@ -77,7 +77,7 @@ resolveContext =do
   if null errors then (do
       let primarySaleFee = floor $ forceRight primarySaleFeeEither * fromIntegral (marketHundredPercent `div` 100)
           operatorAddr =case marketOperatorAddrEither of
-            Left s -> skeyToAddrInEra operatorSkey (networkCtxNetwork context)
+            Left s -> skeyToAddrInEra operatorSkey (getNetworkId context)
             Right aie ->aie
           operatorSkey = forceRight marketOperatorSkeyEither
           treasuryAddr = forceRight treasuryAddressEither
@@ -113,6 +113,7 @@ resolveContext =do
         marketScriptBS market = SBS.toShort . LBS.toStrict $ serialise script
         script  = unValidatorScript $ marketValidator market
     forceRight (Right v) =  v
+    forceRight _ =  error "Force Right failed it should not happen."
     fetchConfig= resolveEnv
     readDouble :: String -> Maybe Double
     readDouble = readMaybe

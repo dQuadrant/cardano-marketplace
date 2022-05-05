@@ -34,7 +34,6 @@ import Data.Aeson.Types
       KeyValue((.=)), Pair )
 import Control.Monad (mzero)
 import qualified Data.Text as T
-import Cardano.Api.Shelley (ToJSON, Hash (ScriptDataHash))
 import Cardano.Api.Byron (FromJSON)
 import qualified Data.HashMap.Strict as H
 import Prelude hiding(String)
@@ -43,11 +42,11 @@ import Data.Text.Conversions
 import Data.Functor ((<&>))
 import Cardano.Ledger.Mary.Value (PolicyID(policyID))
 import Data.Text.Encoding as T
-import Cardano.Contrib.Easy.Util
-import Cardano.Contrib.Easy.Api
+import Cardano.Contrib.Kubær.Util
+import Cardano.Contrib.Kubær.Api
 import System.Console.CmdArgs (Typeable)
-import Cardano.Contrib.Easy.Parsers
-import Cardano.Contrib.Easy.TxFramework
+import Cardano.Contrib.Kubær.Parsers hiding (scriptDataParser)
+import Cardano.Contrib.Kubær.TxFramework
 import Cardano.Api.Shelley
 import Text.Read (readMaybe)
 import qualified Data.Text.Encoding as TSE
@@ -55,7 +54,6 @@ import Data.Maybe (isNothing, fromMaybe)
 import Data.Text (Text)
 import qualified Data.Map as Map
 import   Data.ByteString (ByteString)
-import Text.Util (unHex, toHexString, pkhToAddr)
 import qualified Data.ByteString.Lazy as LBS
 import Data.ByteString.Lazy (fromStrict, toStrict )
 import Data.String (fromString, String)

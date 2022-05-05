@@ -7,9 +7,9 @@ where
 import Data.Data ( Data, Typeable )
 import System.Console.CmdArgs
 import Cardano.Marketplace.Server (startMarketServer)
-import Cardano.Contrib.Easy.Parsers
+import Cardano.Contrib.Kubær.Parsers
 import Cardano.Marketplace.V1.RequestModels
-import Cardano.Contrib.Easy.Util
+import Cardano.Contrib.Kubær.Util
 import Cardano.Marketplace.V1.Core
 import qualified Data.Text as T
 import Cardano.Marketplace.Common.ConsoleWritable
@@ -17,24 +17,24 @@ import Data.Functor ((<&>))
 import Cardano.Api.Shelley (AsType(AsAlonzoEra), Lovelace (Lovelace), Address (ShelleyAddress), fromShelleyStakeReference, toShelleyStakeCredential, toShelleyStakeAddr, fromPlutusData)
 import qualified Data.Map as Map
 import Control.Monad (void)
-import Cardano.Contrib.Easy.Context
+import     Cardano.Contrib.Kubær.ChainInfo
 import Data.Text(Text, strip)
 import Cardano.Api
 import Cardano.Marketplace.V1.ServerRuntimeContext
 import Data.List (intercalate, isSuffixOf, sort)
 import System.Directory (doesFileExist, getCurrentDirectory, getDirectoryContents)
 import Data.Maybe (mapMaybe)
-import Cardano.Contrib.Easy.TxFramework (txPayTo, TxResult (TxResult), mkTx, txConsumeUtxos)
+import     Cardano.Contrib.Kubær.TxBuilder (txPayTo, txConsumeUtxos)
 import Data.Char (toLower)
 import Cardano.Api.Byron (Address(ByronAddress))
 import qualified Cardano.Ledger.BaseTypes as Shelley (Network(..))
-import Plutus.Contracts.V1.MarketPlace (marketScript, DirectSale (..))
-import qualified Plutus.Contracts.V1.MarketPlace as DirectSale
+import Plutus.Contracts.V1.Marketplace (marketScript, DirectSale (..))
+import qualified Plutus.Contracts.V1.Marketplace as DirectSale
 import qualified Plutus.Contracts.V1.Auction as Auction
-import Text.Util (toHexString)
 import Codec.Serialise (serialise)
 import Cardano.Ledger.Alonzo.Tx (TxBody(txfee))
 import Plutus.V1.Ledger.Api (ToData(toBuiltinData), toData)
+import Cardano.Contrib.Kubær.TxFramework (txBuilderToTxBody)
 data Modes =
       Cat {
         item:: String
@@ -114,10 +114,12 @@ runCli = do
           cmd = def &=typ "switch|create|ls" &=argPos 0
         , val = def &=typ "CommandValue" &=args
       }
-      , Withdraw {
-        utxoId = "" &= typ "UtxoId" &=args
-      }
-      , Utxos {
+      , 
+      -- Withdraw {
+      --   utxoId = "" &= typ "UtxoId" &=args
+      -- }
+      -- , 
+      Utxos {
         address =def &=typ "Address" &= args
       },
       Keygen{
@@ -213,40 +215,40 @@ runCli = do
           asset <- parseAssetIdText assetId
           let modal = BuyReqModel{
                   buyReqContext = TxContextAddressesReq (Just signKey) Nothing Nothing Nothing Nothing Map.empty ,
+                  byReqSellerDepositSkey = Nothing,
                   buyReqUtxo = Nothing,
                   buyReqAsset=  Just  asset,
                   buyReqDatum=scriptData,
-
                   buyCollateral= Nothing -- use specific address as collateral, if not present, a suitable collateral will be choosen. 
               }
           putStrLn $ "DatumHash :" ++ dataHash
-          (TxResponse  tx datums ) <- buyToken Nothing ctx market modal
+          (TxResponse  tx datums ) <- buyToken ctx market modal
           putStrLn $ "Submited Tx :"++ tail (init $ show $ getTxId $ getTxBody tx)
-    Withdraw assetid -> do
-      eCtx <- resolveContext
-      case eCtx of
-        Left ss ->  putStrLn $ "RuntimeConfigurationError:\n - " ++ intercalate "\n - "  ss
-        Right rCtx-> do
-          let (RuntimeContext ctx aConfig market  operatorAddr operatorSkey treasuryAddr)= rCtx
-          skey <- getCurrentSkey
-          scriptData <- parseScriptData assetid
-          let modal = WithdrawReqModel{
-              withdrawDatum=scriptData,
-              withdrawUtxo=Nothing,
-              withdrawAddress=Nothing,
-              withdrawAsset=Nothing,
-              withdrawCollateral=Nothing
-            }
-          TxResponse tx datums <-withdrawCommand rCtx  modal
-          putStrLn $ "Submited Tx :"++ tail (init $ show $ getTxId $ getTxBody tx)
-          putStrLn "Done"
+    -- Withdraw assetid -> do
+    --   eCtx <- resolveContext
+    --   case eCtx of
+    --     Left ss ->  putStrLn $ "RuntimeConfigurationError:\n - " ++ intercalate "\n - "  ss
+    --     Right rCtx-> do
+    --       let (RuntimeContext ctx aConfig market  operatorAddr operatorSkey treasuryAddr)= rCtx
+    --       skey <- getCurrentSkey
+    --       scriptData <- parseScriptData assetid
+    --       let modal = WithdrawReqModel{
+    --           withdrawDatum=scriptData,
+    --           withdrawUtxo=Nothing,
+    --           withdrawAddress=Nothing,
+    --           withdrawAsset=Nothing,
+    --           withdrawCollateral=Nothing
+    --         }
+    --       TxResponse tx datums <-withdrawCommand rCtx  modal
+    --       putStrLn $ "Submited Tx :"++ tail (init $ show $ getTxId $ getTxBody tx)
+    --       putStrLn "Done"
 
     Ls -> do
       eCtx <- resolveContext
       case eCtx of
         Left ss ->  putStrLn $ "RuntimeConfigurationError:\n - " ++ intercalate "\n - "  ss
         Right (RuntimeContext ctx market aConfig operatorAddr operatorSkey treasuryAddr)-> do
-        let addr=marketAddressShelley market  (networkCtxNetwork ctx)
+        let addr=marketAddressShelley market  (getNetworkId ctx)
         utxos <- queryMarketUtxos  ctx market
         putStrLn $ "Market Address : " ++ T.unpack (serialiseAddress addr)
         putStrLn $ toConsoleText  "  "  utxos
@@ -261,7 +263,7 @@ runCli = do
       let txOperation= txConsumeUtxos utxos
       fail "done"
     Pay receiver value changeAddress -> do
-      ctx <- readContextFromEnv
+      ctx <- readContextFromEnv >>= withDetails
       receiverAddress <- case deserialiseAddress (AsAddressInEra AsAlonzoEra) (T.pack  receiver) of
         Just addr -> pure addr
         Nothing  ->  fail "Invalid receiver address"
@@ -293,7 +295,7 @@ runCli = do
           addr <- if null addr
             then  do
               (wallet,skey)<- getCurrentWallet
-              let addr=skeyToAddrInEra  skey (networkCtxNetwork ctx)
+              let addr=skeyToAddrInEra  skey (getNetworkId ctx)
               putStrLn $ "Wallet Address :  " ++ T.unpack (serialiseAddress addr)
               putStrLn $ "Wallet Name    :  " ++  wallet
 
@@ -302,7 +304,7 @@ runCli = do
                     Nothing -> fail $ "Conversion of address to AlonzoAddress failed: "++addr
                     Just aie -> pure aie
           utxos <- queryUtxosOf ctx (AddressModal addr )
-          let balance=utxoValueSum utxos
+          let balance=utxoSum utxos
               utxoCount=case utxos of { UTxO map -> Map.size  map }
           putStrLn $      "Utxo Count     :  " ++ show utxoCount
           putStrLn $ toConsoleText "  " balance
@@ -310,7 +312,7 @@ runCli = do
       ctx <- readContextFromEnv
       addr <- if null addr
         then  do
-          addr <- getCurrentSkey <&> flip  skeyToAddrInEra (networkCtxNetwork ctx)
+          addr <- getCurrentSkey <&> flip  skeyToAddrInEra (getNetworkId ctx)
           putStrLn $ "Wallet Address :  " ++ T.unpack (serialiseAddress addr)
           pure addr
         else case deserialiseAddress (AsAddressInEra AsAlonzoEra) (T.pack addr) of
@@ -334,9 +336,9 @@ runCli = do
                   skey <- readSignKey file
                   file <- getWorkPath ["skey.default"]
                   writeFile file val
-                  let address= skeyToAddrInEra skey (networkCtxNetwork ctx)
+                  let address= skeyToAddrInEra skey (getNetworkId ctx)
                   utxos <- queryUtxosOf ctx (AddressModal address)
-                  let balance=utxoValueSum utxos
+                  let balance=utxoSum utxos
                       utxoCount=case utxos of { UTxO map -> Map.size  map }
                   putStrLn $ "Wallet Address :  " ++ T.unpack (serialiseAddress address)
                   putStrLn $ "Utxo Count     :  " ++ show utxoCount
@@ -374,23 +376,24 @@ runCli = do
               putStrLn $ "Sign Key saved to : "++ file
               putStrLn $ "Address : "  ++ T.unpack (serialiseAddress $  skeyToAddrInEra  key network)
     UtxoSplit assetText countStr  -> do
-      context <- readContextFromEnv >>= toNetworkContext
-      let network =networkCtxNetwork  context
+      context <- readContextFromEnv >>= withDetails
+      let network =getNetworkId  context
       asset <- parseAssetIdText $ T.pack assetText
       skey<- getCurrentSkey
       let count =read countStr  ::Integer
           ownAddr= skeyToAddrInEra skey network
       utxos <- queryUtxosOf context (AddressModal  ownAddr)
-      let totalAssets = utxoValueSum utxos
+      let totalAssets = utxoSum utxos
           Quantity assetAmount = selectAsset totalAssets asset
           amountPerUtxo = assetAmount `div` count
           operation = mconcat ( replicate (fromInteger count -1 ) $ txPayTo ownAddr (valueFromList [(asset, Quantity amountPerUtxo)]))
                      <>  txPayTo ownAddr (valueFromList [(asset, Quantity $ assetAmount -  amountPerUtxo *(count -1 ))])
-      TxResult (Lovelace fee) ins body txbody  <- mkTx context operation ownAddr
-      tx <-signAndSubmitTxBody (networkCtxConn  context) txbody [skey]
-      putStrLn $ "Submited Tx :"++ tail (init $ show (getTxId txbody))
-      putStrLn $ "TxFee:      :" ++ toConsoleText "" (lovelaceToValue $ Lovelace fee)
-      pure ()
+      txBodyE  <- txBuilderToTxBody context operation
+      case txBodyE of
+        Left err -> error $ "Error : " ++ show err
+        Right txBody -> do
+          tx <- signAndSubmitTxBody (getConnectInfo context) txBody [skey]
+          putStrLn $ "Submited Tx :"++ tail (init $ show (getTxId txBody))
 
       -- payToAddress :: IsNetworkCtx v => v  -> PaymentReqModel -> IO TxResponse
       -- payToAddress ctx (PaymentReqModel sKey valueList (AddressModal receiver) _ _)=do

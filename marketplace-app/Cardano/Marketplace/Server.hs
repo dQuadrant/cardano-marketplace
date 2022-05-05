@@ -6,7 +6,7 @@
 {-# HLINT ignore "Redundant bracket" #-}
 {-# LANGUAGE DeriveAnyClass #-}
 
-module Cardano.MarketPlace.Server
+module Cardano.Marketplace.Server
 where
 
 import Control.Exception
@@ -27,14 +27,14 @@ import GHC.Conc.IO (threadDelay)
 import           Network.Wai.Middleware.Servant.Errors (errorMw, HasErrorBody(..))
 import Network.Wai.Handler.Warp (run)
 import Network.HTTP.Types
-import Cardano.Contrib.Easy.Context
+import Cardano.Contrib.Kubær.ChainInfo
 import Cardano.Marketplace.V1.ServerRuntimeContext (resolveContext, RuntimeContext (runtimeContextMarket, runtimeContextCardanoConn))
 import Data.List (intercalate)
 import Control.Monad.State (evalState, evalStateT, runState, State, StateT (runStateT))
 import qualified Data.Map as Map
 import Cardano.Api.Shelley (AlonzoEra)
 import GHC.Conc (atomically, newTVar, newTVarIO)
-import Plutus.Contracts.V1.MarketPlace
+import Plutus.Contracts.V1.Marketplace
 import Control.Monad.Reader (ReaderT(runReaderT))
 import qualified Data.Text as T
 import qualified Data.ByteString as ByteString
@@ -45,59 +45,59 @@ import Servant.Exception         (Exception (..), Throws, ToServantErr (..), map
 import Servant.Exception.Server
 import Data.Data (typeOf)
 import GHC.IO.Exception (IOErrorType(UserError))
-import Cardano.Contrib.Easy.Error (SomeError (SomeError))
+import Cardano.Contrib.Kubær.Error
 
-type HttpAPI = Throws SomeError  :>  (
+type HttpAPI = Throws FrameworkError  :>  (
               -- legacy endpoints
 
               -- directsale endpoints
                     ( "api" :> "v1" :> "sale"                :> ReqBody '[JSON] SellReqBundle :> Post '[JSON] SaleCreateResponse )
               :<|>  ( "api" :> "v1" :> "sale"  :>  "buy"     :> ReqBody '[JSON] BuyReqModel  :> Post '[JSON] TxResponse)
-              :<|>  ( "api" :> "v1" :> "sale"  :>  "cancel"  :> ReqBody '[JSON] WithdrawReqModel  :> Post '[JSON] TxResponse)
+              -- :<|>  ( "api" :> "v1" :> "sale"  :>  "cancel"  :> ReqBody '[JSON] WithdrawReqModel  :> Post '[JSON] TxResponse)
               --  Auction endpoints
-              :<|>  ("api" :> "v1" :> "auction"               :> ReqBody '[JSON] StartAuctionBundle   :> Post '[JSON] AuctionCreateResponse)
-              :<|>  ("api" :> "v1" :> "auction" :> "bid"      :> ReqBody '[JSON] BidReqModel  :> Post '[JSON] TxResponse)
-              :<|>  ("api" :> "v1" :> "auction" :> "finalize" :> ReqBody '[JSON] FinalizeAuctionModel  :> Post '[JSON] TxResponse)
-              :<|>  ("api" :> "v1" :>"auction" :> "cancel"   :> ReqBody '[JSON] CancelAuctionModel :> Post '[JSON] TxResponse )
+              -- :<|>  ("api" :> "v1" :> "auction"               :> ReqBody '[JSON] StartAuctionBundle   :> Post '[JSON] AuctionCreateResponse)
+              -- :<|>  ("api" :> "v1" :> "auction" :> "bid"      :> ReqBody '[JSON] BidReqModel  :> Post '[JSON] TxResponse)
+              -- :<|>  ("api" :> "v1" :> "auction" :> "finalize" :> ReqBody '[JSON] FinalizeAuctionModel  :> Post '[JSON] TxResponse)
+              -- :<|>  ("api" :> "v1" :>"auction" :> "cancel"   :> ReqBody '[JSON] CancelAuctionModel :> Post '[JSON] TxResponse )
 
                -- General endpoints
-              :<|>  "api" :> "v1" :> "addresses"           :> Capture "address" String  :> "balance" :> Get '[JSON] BalanceResponse 
+              :<|>  "api" :> "v1" :> "addresses"           :> Capture "address" String  :> "balance" :> Get '[JSON] BalanceResponse
               :<|>  "api" :> "v1" :> "tx" :> "submit"      :> ReqBody '[JSON] SubmitTxModal  :> Post '[JSON] TxResponse
 
               -- operator endpoints
-              :<|>  "operator" :> "v1" :> "sale"    :> "cancel"  :> ReqBody '[JSON] OperatorWithdrawModel :> Post '[JSON] TxResponse
-              :<|>  "operator" :> "v1" :> "auction" :> "cancel"  :> ReqBody '[JSON] OperatorCancelAuctionModel  :> Post '[JSON] TxResponse
-              :<|>  "operator" :> "v1" :> "auction" :> "finalize"  :> ReqBody '[JSON] FinalizeAuctionModel  :> Post '[JSON] TxResponse
+              -- :<|>  "operator" :> "v1" :> "sale"    :> "cancel"  :> ReqBody '[JSON] OperatorWithdrawModel :> Post '[JSON] TxResponse
+              -- :<|>  "operator" :> "v1" :> "auction" :> "cancel"  :> ReqBody '[JSON] OperatorCancelAuctionModel  :> Post '[JSON] TxResponse
+              -- :<|>  "operator" :> "v1" :> "auction" :> "finalize"  :> ReqBody '[JSON] FinalizeAuctionModel  :> Post '[JSON] TxResponse
 
     )
 
-server :: (MonadIO m) =>
-  RuntimeContext
-  -> (SellReqBundle -> m SaleCreateResponse)
-    :<|> ((BuyReqModel -> m TxResponse)
-    :<|> ((WithdrawReqModel -> m TxResponse)
-    :<|> ((StartAuctionBundle  -> m AuctionCreateResponse)
-    :<|> ((BidReqModel -> m TxResponse)
-    :<|> ((FinalizeAuctionModel -> m TxResponse)
-    :<|> ((CancelAuctionModel -> m TxResponse)
-    :<|> ((String -> m BalanceResponse)
-    :<|> ((SubmitTxModal -> m TxResponse)
-    :<|> ((OperatorWithdrawModel -> m TxResponse)
-    :<|> ((OperatorCancelAuctionModel -> m TxResponse)
-    :<|> (FinalizeAuctionModel -> m TxResponse)))))))))))
+-- server :: (MonadIO m) =>
+--   RuntimeContext
+--   -> (SellReqBundle -> m SaleCreateResponse)
+--     :<|> ((BuyReqModel -> m TxResponse)
+--     :<|> ((WithdrawReqModel -> m TxResponse)
+--     :<|> ((StartAuctionBundle  -> m AuctionCreateResponse)
+--     :<|> ((BidReqModel -> m TxResponse)
+--     :<|> ((FinalizeAuctionModel -> m TxResponse)
+--     :<|> ((CancelAuctionModel -> m TxResponse)
+--     :<|> ((String -> m BalanceResponse)
+--     :<|> ((SubmitTxModal -> m TxResponse)
+--     :<|> ((OperatorWithdrawModel -> m TxResponse)
+--     :<|> ((OperatorCancelAuctionModel -> m TxResponse)
+--     :<|> (FinalizeAuctionModel -> m TxResponse)))))))))))
 server runtimeContext =
           errorGuard (placeOnMarket  networkContext market)
     :<|>  errorGuard (buyToken networkContext market)
-    :<|>  errorGuard (withdrawCommand runtimeContext)
-    :<|>  errorGuard (placeOnAuction runtimeContext )
-    :<|>  errorGuard (bidOnAuction runtimeContext )
-    :<|>  errorGuard (finalizeAuction  False runtimeContext)
-    :<|>  errorGuard (cancelAuctionCommand  runtimeContext)
+    -- :<|>  errorGuard (withdrawCommand runtimeContext)
+    -- :<|>  errorGuard (placeOnAuction runtimeContext )
+    -- :<|>  errorGuard (bidOnAuction runtimeContext )
+    -- :<|>  errorGuard (finalizeAuction  False runtimeContext)
+    -- :<|>  errorGuard (cancelAuctionCommand  runtimeContext)
     :<|>  errorGuard (getBalance networkContext )
     :<|>  errorGuard (submitTx networkContext)
-    :<|>  errorGuard (operatorWithdraw runtimeContext)
-    :<|>  errorGuard (operatorCancelAuction  runtimeContext)
-    :<|>  errorGuard (finalizeAuction True runtimeContext )
+    -- :<|>  errorGuard (operatorWithdraw runtimeContext)
+    -- :<|>  errorGuard (operatorCancelAuction  runtimeContext)
+    -- :<|>  errorGuard (finalizeAuction True runtimeContext )
 
     where
     networkContext= runtimeContextCardanoConn runtimeContext
@@ -112,10 +112,13 @@ server runtimeContext =
               print e
               throwIO myerr
                 where
-                  myerr :: SomeError 
-                  myerr =  SomeError  (show e)
-            Just s@(SomeError  msg) ->  do 
+                  myerr :: FrameworkError
+                  myerr =  FrameworkError  LibraryError (show e)
+            Just s@(FrameworkError _ msg) ->  do
               putStrLn msg
+              throwIO s
+            Just s@(FrameworkErrors errs) ->  do
+              print errs
               throwIO s
         Right v -> pure v
     errorGuard f v = liftIO $ do
@@ -127,7 +130,7 @@ proxyAPI :: Proxy HttpAPI
 proxyAPI = Proxy
 
 app :: RuntimeContext -> Application
-app rCtx = serve proxyAPI (server rCtx )
+app rCtx = serve proxyAPI (server rCtx)
 
 startMarketServer :: IO ()
 startMarketServer=do
@@ -137,19 +140,17 @@ startMarketServer=do
         Right rc -> do
           let port=8081
           putStrLn $ "Market       : " ++ show (runtimeContextMarket rc)
-          putStrLn $ "MarketAddress: " ++   T.unpack (serialiseAddress $  marketAddressShelley  (runtimeContextMarket rc) $ networkCtxNetwork (runtimeContextCardanoConn   rc))
+          putStrLn $ "MarketAddress: " ++   T.unpack (serialiseAddress $  marketAddressShelley  (runtimeContextMarket rc) $ getNetworkId (runtimeContextCardanoConn   rc))
           putStrLn $ "Starting server on port " ++ show port ++"..."
         -- Structures error response as JSON objects
         -- with 'error' and 'status' strings as error object field keys
         -- note they can be changed to any other preferred strings.
-          run port $ app runtimeContext
+          run port $ app rc
       pure ()
 
-instance ToJSON SomeError where 
-   toJSON (SomeError e) = object[ T.pack "message" .=  "SomeError",T.pack "message" .= e]
+instance ToServantErr FrameworkError where
+  status (FrameworkError _ _ )= status400
+  status (FrameworkErrors _ )= status400
 
-instance ToServantErr SomeError where
-  status (SomeError  _ )= status400
-
-instance MimeRender PlainText SomeError where
+instance MimeRender PlainText FrameworkError where
   mimeRender ct = mimeRender ct . show
