@@ -215,4 +215,4 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/sireto/easy-cardano
-  tag: f93490f8ba208c9e5d49d634399df89938ff00d5
+  tag: 69e8eb23880f90c83c891efb91baf9316781fe32
