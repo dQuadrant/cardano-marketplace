@@ -1,6 +1,6 @@
 cabal-version:      2.4
 name:               open-marketplace
-version:            1.0.0.0
+version:            0.1.0.0
 
 -- A short (one-line) description of the package.
 -- synopsis:
@@ -32,6 +32,9 @@ library marketplace-plutus
     , plutus-ledger-api
     , plutus-tx-plugin
     , aeson
+    , bytestring
+    , cardano-api
+    , serialise
 
 executable  marketplace-app
   main-is:  Main.hs
@@ -54,7 +57,6 @@ executable  marketplace-app
     , directory
     , serialise
     , cmdargs >= 0.10.18
-    , easy-cardano
     , http-types
     , marketplace-plutus
     , text 
@@ -76,3 +78,4 @@ executable  marketplace-app
     , cborg
     , cardano-binary
     , mtl
+    , kubær
