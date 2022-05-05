@@ -30,6 +30,10 @@ import qualified PlutusTx.AssocMap as AssocMap
 import Data.Aeson (FromJSON, ToJSON)
 import qualified Data.Bifunctor
 import Prelude (Show)
+import qualified Data.ByteString.Short as SBS
+import qualified Data.ByteString.Lazy  as LBS
+import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV1)
+import Codec.Serialise
 
 
 ---------------------------------------------------------------------------------------------
@@ -375,3 +379,10 @@ auctionValidator auction = mkValidatorScript  $
 
 auctionScript :: Auction -> Script
 auctionScript auction =  unValidatorScript  (auctionValidator auction)
+
+auctionScriptSBS :: Auction -> SBS.ShortByteString
+auctionScriptSBS auction =  SBS.toShort . LBS.toStrict $ serialise $ auctionScript auction
+
+auctionScriptSerialised :: Auction -> PlutusScript PlutusScriptV1
+auctionScriptSerialised auction = PlutusScriptSerialised $ auctionScriptSBS auction
+

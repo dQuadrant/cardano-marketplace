@@ -16,7 +16,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
-module Plutus.Contracts.V1.MarketPlace
+module Plutus.Contracts.V1.Marketplace
 where
 
 import GHC.Generics (Generic)
@@ -32,7 +32,10 @@ import Plutus.V1.Ledger.Value ( assetClassValue, geq, AssetClass(..),CurrencySym
 import Plutus.V1.Ledger.Contexts (valuePaidTo, ownHash, valueLockedBy, findOwnInput, findDatum,txSignedBy)
 import Plutus.V1.Ledger.Address (toPubKeyHash, scriptHashAddress, toValidatorHash)
 import Plutus.V1.Ledger.Scripts (getScriptHash, ScriptHash (ScriptHash))
-
+import qualified Data.ByteString.Short as SBS
+import qualified Data.ByteString.Lazy  as LBS
+import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV1)
+import Codec.Serialise
 
 ---------------------------------------------------------------------------------------------
 ----- Foreign functions 
@@ -291,3 +294,9 @@ marketValidator market = mkValidatorScript  $
 
 marketScript :: Market -> Script
 marketScript market =  unValidatorScript  (marketValidator market)
+
+marketScriptSBS :: Market -> SBS.ShortByteString
+marketScriptSBS market =  SBS.toShort . LBS.toStrict $ serialise $ marketScript market
+
+marketScriptSerialised :: Market -> PlutusScript PlutusScriptV1
+marketScriptSerialised market = PlutusScriptSerialised $ marketScriptSBS market
