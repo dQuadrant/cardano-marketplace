@@ -1,0 +1,78 @@
+cabal-version:      2.4
+name:               open-marketplace
+version:            1.0.0.0
+
+-- A short (one-line) description of the package.
+-- synopsis:
+
+-- A longer description of the package.
+-- description:
+
+-- A URL where users can report bugs.
+-- bug-reports:
+
+license: Apache-2.0
+
+author:             Sireto
+maintainer:         Sireto
+
+-- A copyright notice.
+-- copyright:
+-- category:
+-- extra-source-files: CHANGELOG.md
+
+library marketplace-plutus
+  exposed-modules:
+    Plutus.Contracts.V1.Marketplace
+    Plutus.Contracts.V1.Auction
+  hs-source-dirs: marketplace-plutus
+  build-depends:
+      base  -any
+    , plutus-tx
+    , plutus-ledger-api
+    , plutus-tx-plugin
+    , aeson
+
+executable  marketplace-app
+  main-is:  Main.hs
+  hs-source-dirs: marketplace-app
+  other-modules:
+    Cardano.Marketplace.Cli
+    Cardano.Marketplace.Server
+    Cardano.Marketplace.V1.Core
+    Cardano.Marketplace.V1.RequestModels
+    Cardano.Marketplace.V1.ServerRuntimeContext
+    Cardano.Marketplace.Common.ConsoleWritable
+    Cardano.Marketplace.Common.TextUtils
+  build-depends:
+      base -any
+    , aeson
+    , bytestring
+    , containers
+    , unordered-containers
+    , filepath
+    , directory
+    , serialise
+    , cmdargs >= 0.10.18
+    , easy-cardano
+    , http-types
+    , marketplace-plutus
+    , text 
+    , text-conversions
+    , cardano-api
+    , cardano-ledger-shelley
+    , cardano-ledger-core
+    , cardano-ledger-shelley-ma
+    , cardano-ledger-alonzo
+    , plutus-ledger-api
+    , plutus-tx
+    , servant
+    , servant-server
+    , servant-errors
+    , servant-exceptions
+    , wai
+    , servant-exceptions-server
+    , warp
+    , cborg
+    , cardano-binary
+    , mtl
