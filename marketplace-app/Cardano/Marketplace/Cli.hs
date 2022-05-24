@@ -7,9 +7,9 @@ where
 import Data.Data ( Data, Typeable )
 import System.Console.CmdArgs
 import Cardano.Marketplace.Server (startMarketServer)
-import Cardano.Contrib.Kubær.Parsers
+import Cardano.Kuber.Api
 import Cardano.Marketplace.V1.RequestModels
-import Cardano.Contrib.Kubær.Util
+import Cardano.Kuber.Util
 import Cardano.Marketplace.V1.Core
 import qualified Data.Text as T
 import Cardano.Marketplace.Common.ConsoleWritable
@@ -17,14 +17,12 @@ import Data.Functor ((<&>))
 import Cardano.Api.Shelley (AsType(AsAlonzoEra), Lovelace (Lovelace), Address (ShelleyAddress), fromShelleyStakeReference, toShelleyStakeCredential, toShelleyStakeAddr, fromPlutusData)
 import qualified Data.Map as Map
 import Control.Monad (void)
-import     Cardano.Contrib.Kubær.ChainInfo
 import Data.Text(Text, strip)
 import Cardano.Api
 import Cardano.Marketplace.V1.ServerRuntimeContext
 import Data.List (intercalate, isSuffixOf, sort)
 import System.Directory (doesFileExist, getCurrentDirectory, getDirectoryContents)
 import Data.Maybe (mapMaybe)
-import     Cardano.Contrib.Kubær.TxBuilder (txPayTo, txConsumeUtxos)
 import Data.Char (toLower)
 import Cardano.Api.Byron (Address(ByronAddress))
 import qualified Cardano.Ledger.BaseTypes as Shelley (Network(..))
@@ -34,7 +32,8 @@ import qualified Plutus.Contracts.V1.Auction as Auction
 import Codec.Serialise (serialise)
 import Cardano.Ledger.Alonzo.Tx (TxBody(txfee))
 import Plutus.V1.Ledger.Api (ToData(toBuiltinData), toData)
-import Cardano.Contrib.Kubær.TxFramework (txBuilderToTxBody)
+import Cardano.Marketplace.Common.TextUtils
+import Cardano.Kuber.Data.Parsers (parseAssetNQuantity, parseScriptData, parseAssetIdText, parseValueText)
 data Modes =
       Cat {
         item:: String
@@ -154,36 +153,37 @@ runCli = do
             _         -> do
               putStrLn  " Invalid option provided to cat command"
 
-    AddrInfo addr ->do
-      if null addr
-        then
-        putStrLn  "Usage: addrinfo address"
-        else
-          case deserialiseAddress (AsAddressInEra AsAlonzoEra ) (T.pack addr) of
-            Nothing -> fail "Weird address"
-            Just aie -> do
-                putStrLn $ "Address                  : " ++ addr
-                case aie of { AddressInEra atie ad -> case ad of
-                      ByronAddress ad' -> putStrLn "Address type: ByronAddress"
-                      ShelleyAddress net cre sr -> do
-                        putStrLn    "Address type             : Shelley"
-                        case addrToMaybePkh ad of
-                          Nothing -> pure () 
-                          Just pkh -> putStrLn $ "PubKeyHash               : " ++  show pkh
-                        let unstakedAddr = unstakeAddr aie
-                            network      =case net of
-                              Shelley.Testnet  -> Testnet (NetworkMagic 1097911063)
-                              Shelley.Mainnet -> Mainnet
-                        case fromShelleyStakeReference sr of
-                              StakeAddressByValue sc ->do
-                                putStrLn $  "Address without stakeKey : " ++ T.unpack (serialiseAddress unstakedAddr)
-                                putStrLn  $ "StakeAddress             : " ++  T.unpack ( serialiseAddress $ makeStakeAddress   network   sc)
-                                putStrLn $  "Stake Key Hash           : " ++ show sc
-                              StakeAddressByPointer sap -> do
-                                putStrLn $  "Address without stakeKey : " ++ T.unpack (serialiseAddress unstakedAddr)
-                                putStrLn $  "StakePointer             : " ++ show sap
-                              NoStakeAddress -> putStrLn "Staking not enabled"
-                        }
+    -- AddrInfo addr ->do
+    --   if null addr
+    --     then
+    --     putStrLn  "Usage: addrinfo address"
+    --     else
+    --       case deserialiseAddress (AsAddressInEra AsAlonzoEra ) (T.pack addr) of
+    --         Nothing -> fail "Weird address"
+    --         Just aie -> do
+    --             putStrLn $ "Address                  : " ++ addr
+    --             case aie of { AddressInEra atie ad -> case ad of
+    --                   ByronAddress ad' -> putStrLn "Address type: ByronAddress"
+    --                   ShelleyAddress net cre sr -> do
+    --                     putStrLn    "Address type             : Shelley"
+    --                     case addrToMaybePkh ad of
+    --                       Nothing -> pure () 
+    --                       Just pkh -> putStrLn $ "PubKeyHash               : " ++  show pkh
+    --                     let unstakedAddr = unstakeAddr aie
+    --                         network      =case net of
+    --                           Shelley.Testnet  -> Testnet (NetworkMagic 1097911063)
+    --                           Shelley.Mainnet -> Mainnet
+    --                     case fromShelleyStakeReference sr of
+    --                           StakeAddressByValue sc ->do
+    --                             putStrLn $  "Address without stakeKey : " ++ T.unpack (serialiseAddress unstakedAddr)
+    --                             putStrLn  $ "StakeAddress             : " ++  T.unpack ( serialiseAddress $ makeStakeAddress   network   sc)
+    --                             putStrLn $  "Stake Key Hash           : " ++ show sc
+    --                           StakeAddressByPointer sap -> do
+    --                             putStrLn $  "Address without stakeKey : " ++ T.unpack (serialiseAddress unstakedAddr)
+    --                             putStrLn $  "StakePointer             : " ++ show sap
+    --                           NoStakeAddress -> putStrLn "Staking not enabled"
+    --                     }
+    
     Sell itemStr costStr -> do
       eCtx <- resolveContext
       case eCtx of
@@ -254,7 +254,7 @@ runCli = do
         putStrLn $ toConsoleText  "  "  utxos
     MoveFunds receiver-> do
       fail "Work in progress"
-      ctx <- readContextFromEnv
+      ctx <- chainInfoFromEnv
       receiverAddress <- case deserialiseAddress (AsAddressInEra AsAlonzoEra) (T.pack  receiver) of
         Just addr -> pure addr
         Nothing  ->  fail "Invalid receiver address"
@@ -263,7 +263,7 @@ runCli = do
       let txOperation= txConsumeUtxos utxos
       fail "done"
     Pay receiver value changeAddress -> do
-      ctx <- readContextFromEnv >>= withDetails
+      ctx <- chainInfoFromEnv >>= withDetails
       receiverAddress <- case deserialiseAddress (AsAddressInEra AsAlonzoEra) (T.pack  receiver) of
         Just addr -> pure addr
         Nothing  ->  fail "Invalid receiver address"
@@ -288,7 +288,7 @@ runCli = do
       putStrLn $ "Submited Tx :"++ tail (init $ show $ getTxId $ getTxBody tx)
 
     Balance addr ->do
-      ctx <- readContextFromEnv
+      ctx <- chainInfoFromEnv
       if map toLower  addr == "all"
         then fail "not implemented"
         else do
@@ -309,7 +309,7 @@ runCli = do
           putStrLn $      "Utxo Count     :  " ++ show utxoCount
           putStrLn $ toConsoleText "  " balance
     Utxos addr -> do
-      ctx <- readContextFromEnv
+      ctx <- chainInfoFromEnv
       addr <- if null addr
         then  do
           addr <- getCurrentSkey <&> flip  skeyToAddrInEra (getNetworkId ctx)
@@ -332,7 +332,7 @@ runCli = do
                 then
                   putStrLn $ "Error : Wallet file doesn't exist : " ++ file
                 else do
-                  ctx <- readContextFromEnv
+                  ctx <- chainInfoFromEnv
                   skey <- readSignKey file
                   file <- getWorkPath ["skey.default"]
                   writeFile file val
@@ -360,7 +360,7 @@ runCli = do
           _        -> putStrLn    "Available commands are: \n - wallet ls  \n - wallet switch  [walletname]"
     Keygen walletName -> do
       key <- generateSigningKey AsPaymentKey
-      network<- getNetworkFromEnv "NETWORK"
+      network<- chainInfoFromEnv <&> getNetworkId
       if null walletName
         then  do
             putStrLn $ "New Key : "  ++ T.unpack   (  serialiseToBech32 key)
@@ -375,8 +375,9 @@ runCli = do
               writeFile file (T.unpack   (  serialiseToBech32 key))
               putStrLn $ "Sign Key saved to : "++ file
               putStrLn $ "Address : "  ++ T.unpack (serialiseAddress $  skeyToAddrInEra  key network)
+    
     UtxoSplit assetText countStr  -> do
-      context <- readContextFromEnv >>= withDetails
+      context <- chainInfoFromEnv >>= withDetails
       let network =getNetworkId  context
       asset <- parseAssetIdText $ T.pack assetText
       skey<- getCurrentSkey
@@ -388,7 +389,7 @@ runCli = do
           amountPerUtxo = assetAmount `div` count
           operation = mconcat ( replicate (fromInteger count -1 ) $ txPayTo ownAddr (valueFromList [(asset, Quantity amountPerUtxo)]))
                      <>  txPayTo ownAddr (valueFromList [(asset, Quantity $ assetAmount -  amountPerUtxo *(count -1 ))])
-      txBodyE  <- txBuilderToTxBody context operation
+      txBodyE  <- txBuilderToTxBodyIO context operation
       case txBodyE of
         Left err -> error $ "Error : " ++ show err
         Right txBody -> do

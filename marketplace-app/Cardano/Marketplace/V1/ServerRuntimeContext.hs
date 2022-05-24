@@ -7,14 +7,13 @@ import Data.Maybe
 import Data.Either
 import Plutus.Contracts.V1.Marketplace (Market(Market, mTreasury, mPrimarySaleFee, mSecondarySaleFee, mOperator), marketValidator, marketHundredPercent)
 import Plutus.Contracts.V1.Auction (auctionValidator, auctionHundredPercent)
-import Cardano.Contrib.Kubær.ChainInfo
 import Cardano.Api
-import Cardano.Contrib.Kubær.Util
+import Cardano.Kuber.Util
 import qualified Data.Text as T
 import System.Environment
 import System.Directory (doesFileExist)
 import Data.Functor ((<&>))
-import Cardano.Contrib.Kubær.Parsers
+import Cardano.Kuber.Api
 import qualified System.IO as IO
 import Cardano.Marketplace.V1.RequestModels (addressParser)
 import Text.Read (readMaybe)
@@ -24,6 +23,7 @@ import Cardano.Api.Shelley
 import Codec.Serialise (serialise)
 import Plutus.V1.Ledger.Api (unValidatorScript, PubKeyHash)
 import GHC.Num (doubleFromInteger)
+import Cardano.Kuber.Data.Parsers
 
 type ErrorMessage=String
 
@@ -61,7 +61,7 @@ populateTestnetConfig =do
 
 resolveContext::  IO ( Either [ErrorMessage] RuntimeContext)
 resolveContext =do
-  context <- readContextFromEnv  >>=withDetails
+  context <- chainInfoFromEnv  >>=withDetails
   if getNetworkId context /= Mainnet then populateTestnetConfig else pure ()
   marketOperatorAddrEither  <- resolveEnv $ createEnvConfigNoDefault addressParser "MARKET_OPERATOR_ADDR"
   marketOperatorSkeyEither  <- resolveEnv $ createSecretConfigNoDefault  (parseSignKey . T.pack) "MARKET_OPERATOR_SKEY"

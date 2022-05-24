@@ -27,7 +27,7 @@ import GHC.Conc.IO (threadDelay)
 import           Network.Wai.Middleware.Servant.Errors (errorMw, HasErrorBody(..))
 import Network.Wai.Handler.Warp (run)
 import Network.HTTP.Types
-import Cardano.Contrib.Kubær.ChainInfo
+import Cardano.Kuber.Api
 import Cardano.Marketplace.V1.ServerRuntimeContext (resolveContext, RuntimeContext (runtimeContextMarket, runtimeContextCardanoConn))
 import Data.List (intercalate)
 import Control.Monad.State (evalState, evalStateT, runState, State, StateT (runStateT))
@@ -45,7 +45,6 @@ import Servant.Exception         (Exception (..), Throws, ToServantErr (..), map
 import Servant.Exception.Server
 import Data.Data (typeOf)
 import GHC.IO.Exception (IOErrorType(UserError))
-import Cardano.Contrib.Kubær.Error
 
 type HttpAPI = Throws FrameworkError  :>  (
               -- legacy endpoints

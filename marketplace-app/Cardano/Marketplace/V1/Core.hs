@@ -10,10 +10,8 @@ module Cardano.Marketplace.V1.Core
 where
 
 import Control.Monad.IO.Class (MonadIO (liftIO))
-import Cardano.Contrib.Kubær.Error
-import Cardano.Contrib.Kubær.Util hiding (toHexString)
+import Cardano.Kuber.Util hiding (toHexString)
 import Cardano.Marketplace.Common.TextUtils ( toHexString, pkhToAddr )
-import Cardano.Contrib.Kubær.TxFramework
 import qualified Data.Map as Map
 import Cardano.Api
 import Data.ByteString (ByteString)
@@ -29,11 +27,10 @@ import Codec.Serialise (serialise)
 import Control.Exception (throw, SomeException (SomeException), try, throwIO, Exception (fromException))
 import Plutus.V1.Ledger.Api (fromData, toData, Data (Map), POSIXTime (POSIXTime), lowerBound, upperBound, ToData (toBuiltinData), PubKeyHash (PubKeyHash))
 import qualified Plutus.V1.Ledger.Api (TxOut (txOutValue))
-import Cardano.Contrib.Kubær.Api
+import Cardano.Kuber.Api
 import Cardano.Marketplace.V1.RequestModels
 import Data.Text.Conversions (toText, UTF8 (UTF8), FromText (fromText), convertText)
 import Data.Functor ((<&>))
-import Cardano.Contrib.Kubær.ChainInfo
 import Data.Aeson (encode, json')
 import Data.Text.Lazy.Encoding (decodeUtf8)
 import Data.Text.Lazy (unpack, intercalate, toStrict)
@@ -69,8 +66,9 @@ import qualified PlutusTx.Prelude as PlutusPrelude
 import Cardano.Ledger.Keys (KeyPair(sKey))
 import qualified Debug.Trace as Debug
 import qualified Data.ByteString.Lazy.Char8 as BSChar8
-import Cardano.Contrib.Kubær.TxBuilder (TxBuilder (txSignatures), txPayTo, txPayToScript, txConsumeUtxos, txRedeemUtxo)
+import Cardano.Kuber.Api
 import qualified Plutus.V1.Ledger.Api as PlutusTx
+import Plutus.V1.Ledger.Contexts (txSignedBy)
 
 putStrLn' :: [Char] -> IO ()
 putStrLn' v =pure ()
@@ -104,7 +102,7 @@ queryMarketUtxos ctx market = do
 payToAddress :: DetailedChainInfo -> PaymentReqModel -> IO TxResponse
 payToAddress dcInfo (PaymentReqModel sKey preqReceivers mPayer mChangeAddr sendEverything ignoreTinySurplus ignoreTinyinSufficient)=do
   let operation = mconcat $ map    (\(PaymentUtxoModel val addr feeUtxo changeUtxo) -> txPayTo  addr val) preqReceivers
-  txBodyE <- txBuilderToTxBody dcInfo operation
+  txBodyE <- txBuilderToTxBodyIO dcInfo operation
   case txBodyE of 
     Left fe -> throwIO fe
     Right txBody -> pure $ mkSignedResponse sKey txBody
@@ -137,7 +135,7 @@ placeOnMarket dcInfo market  (SellReqBundle context sales topLevel) =do
       
     constraints <- mapM (toConstraint sellerPkh ) sales
 
-    txbody <- txBuilderToTxBody dcInfo $ foldMap fst constraints
+    txbody <- txBuilderToTxBodyIO dcInfo $ foldMap fst constraints
     case txbody of 
       Left fe -> throwIO fe
       Right tb -> do
@@ -570,7 +568,7 @@ buyToken  networkCtx market
       depositAddrUtxos <- queryUtxosOf networkCtx $ AddressModal $ skeyToAddrInEra  sk network
       pure $ (case selectAsset  (txOutValue txout <> utxoSum depositAddrUtxos) paymentAsset of { Quantity n -> n },
         txConsumeUtxos depositAddrUtxos 
-          -- TODO <> txSignatures TxBuilder sk
+          <> txSignByPkh (sKeyToPkh sk) 
         )
 
   let mapPartyOperation sellerPkh  (pkh,v)= do
@@ -593,7 +591,7 @@ buyToken  networkCtx market
         <> txRedeemUtxo txin txout (ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV1) (PlutusScript PlutusScriptV1 $ marketScriptSerialised market)) consumedData (fromPlutusData $ PlutusTx.builtinDataToData $ toBuiltinData Buy)
       signatures = maybeToList (txContextAddressesReqSignKey context) ++ maybeToList mSellerDepositSkey
 
-  txbody  <- txBuilderToTxBody networkCtx txOperations
+  txbody  <- txBuilderToTxBodyIO networkCtx txOperations
   case txbody of
     Left fe -> throwIO fe
     Right tb -> pure $ mkTxResponse signatures tb [directSale]

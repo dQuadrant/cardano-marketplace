@@ -42,11 +42,10 @@ import Data.Text.Conversions
 import Data.Functor ((<&>))
 import Cardano.Ledger.Mary.Value (PolicyID(policyID))
 import Data.Text.Encoding as T
-import Cardano.Contrib.Kubær.Util
-import Cardano.Contrib.Kubær.Api
+import Cardano.Kuber.Util
+import Cardano.Kuber.Api
 import System.Console.CmdArgs (Typeable)
-import Cardano.Contrib.Kubær.Parsers hiding (scriptDataParser)
-import Cardano.Contrib.Kubær.TxFramework
+import Cardano.Kuber.Api
 import Cardano.Api.Shelley
 import Text.Read (readMaybe)
 import qualified Data.Text.Encoding as TSE
@@ -77,6 +76,8 @@ import Cardano.Ledger.BaseTypes (Network)
 import qualified Data.ByteString.Char8 as BSC
 import qualified Data.HashMap.Strict as M
 import qualified Data.List as List
+import Cardano.Kuber.Data.Parsers (parseScriptData, parseSignKey, parseAssetId)
+import Cardano.Marketplace.Common.TextUtils
 
 
 

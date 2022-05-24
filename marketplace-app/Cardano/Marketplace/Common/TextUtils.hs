@@ -5,12 +5,12 @@ where
 import Data.ByteString (ByteString)
 import Data.Text.Conversions (ToText (toText), FromText (fromText), Base16 (unBase16, Base16), convertText, UTF8 (UTF8), DecodeText (decodeText))
 import Data.Functor ((<&>))
-import Cardano.Contrib.Kubær.Error
 import Cardano.Api
-import Cardano.Contrib.Kubær.Util
+import Cardano.Kuber.Api
 import Data.Text.Lazy (Text)
 import System.Console.CmdArgs.GetOpt (convert)
 import qualified Data.Text as Data.Text.Internal
+import Cardano.Kuber.Util (pkhToMaybeAddr)
 
 unHex ::  ToText a => a -> Maybe  ByteString
 unHex v = convertText (toText v) <&> unBase16
