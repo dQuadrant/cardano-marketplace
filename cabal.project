@@ -214,5 +214,5 @@ source-repository-package
 
 source-repository-package
   type: git
-  location: https://github.com/sireto/easy-cardano
-  tag: 69e8eb23880f90c83c891efb91baf9316781fe32
+  location: https://github.com/dQuadrant/kuber.git
+  tag: f848af5aec5795d7fbbd7404623abafe983b97b7
