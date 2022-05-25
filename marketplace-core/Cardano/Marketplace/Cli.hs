@@ -396,7 +396,7 @@ runCli = do
           tx <- signAndSubmitTxBody (getConnectInfo context) txBody [skey]
           putStrLn $ "Submited Tx :"++ tail (init $ show (getTxId txBody))
 
-      -- payToAddress :: IsNetworkCtx v => v  -> PaymentReqModel -> IO TxResponse
+      -- payToAddress :: DetailedChainInfo  -> PaymentReqModel -> IO TxResponse
       -- payToAddress ctx (PaymentReqModel sKey valueList (AddressModal receiver) _ _)=do
       --   let txOperation= txPayTo receiver valueSent
       --   putStrLn $ "Paying " ++ show valueSent

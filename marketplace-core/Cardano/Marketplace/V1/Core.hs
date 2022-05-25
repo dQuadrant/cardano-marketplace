@@ -129,9 +129,6 @@ placeOnMarket dcInfo market  (SellReqBundle context sales topLevel) =do
     Debug.traceM $ "parsedContext : " ++ show tcxa
     Debug.traceM $ "changeAddr    : " ++ T.unpack (serialiseAddress changeAddr)
     sellerPkh <- addrInEraToPkh senderAddr
-
-    let marketAddress = marketAddressShelley market (getNetworkId dcInfo)
-    let marketAddrInEra = AddressInEra 
       
     constraints <- mapM (toConstraint sellerPkh ) sales
 

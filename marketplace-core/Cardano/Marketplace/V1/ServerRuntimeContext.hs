@@ -60,7 +60,7 @@ populateTestnetConfig =do
   setEnv "TREASURY_ADDRESS" "addr_test1vzz6kpfgav34rzycphlnsuzfh8cyc094kl8s5wapyrqv7yghmdkuf"
 
 resolveContext::  IO ( Either [ErrorMessage] RuntimeContext)
-resolveContext =do
+resolveContext = do
   context <- chainInfoFromEnv  >>=withDetails
   if getNetworkId context /= Mainnet then populateTestnetConfig else pure ()
   marketOperatorAddrEither  <- resolveEnv $ createEnvConfigNoDefault addressParser "MARKET_OPERATOR_ADDR"
