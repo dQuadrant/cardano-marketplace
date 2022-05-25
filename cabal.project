@@ -9,7 +9,7 @@ write-ghc-environment-files: never
 
 -- Bever build tests and benchmarks.
 tests: false
-benchmarks: false
+benchmarks: true
 
 -- The following sections are copied from the 'plutus' repository cabal.project at the revision
 -- given above.
