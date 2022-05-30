@@ -2,7 +2,7 @@
 index-state: 2022-01-26T14:47:51Z
 
 packages: .
---          /Users/sudipbhattarai/Documents/opensource/easy-cardano
+          -- /home/krunx/Projects/easy-cardano
 
 -- You never, ever, want this.
 write-ghc-environment-files: never
@@ -215,4 +215,4 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/dQuadrant/kuber.git
-  tag: f848af5aec5795d7fbbd7404623abafe983b97b7
+  tag: f68d6fc52c8248dd0cb3b780d861f3b187cfed8f

@@ -5,7 +5,7 @@ where
 import Data.Typeable
 import Data.Maybe
 import Data.Either
-import Plutus.Contracts.V1.Marketplace (Market(Market, mTreasury, mPrimarySaleFee, mSecondarySaleFee, mOperator), marketValidator, marketHundredPercent)
+import Plutus.Contracts.V1.Marketplace (Market(Market, mTreasury, mPrimarySaleFee, mSecondarySaleFee, mOperator, mVersion), marketValidator, marketHundredPercent)
 import Plutus.Contracts.V1.Auction (auctionValidator, auctionHundredPercent)
 import Cardano.Api
 import Cardano.Kuber.Util
@@ -56,7 +56,11 @@ getLeft (Right v) = []
 populateTestnetConfig :: IO ()
 populateTestnetConfig =do
   setEnv "MARKET_OPERATOR_ADDR" "addr_test1vzz6kpfgav34rzycphlnsuzfh8cyc094kl8s5wapyrqv7yghmdkuf"
-  setEnv "MARKET_OPERATOR_SKEY" "addr_test1vzz6kpfgav34rzycphlnsuzfh8cyc094kl8s5wapyrqv7yghmdkuf"
+  setEnv "MARKET_OPERATOR_SKEY" "{\
+    \\"type\": \"PaymentSigningKeyShelley_ed25519\",\
+    \\"description\": \"Payment Signing Key\",\
+    \\"cborHex\": \"58207c44b4019a8975c01e8e39081d218023a8a5c722c36e44b4b08ce9313952c46e\"\
+    \}"
   setEnv "TREASURY_ADDRESS" "addr_test1vzz6kpfgav34rzycphlnsuzfh8cyc094kl8s5wapyrqv7yghmdkuf"
 
 resolveContext::  IO ( Either [ErrorMessage] RuntimeContext)
@@ -89,6 +93,7 @@ resolveContext = do
                   ,   mOperator         = operatorpkh
                   ,   mPrimarySaleFee   = primarySaleFee
                   ,   mSecondarySaleFee = 2_500_000
+                  ,   mVersion          = 1
                   }
       pure $ Right $ RuntimeContext{
                           runtimeContextCardanoConn = context,

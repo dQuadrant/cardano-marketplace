@@ -51,7 +51,7 @@ type HttpAPI = Throws FrameworkError  :>  (
 
               -- directsale endpoints
                     ( "api" :> "v1" :> "sale"                :> ReqBody '[JSON] SellReqBundle :> Post '[JSON] SaleCreateResponse )
-              :<|>  ( "api" :> "v1" :> "sale"  :>  "buy"     :> ReqBody '[JSON] BuyReqModel  :> Post '[JSON] TxResponse)
+              -- :<|>  ( "api" :> "v1" :> "sale"  :>  "buy"     :> ReqBody '[JSON] BuyReqModel  :> Post '[JSON] TxResponse)
               -- :<|>  ( "api" :> "v1" :> "sale"  :>  "cancel"  :> ReqBody '[JSON] WithdrawReqModel  :> Post '[JSON] TxResponse)
               --  Auction endpoints
               -- :<|>  ("api" :> "v1" :> "auction"               :> ReqBody '[JSON] StartAuctionBundle   :> Post '[JSON] AuctionCreateResponse)
@@ -86,7 +86,7 @@ type HttpAPI = Throws FrameworkError  :>  (
 --     :<|> (FinalizeAuctionModel -> m TxResponse)))))))))))
 server runtimeContext =
           errorGuard (placeOnMarket  networkContext market)
-    :<|>  errorGuard (buyToken networkContext market)
+    -- :<|>  errorGuard (buyToken networkContext market)
     -- :<|>  errorGuard (withdrawCommand runtimeContext)
     -- :<|>  errorGuard (placeOnAuction runtimeContext )
     -- :<|>  errorGuard (bidOnAuction runtimeContext )

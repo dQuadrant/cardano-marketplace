@@ -113,6 +113,9 @@ benchmark bench-parallel
                         , marketplace-plutus
                         , plutus-ledger-api
                         , plutus-tx
+                        , directory
+                        , random-shuffle
+                        , bytestring
 
 
   ghc-options:  "-with-rtsopts=-A32m" -threaded

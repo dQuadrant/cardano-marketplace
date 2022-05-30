@@ -195,6 +195,7 @@ data Market = Market
     ,   mOperator           :: !PubKeyHash
     ,   mPrimarySaleFee     :: !Integer
     ,   mSecondarySaleFee   :: !Integer
+    ,   mVersion            :: !Integer
     } deriving (Show,Generic, FromJSON, ToJSON)
 
 PlutusTx.makeLift ''Market

@@ -70,6 +70,9 @@ import Cardano.Kuber.Api
 import qualified Plutus.V1.Ledger.Api as PlutusTx
 import Plutus.V1.Ledger.Contexts (txSignedBy)
 
+import qualified Data.ByteString.Char8 as BS8
+
+
 putStrLn' :: [Char] -> IO ()
 putStrLn' v =pure ()
 
@@ -540,9 +543,9 @@ unEither :: Either a b -> IO b
 unEither (Right b) = pure b
 unEither (Left a) = error $ "Left occured in unEither "
 
-buyToken :: DetailedChainInfo ->  Market -> BuyReqModel -> IO TxResponse
+buyToken :: DetailedChainInfo ->  Market -> BuyReqModel -> AddressInEra AlonzoEra-> IO TxResponse
 buyToken  networkCtx market
-    (BuyReqModel context mSellerDepositSkey mUtxo mAsset consumedData mCollateral) =do
+    (BuyReqModel context@(TxContextAddressesReq buyerWalletM _ _ _ _ _) mSellerDepositSkey mUtxo mAsset consumedData mCollateral) buyerAddr =do
   let conn=getConnectInfo  networkCtx
   let network=getNetworkId networkCtx
   let pParam= case networkCtx of { DetailedChainInfo _ _ param _ _ -> param }
@@ -564,8 +567,7 @@ buyToken  networkCtx market
     Just sk -> do
       depositAddrUtxos <- queryUtxosOf networkCtx $ AddressModal $ skeyToAddrInEra  sk network
       pure $ (case selectAsset  (txOutValue txout <> utxoSum depositAddrUtxos) paymentAsset of { Quantity n -> n },
-        txConsumeUtxos depositAddrUtxos 
-          <> txSignByPkh (sKeyToPkh sk) 
+        txConsumeUtxos depositAddrUtxos
         )
 
   let mapPartyOperation sellerPkh  (pkh,v)= do
@@ -586,19 +588,21 @@ buyToken  networkCtx market
         <> extraInputs
         <> mconcat partyPayments
         <> txRedeemUtxo txin txout (ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV1) (PlutusScript PlutusScriptV1 $ marketScriptSerialised market)) consumedData (fromPlutusData $ PlutusTx.builtinDataToData $ toBuiltinData Buy)
+        <> txWalletAddress buyerAddr
       signatures = maybeToList (txContextAddressesReqSignKey context) ++ maybeToList mSellerDepositSkey
+  
+  -- putStrLn $ BS8.unpack $ prettyPrintJSON txOperations
 
   txbody  <- txBuilderToTxBodyIO networkCtx txOperations
   case txbody of
     Left fe -> throwIO fe
-    Right tb -> pure $ mkTxResponse signatures tb [directSale]
+    Right tb -> do
+      case buyerWalletM of 
+        Nothing -> pure $ mkTxResponse signatures tb [directSale]
+        Just buyerWallet -> do
+          tx <- signAndSubmitTxBody (getConnectInfo networkCtx) tb [buyerWallet]
+          pure $ mkTxResponse signatures tb [directSale]
   where
-    getLedgerBody body = case body of
-       ShelleyTxBody era  ledgerBody scripts scriptData maybeAuxData scriptValidity
-        -> ledgerBody
-    getLedgerBodyScriptData body = case body of
-       ShelleyTxBody era  ledgerBody scripts scriptData maybeAuxData scriptValidity
-        -> scriptData
     ensureMinAda  f  value =
       if diff > 0
       then value <> lovelaceToValue (Lovelace diff )

@@ -42,7 +42,7 @@ import Data.Text.Conversions
 import Data.Functor ((<&>))
 import Cardano.Ledger.Mary.Value (PolicyID(policyID))
 import Data.Text.Encoding as T
-import Cardano.Kuber.Util
+import Cardano.Kuber.Util hiding (toHexString)
 import Cardano.Kuber.Api
 import System.Console.CmdArgs (Typeable)
 import Cardano.Kuber.Api

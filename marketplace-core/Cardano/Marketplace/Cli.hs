@@ -9,7 +9,7 @@ import System.Console.CmdArgs
 import Cardano.Marketplace.Server (startMarketServer)
 import Cardano.Kuber.Api
 import Cardano.Marketplace.V1.RequestModels
-import Cardano.Kuber.Util
+import Cardano.Kuber.Util hiding (toHexString)
 import Cardano.Marketplace.V1.Core
 import qualified Data.Text as T
 import Cardano.Marketplace.Common.ConsoleWritable
@@ -34,6 +34,11 @@ import Cardano.Ledger.Alonzo.Tx (TxBody(txfee))
 import Plutus.V1.Ledger.Api (ToData(toBuiltinData), toData)
 import Cardano.Marketplace.Common.TextUtils
 import Cardano.Kuber.Data.Parsers (parseAssetNQuantity, parseScriptData, parseAssetIdText, parseValueText)
+
+getAddrEraFromSignKey signKey =
+  skeyToAddrInEra signKey . getNetworkId <$> chainInfoFromEnv
+
+
 data Modes =
       Cat {
         item:: String
@@ -222,7 +227,8 @@ runCli = do
                   buyCollateral= Nothing -- use specific address as collateral, if not present, a suitable collateral will be choosen. 
               }
           putStrLn $ "DatumHash :" ++ dataHash
-          (TxResponse  tx datums ) <- buyToken ctx market modal
+          addrEra <- getAddrEraFromSignKey signKey
+          (TxResponse  tx datums ) <- buyToken ctx market modal addrEra
           putStrLn $ "Submited Tx :"++ tail (init $ show $ getTxId $ getTxBody tx)
     -- Withdraw assetid -> do
     --   eCtx <- resolveContext

@@ -51,6 +51,8 @@ import Cardano.Api
     serialiseToRawBytesHexText,
     valueFromList,
     valueToList,
+    valueToLovelace,
+    Value, prettyPrintJSON
   )
 import Cardano.Api.Shelley (Lovelace (Lovelace), Quantity (Quantity), fromPlutusData)
 import Cardano.Kuber.Api
@@ -89,6 +91,8 @@ import System.Environment (getArgs)
 import System.IO (BufferMode (NoBuffering), hFlush, hSetBuffering)
 import System.Random (randomRIO)
 import Text.Read (readMaybe)
+import qualified Data.ByteString.Char8 as BS8
+import Control.Concurrent.Async (forConcurrently_)
 
 --Convert to Addr any from Addr in era
 getAddrAnyFromEra addrEra = fromMaybe (error "unexpected error converting address to another type") (deserialiseAddress AsAddressAny (serialiseAddress addrEra))
@@ -98,8 +102,8 @@ getAddrAnyFromSignKey ctx signKey =
   getAddrAnyFromEra $ skeyToAddrInEra signKey (getNetworkId ctx)
 
 --Get Addr in era from  given sign key
-getAddrEraFromSignKey signKey =
-  skeyToAddrInEra signKey . getNetworkId <$> chainInfoFromEnv
+getAddrEraFromSignKey ctx signKey =
+  skeyToAddrInEra signKey (getNetworkId ctx)
 
 --Convert TxOutValue to Value
 txOutValueToValue :: TxOutValue era -> Value
@@ -170,6 +174,10 @@ printInGreen str = do
   putStrLn $ "\n\ESC[92m" ++ str
   putStrLn "\ESC[35m"
 
+printTxBuilder :: TxBuilder -> IO ()
+printTxBuilder txBuilder = do
+  putStrLn $ BS8.unpack $ prettyPrintJSON txBuilder
+
 --Generate new sets of buyer and seller wallets and fund them from main funding wallet
 generateAndFundWallets ctx noOfWallets testAsset fundedSignKey = do
   let loopArray = [0 .. (noOfWallets * 3 -1)]
@@ -209,7 +217,7 @@ payAllAndWait ctx wallets walletsWithValue fundedSignKey = do
   printUtxoOfWallet ctx fundedSignKey
   let walletAddreses = map (\(wallet, value) -> (skeyToAddrInEra wallet (getNetworkId ctx), value)) walletsWithValue
       txOperation = foldMap (uncurry txPayTo) walletAddreses
-  fundedAddr <- getAddrEraFromSignKey fundedSignKey
+  let fundedAddr = getAddrEraFromSignKey ctx fundedSignKey
   txBodyE <- txBuilderToTxBodyIO ctx txOperation
   txBody <- case txBodyE of
     Left err -> error $ "Error creating transaction: " ++ show err
@@ -235,7 +243,7 @@ payAllAndWait ctx wallets walletsWithValue fundedSignKey = do
 paybackToFundedWallet ctx wallet index atomicPutStrLn fundedSignKey = do
   atomicPutStrLn ("\nPerform payback to funded wallet from Wallet Set " ++ show index)
 
-  fundedAddr <- getAddrEraFromSignKey fundedSignKey
+  let fundedAddr = getAddrEraFromSignKey ctx fundedSignKey
   let fundedAddrAny = getAddrAnyFromEra fundedAddr
 
   --Payback from all wallets to funded wallet without waiting to transaction to appear on funded wallet
@@ -248,7 +256,7 @@ paybackToFundedWallet ctx wallet index atomicPutStrLn fundedSignKey = do
   let txOperation =
         txPayTo fundedAddr newUtxoValue
           <> txConsumeUtxos utxos
-  addrEra <- getAddrEraFromSignKey wallet
+      addrEra = getAddrEraFromSignKey ctx wallet
   txBodyE <- txBuilderToTxBodyIO ctx txOperation
   txBody <- case txBodyE of
     Left err -> error $ "Error creating transaction: " ++ show err
@@ -278,8 +286,8 @@ paybackToFundedWallet ctx wallet index atomicPutStrLn fundedSignKey = do
 -- paybackToFundedWallet' ctx wallet index fundedSignKey atomicPutStrLn atomicQueryUtxos = do
 --   atomicPutStrLn ("\nPerform payback to funded wallet from Wallet Set " ++ show index)
 
---   fundedAddr <- getAddrEraFromSignKey fundedSignKey
---   fundedAddrAny <- getAddrAnyFromEra fundedAddr
+--   let fundedAddr = getAddrEraFromSignKey ctx fundedSignKey
+--       fundedAddrAny = getAddrAnyFromEra fundedAddr
 
 --   --Payback from all wallets to funded wallet without waiting to transaction to appear on funded wallet
 --   let newUtxoValue = valueFromList [(AdaAssetId, Quantity 2_000_000)]
@@ -292,7 +300,7 @@ paybackToFundedWallet ctx wallet index atomicPutStrLn fundedSignKey = do
 --   let txOperation =
 --         txPayTo fundedAddr newUtxoValue
 --           <> txConsumeUtxos utxos
---   addrEra <- getAddrEraFromSignKey wallet
+--   let addrEra = getAddrEraFromSignKey ctx wallet
 --   TxResult _ _ _ txBody <- txBuilderToTxBodyIO ctx txOperation
 --   tx <- signAndSubmitTxBody (networkCtxConn ctx) txBody [wallet]
 --   let txId = getTxId txBody
@@ -308,7 +316,7 @@ paybackToFundedWallet ctx wallet index atomicPutStrLn fundedSignKey = do
 
 --Query and merge all utxos of given signkey
 mergeAllUtxos ctx signKey = do
-  addrEra <- getAddrEraFromSignKey signKey
+  let addrEra = getAddrEraFromSignKey ctx signKey
   let addrAny = getAddrAnyFromEra addrEra
 
   putStrLn $ "\nPerform merge utxos of wallet" ++ show signKey
@@ -372,10 +380,10 @@ getUtxosOfWallet ::
   IO (UTxO AlonzoEra)
 getUtxosOfWallet ctx wallet = do
   let addrAny = getAddrAnyFromSignKey ctx wallet
-  utxos <- queryUtxos (getConnectInfo ctx) $ Set.singleton addrAny
-  case utxos of
-    Left err -> error $ "Error getting utxos: " ++ show err
-    Right utxos -> return utxos
+  loopedQueryUtxos ctx addrAny
+  -- case utxos of
+  --   Left err -> error $ "Error getting utxos: " ++ show err
+  --   Right utxos -> return utxos
 
 -- Pack the txIn in text format with # separated
 renderTxIn :: TxIn -> Text
@@ -420,6 +428,16 @@ printUtxos utxos@(UTxO utxoMap) wallet = do
   putStrLn "\nTotal balance: "
   let balance = utxoSum utxos
   putStrLn $ toConsoleText " " balance
+
+printUtxosMap :: Map.Map TxIn (TxOut CtxUTxO AlonzoEra) -> IO ()
+printUtxosMap utxoMap = do
+  forM_ (Map.toList utxoMap) $ \(txIn, txOut) -> do
+    TIO.putStrLn $ " " <> renderTxIn txIn <> ": " <> renderTxOut txOut
+
+  putStrLn "\nTotal balance: "
+  let balance = utxoMapSum utxoMap
+  putStrLn $ toConsoleText " " balance
+
 
 printUtxosWithoutTotal :: UTxO AlonzoEra -> AddressAny -> IO ()
 printUtxosWithoutTotal utxos@(UTxO utxoMap) addrAny = do
@@ -588,60 +606,54 @@ periodicallyPrint ms@(MarketUTxOState m) = do
   print utxo
   periodicallyPrint ms
 
-printMarketUtxos = do
-  ctx <- chainInfoFromEnv
-  eCtx <- resolveContext
-  case eCtx of
-    Left error -> putStrLn $ "RuntimeConfigurationError:\n - " ++ show error
-    Right (RuntimeContext _ market _ _ _ _) -> do
-      let marketAddress = marketAddressShelley market (getNetworkId ctx)
-          marketAddrAny = getAddrAnyFromEra marketAddress
-      utxo <- loopedQueryUtxos ctx marketAddrAny
-      printUtxosWithoutTotal utxo marketAddrAny
+-- printMarketUtxos = do
+--   eCtx <- resolveContext
+--   case eCtx of
+--     Left error -> putStrLn $ "RuntimeConfigurationError:\n - " ++ show error
+--     Right (RuntimeContext ctx market _ _ _ _) -> do
+--       let marketAddress = marketAddressShelley market (getNetworkId ctx)
+--           marketAddrAny = getAddrAnyFromEra marketAddress
+--       utxo <- loopedQueryUtxos ctx marketAddrAny
+--       printUtxosWithoutTotal utxo marketAddrAny
 
 pollMarketUtxos ctx marketAddrAny marketState atomicQueryUtxos = do
   threadDelay 2000000
   utxo <- atomicQueryUtxos marketAddrAny
   updateMarketUTxO utxo marketState
-  printUtxosWithoutTotal utxo marketAddrAny
+  -- printUtxosWithoutTotal utxo marketAddrAny
   pollMarketUtxos ctx marketAddrAny marketState atomicQueryUtxos
 
--- splitUtxosOfWallets ctx wallets = do
---   forM_ wallets $ \wallet -> do
---     addrEra <- getAddrEraFromSignKey wallet
---     addrAny <- getAddrAnyFromEra addrEra
---     utxos <- getUtxosOfWallet ctx wallet
---     splitUtxos ctx utxos wallet addrEra addrAny
 
--- splitUtxos ctx utxos signKey addrEra addrAny = do
---   let splitValue = lovelaceToValue $ Lovelace 5_000_000
---       txOperation =
---         txPayTo addrEra splitValue
---           <> txPayTo addrEra splitValue
---           <> txPayTo addrEra splitValue
---           <> txPayTo addrEra splitValue
---           <> txPayTo addrEra splitValue
---           <> txPayTo addrEra splitValue
---           <> txPayTo addrEra splitValue
---           <> txPayTo addrEra splitValue
---           <> txPayTo addrEra splitValue
---           <> txPayTo addrEra splitValue
---           <> txPayTo addrEra splitValue
---           <> txPayTo addrEra splitValue
---           <> txPayTo addrEra splitValue
---           <> txPayTo addrEra splitValue
---           <> txPayTo addrEra splitValue
---           <> txPayTo addrEra splitValue
---           <> txPayTo addrEra splitValue
---           <> txPayTo addrEra splitValue
---           <> txPayTo addrEra splitValue
---           <> txPayTo addrEra splitValue
---           <> txConsumeUtxos utxos
---   TxResult _ _ _ txBody <- mkTxWithChange ctx txOperation addrEra addrEra
---   tx <- signAndSubmitTxBody (networkCtxConn ctx) txBody [signKey]
---   let txId = getTxId txBody
---   putStrLn $ "Wait merge utxos to appear on wallet TxId: " ++ show txId
---   -- pollForTxId ctx addrAny txId
---   putStrLn "Wallet utxo merge completed."
+splitUtxosOfWallets ctx wallets = do
+  forConcurrently_ wallets $ \wallet -> do
+    let addrEra = getAddrEraFromSignKey ctx wallet
+        addrAny = getAddrAnyFromEra addrEra
+    utxos@(UTxO utxoMap) <- getUtxosOfWallet ctx wallet
+    -- Get utxos having less than 2 ada
+    let utxosLessThan4Ada = Map.filter (\(TxOut _ (TxOutValue _ value) _) -> valueLte value (lovelaceToValue $ Lovelace 4_000_000)) utxoMap
+    -- printUtxosMap utxosLessThan4Ada
+    splitUtxos ctx utxos wallet addrEra addrAny
 
--- printUtxoOfWallet ctx signKey
+splitUtxos ctx utxos signKey addrEra addrAny = do
+  let balance = utxoSum utxos
+  let Quantity lovelaceQuantitySum = foldMap snd $ valueToList balance
+  let noOfSplits = lovelaceQuantitySum `div` 1_000_000 `div` 5
+  let splitValue = lovelaceToValue $ Lovelace 5_000_000
+      payOperations = foldMap (\_->txPayTo addrEra splitValue) [1 .. noOfSplits-1]
+      txOperations = payOperations
+          <> txConsumeUtxos utxos
+          <> txWalletAddress addrEra
+
+  print noOfSplits
+  printTxBuilder txOperations
+
+  txBodyE <- txBuilderToTxBodyIO ctx txOperations
+  txBody <- case txBodyE of
+    Left fe -> error $ "Error: " ++ show fe
+    Right txBody -> pure txBody
+
+  tx <- signAndSubmitTxBody (getConnectInfo ctx) txBody [signKey]
+  let txId = getTxId txBody
+  putStrLn $ "Wait split utxos to appear on wallet TxId: " ++ show txId
+  pollForTxId ctx addrAny txId
+  putStrLn "Wallet utxo split completed."
