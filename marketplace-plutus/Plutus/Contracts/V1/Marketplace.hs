@@ -216,7 +216,7 @@ data DirectSale=DirectSale{
     dsPaymentTokenName:: TokenName  ,
     dsCost:: Integer,  -- ^ total cost of asset
     dsType::  !SellType
-} deriving(Show,Generic,ToJSON,FromJSON)
+  } deriving(Show,Generic,ToJSON,FromJSON)
 
 
 {-# INLINABLE dsAsset #-}
