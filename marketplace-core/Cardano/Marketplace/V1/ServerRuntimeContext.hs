@@ -6,7 +6,7 @@ import Data.Typeable
 import Data.Maybe
 import Data.Either
 import Plutus.Contracts.V1.Marketplace (Market(Market, mTreasury, mPrimarySaleFee, mSecondarySaleFee, mOperator, mVersion), marketValidator, marketHundredPercent)
-import Plutus.Contracts.V1.Auction (auctionValidator, auctionHundredPercent)
+--import Plutus.Contracts.V1.Auction (auctionValidator, auctionHundredPercent)
 import Cardano.Api
 import Cardano.Kuber.Util
 import qualified Data.Text as T
@@ -24,6 +24,7 @@ import Codec.Serialise (serialise)
 import Plutus.V1.Ledger.Api (unValidatorScript, PubKeyHash)
 import GHC.Num (doubleFromInteger)
 import Cardano.Kuber.Data.Parsers
+import Plutus.Contracts.V1.Auction (auctionHundredPercent)
 
 type ErrorMessage=String
 
@@ -37,9 +38,9 @@ data RuntimeContext=RuntimeContext{
   runtimeContextCardanoConn :: DetailedChainInfo,
   runtimeContextMarket :: Market,
   runtimeContextAuctionConfig :: AuctionConfig,
-  runtimeContextOperator :: AddressInEra AlonzoEra,
+  runtimeContextOperator :: AddressInEra BabbageEra,
   runtimeContextOperatorSkey :: SigningKey PaymentKey,
-  runtimeContextTreasury :: AddressInEra AlonzoEra
+  runtimeContextTreasury :: AddressInEra BabbageEra
 }
 
 data ConigFromEnvOrSecretFile a = ConigFromEnvOrSecretFile {
@@ -122,7 +123,7 @@ resolveContext = do
     fetchConfig= resolveEnv
     readDouble :: String -> Maybe Double
     readDouble = readMaybe
-    addressParser = deserialiseAddress (AsAddressInEra AsAlonzoEra) . T.pack
+    addressParser = deserialiseAddress (AsAddressInEra AsBabbageEra) . T.pack
 
 
 createEnvConfigNoDefault :: (String -> Maybe a)  -> String  -> ConigFromEnvOrSecretFile a
