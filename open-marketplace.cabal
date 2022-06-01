@@ -35,7 +35,6 @@ library marketplace-plutus
     , bytestring
     , cardano-api
     , serialise
-    , kuber
 
 library marketplace-core
   exposed-modules:
@@ -70,7 +69,6 @@ library marketplace-core
     , plutus-tx
     , servant
     , servant-server
-    , servant-errors
     , servant-exceptions
     , wai
     , servant-exceptions-server
