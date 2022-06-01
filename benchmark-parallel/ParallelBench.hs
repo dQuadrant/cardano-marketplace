@@ -16,10 +16,10 @@ module Main where
 import Cardano.Api
   ( AddressAny (AddressShelley),
     AddressInEra (AddressInEra),
-    AlonzoEra,
-    AsType (AsAddressAny, AsAddressInEra, AsAlonzoEra, AsPaymentKey, AsSigningKey),
+    BabbageEra,
+    AsType (AsAddressAny, AsAddressInEra, AsPaymentKey, AsSigningKey),
     AssetId (AdaAssetId, AssetId),
-    CardanoEra (AlonzoEra),
+    CardanoEra (BabbageEra),
     IsCardanoEra,
     Key,
     PaymentKey,
@@ -162,7 +162,7 @@ setupWallets noOfWallets ctx testAssetId fundedSignKey = do
   let utxoList = Map.toList utxoMap
       addrValueMap =
         foldl
-          ( \mp utxo@(_, TxOut aie (TxOutValue _ v) _) ->
+          ( \mp utxo@(_, TxOut aie (TxOutValue _ v) _ _) ->
               let addr = toShelleyAddr aie
                in case Map.lookup addr mp of
                     Nothing -> Map.insert addr v mp
@@ -193,7 +193,7 @@ setupWallets noOfWallets ctx testAssetId fundedSignKey = do
   pure wallets
 
   where
-    fundWallets :: ChainInfo v => v -> [AddressInEra AlonzoEra] -> SigningKey PaymentKey -> IO ()
+    fundWallets :: ChainInfo v => v -> [AddressInEra BabbageEra] -> SigningKey PaymentKey -> IO ()
     fundWallets ctx walletAddrs fundedSignKey = do
       let fundAddr = getAddrEraFromSignKey ctx fundedSignKey
           utxoValue = valueFromList [(AdaAssetId, Quantity 100_000_000), (testAssetId, Quantity 100)]
@@ -214,7 +214,7 @@ setupWallets noOfWallets ctx testAssetId fundedSignKey = do
       putStrLn "Wait for funds to appear on wallet."
       pollForTxId ctx firstAddrAny txHash
 
-    fundWalletsWithAdaOnly :: ChainInfo v => v -> [AddressInEra AlonzoEra] -> SigningKey PaymentKey -> IO ()
+    fundWalletsWithAdaOnly :: ChainInfo v => v -> [AddressInEra BabbageEra] -> SigningKey PaymentKey -> IO ()
     fundWalletsWithAdaOnly ctx walletAddrs fundedSignKey = do
       let fundAddr = getAddrEraFromSignKey ctx fundedSignKey
           utxoValue = valueFromList [(AdaAssetId, Quantity 100_000_000)]
@@ -296,7 +296,7 @@ performMarketOperation ::
   (String -> IO ()) ->
   SigningKey PaymentKey ->
   MarketUTxOState ->
-  (AddressAny -> IO (UTxO AlonzoEra)) ->
+  (AddressAny -> IO (UTxO BabbageEra)) ->
   (DetailedChainInfo -> IO DetailedChainInfo) ->
   IO ()
 performMarketOperation ctx testAsset index market afterPaidTime walletTuples atomicPutStrLn atomicPutStr fundedSignKey marketState atomicQueryUtxos atomicQueryNetwork = do
@@ -466,7 +466,7 @@ performSingleBuy ::
   TxId ->
   ScriptData ->
   Market ->
-  (AddressAny -> IO (UTxO AlonzoEra)) ->
+  (AddressAny -> IO (UTxO BabbageEra)) ->
   (v -> IO DetailedChainInfo) ->
   IO (SigningKey PaymentKey, AddressAny, TxId)
 performSingleBuy dcInfo buyerWallet tokenAsset sellTxId datum market atomicQueryUtxos atomicQueryNetwork = do
