@@ -42,7 +42,7 @@ import Codec.Serialise
 ---------------------------------------------------------------------------------------------
 
 -- Payment.hs
-newtype Payment = Payment ( AssocMap.Map PubKeyHash Value ) deriving(Generic,ToJSON,FromJSON)
+newtype Payment = Payment ( AssocMap.Map PubKeyHash Value ) deriving(Generic)
 instance Semigroup Payment where
     {-# INLINABLE (<>) #-}
     (<>) (Payment a) (Payment b) = Payment (a <> b)
@@ -182,7 +182,7 @@ percent:: Integer -> Percent
 percent a = a * 1_000_000
 
 
-newtype Price = Price (CurrencySymbol ,TokenName ,Integer) deriving(Show,Generic,ToJSON,FromJSON)
+newtype Price = Price (CurrencySymbol ,TokenName ,Integer) deriving(Show,Generic)
 type Percent = Integer
 
 {-# INLINABLE valueOfPrice#-}
@@ -191,12 +191,12 @@ valueOfPrice (Price (c,t,v)) = singleton c t v
 
 
 data Market = Market
-    {   mTreasury           :: !PubKeyHash
-    ,   mOperator           :: !PubKeyHash
-    ,   mPrimarySaleFee     :: !Integer
-    ,   mSecondarySaleFee   :: !Integer
-    ,   mVersion            :: !Integer
-    } deriving (Show,Generic, FromJSON, ToJSON)
+    {   mTreasury           :: PubKeyHash
+    ,   mOperator           :: PubKeyHash
+    ,   mPrimarySaleFee     :: Integer
+    ,   mSecondarySaleFee   :: Integer
+    ,   mVersion            :: Integer
+    } deriving (Show,Generic)
 
 PlutusTx.makeLift ''Market
 
@@ -204,7 +204,7 @@ data MarketRedeemer =  Buy | Withdraw
     deriving (Generic,FromJSON,ToJSON,Show,Prelude.Eq)
 PlutusTx.makeIsDataIndexed ''MarketRedeemer [('Buy, 0), ('Withdraw, 1)]
 
-data SellType = Primary | Secondary  deriving (Show,Generic,ToJSON,FromJSON,Prelude.Eq)
+data SellType = Primary | Secondary  deriving (Show,Generic,Prelude.Eq)
 PlutusTx.makeIsDataIndexed ''SellType [('Primary, 0), ('Secondary, 1)]
 
 type PartyShare=(PubKeyHash,Percent)
@@ -216,7 +216,7 @@ data DirectSale=DirectSale{
     dsPaymentTokenName:: TokenName  ,
     dsCost:: Integer,  -- ^ total cost of asset
     dsType::  !SellType
-  } deriving(Show,Generic,ToJSON,FromJSON)
+  } deriving(Show,Generic)
 
 
 {-# INLINABLE dsAsset #-}
