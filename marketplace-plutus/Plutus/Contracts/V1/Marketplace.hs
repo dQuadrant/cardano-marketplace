@@ -215,7 +215,7 @@ data DirectSale=DirectSale{
     dsPaymentCurrency :: CurrencySymbol ,
     dsPaymentTokenName:: TokenName  ,
     dsCost:: Integer,  -- ^ total cost of asset
-    dsType::  !SellType
+    dsType::  SellType
   } deriving(Show,Generic)
 
 
