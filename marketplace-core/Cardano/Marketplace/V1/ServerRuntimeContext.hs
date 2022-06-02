@@ -35,7 +35,7 @@ data AuctionConfig = AuctionConfig {
 }
 
 data RuntimeContext=RuntimeContext{
-  runtimeContextCardanoConn :: DetailedChainInfo,
+  runtimeContextCardanoConn :: ChainConnectInfo,
   runtimeContextMarket :: Market,
   runtimeContextAuctionConfig :: AuctionConfig,
   runtimeContextOperator :: AddressInEra BabbageEra,
@@ -64,10 +64,9 @@ populateTestnetConfig =do
     \}"
   setEnv "TREASURY_ADDRESS" "addr_test1vzz6kpfgav34rzycphlnsuzfh8cyc094kl8s5wapyrqv7yghmdkuf"
 
-resolveContext::  IO ( Either [ErrorMessage] RuntimeContext)
-resolveContext = do
-  context <- chainInfoFromEnv  >>=withDetails
-  if getNetworkId context /= Mainnet then populateTestnetConfig else pure ()
+resolveContext::  ChainConnectInfo -> IO ( Either [ErrorMessage] RuntimeContext)
+resolveContext context = do
+  populateTestnetConfig
   marketOperatorAddrEither  <- resolveEnv $ createEnvConfigNoDefault addressParser "MARKET_OPERATOR_ADDR"
   marketOperatorSkeyEither  <- resolveEnv $ createSecretConfigNoDefault  (parseSignKey . T.pack) "MARKET_OPERATOR_SKEY"
   treasuryAddressEither     <- resolveEnv $ createEnvConfigNoDefault  addressParser "TREASURY_ADDRESS"
@@ -94,7 +93,7 @@ resolveContext = do
                   ,   mOperator         = operatorpkh
                   ,   mPrimarySaleFee   = primarySaleFee
                   ,   mSecondarySaleFee = 2_500_000
-                  ,   mVersion          = 11
+                  ,   mVersion          = 4
                   }
       pure $ Right $ RuntimeContext{
                           runtimeContextCardanoConn = context,
