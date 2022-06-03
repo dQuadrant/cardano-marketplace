@@ -481,18 +481,25 @@ pollForTxId ctx addrAny txHash = do
   threadDelay 1000000
   utxos@(UTxO utxoMap) <- loopedQueryUtxos ctx addrAny
   putStr "."
-  let isTxHashPresent = Map.member (TxIn txHash (TxIx 0)) utxoMap
-  if isTxHashPresent
+  let txIdsKey = map (\(TxIn txId _) -> txId) $ Map.keys utxoMap
+  if txHash `elem` txIdsKey
     then putStrLn "\nFunds Transferred successfully."
     else pollForTxId ctx addrAny txHash
 
+pollForTxId' :: DetailedChainInfo 
+  -> AddressAny 
+  -> TxId 
+  -> (String -> IO ())
+  -> (AddressAny -> IO (UTxO BabbageEra))
+  -> IO ()
 pollForTxId' ctx addrAny txHash atomicPutStrLn atomicQueryUtxos = do
   threadDelay 1000000
   utxos@(UTxO utxoMap) <- atomicQueryUtxos addrAny
+  -- printUtxos utxos (serialiseAddress addrAny)
   putStr "."
-  atomicPutStrLn $ "Poll for" ++ show txHash
-  let isTxHashPresent = Map.member (TxIn txHash (TxIx 0)) utxoMap
-  if isTxHashPresent
+  atomicPutStrLn $ "Poll for tx Id " ++ show txHash ++ " for address "++ show (serialiseAddress addrAny)
+  let txIdsKey = map (\(TxIn txId _) -> txId) $ Map.keys utxoMap
+  if txHash `elem` txIdsKey
     then atomicPutStrLn "\nFunds Transferred successfully."
     else pollForTxId' ctx addrAny txHash atomicPutStrLn atomicQueryUtxos
 
@@ -501,8 +508,8 @@ pollForTxIdAtomic ctx addrAny txHash atomicQueryUtxos = do
   threadDelay 1000000
   utxos@(UTxO utxoMap) <- atomicQueryUtxos addrAny
   putStr "."
-  let isTxHashPresent = Map.member (TxIn txHash (TxIx 0)) utxoMap
-  if isTxHashPresent
+  let txIdsKey = map (\(TxIn txId _) -> txId) $ Map.keys utxoMap
+  if txHash `elem` txIdsKey
     then putStrLn "\nFunds Transferred successfully."
     else pollForTxIdAtomic ctx addrAny txHash atomicQueryUtxos
 
@@ -613,7 +620,7 @@ updateMarketUTxO utxo (MarketUTxOState m) = do
 pollMarketUtxos ctx marketAddrAny marketState atomicQueryUtxos atomicPutStrLn= do
   threadDelay 2000000
   utxo <- atomicQueryUtxos marketAddrAny
-  printUtxosWithoutTotal utxo marketAddrAny atomicPutStrLn
+  -- printUtxosWithoutTotal utxo marketAddrAny atomicPutStrLn
   updateMarketUTxO utxo marketState
   pollMarketUtxos ctx marketAddrAny marketState atomicQueryUtxos atomicPutStrLn
 
