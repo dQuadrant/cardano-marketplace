@@ -619,7 +619,7 @@ updateMarketUTxO utxo (MarketUTxOState m) = do
 
 pollMarketUtxos ctx marketAddrAny marketState atomicQueryUtxos atomicPutStrLn= do
   threadDelay 2000000
-  utxo <- atomicQueryUtxos marketAddrAny
+  utxo <- loopedQueryUtxos ctx marketAddrAny
   -- printUtxosWithoutTotal utxo marketAddrAny atomicPutStrLn
   updateMarketUTxO utxo marketState
   pollMarketUtxos ctx marketAddrAny marketState atomicQueryUtxos atomicPutStrLn
