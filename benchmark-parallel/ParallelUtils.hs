@@ -22,7 +22,7 @@ import Cardano.Api
     CardanoMode,
     CtxUTxO,
     EraInMode (AlonzoEraInCardanoMode, BabbageEraInCardanoMode),
-    Key,
+    Key (getVerificationKey, verificationKeyHash),
     LocalNodeConnectInfo,
     PaymentKey,
     PolicyId (PolicyId),
@@ -52,7 +52,7 @@ import Cardano.Api
     valueFromList,
     valueToList,
     valueToLovelace,
-    Value, prettyPrintJSON, Tx, TxBody, BabbageEra, SimpleScript (RequireAllOf, RequireSignature), SimpleScriptV2, Script (SimpleScript), SimpleScriptVersion (SimpleScriptV2), scriptPolicyId, ScriptLanguageInEra (SimpleScriptV2InBabbage), ScriptWitness (SimpleScriptWitness), TxId
+    Value, prettyPrintJSON, Tx, TxBody, BabbageEra, SimpleScript (RequireAllOf, RequireSignature), SimpleScriptV2, Script (SimpleScript), SimpleScriptVersion (SimpleScriptV2), scriptPolicyId, ScriptLanguageInEra (SimpleScriptV2InBabbage), ScriptWitness (SimpleScriptWitness), TxId, Hash
   )
 import Cardano.Api.Shelley (Lovelace (Lovelace), Quantity (Quantity), fromPlutusData)
 import Cardano.Kuber.Api
@@ -132,11 +132,11 @@ constructDirectSaleDatum sellerPkh (SellReqModel (CostModal asset) parties (Cost
       pure (_pkh, v)
 
 --Print utxo given a address
-printUtxoOfAddr ctx addrAny atomicPutStrLn = do
-  utxos <- loopedQueryUtxos ctx addrAny
-  let balance = utxoSum utxos
-      utxoCount = case utxos of UTxO map -> Map.size map
-  atomicPutStrLn $ toConsoleText "  " balance
+-- printUtxoOfAddr ctx addrAny atomicPutStrLn = do
+--   utxos <- loopedQueryUtxos ctx addrAny
+--   let balance = utxoSum utxos
+--       utxoCount = case utxos of UTxO map -> Map.size map
+--   atomicPutStrLn $ toConsoleText "  " balance
 
 --Convert TimeSpec into seconds
 getTimeInSec = do
@@ -355,26 +355,26 @@ getWalletSets noOfWallets wallets =
 
 -- printUtxoOfWallet ctx signKey
 
-printUtxoOfWallets ctx wallets = do
-  forM_ wallets $ \wallet -> printUtxoOfWallet ctx wallet
+-- printUtxoOfWallets ctx wallets = do
+--   forM_ wallets $ \wallet -> printUtxoOfWallet ctx wallet
 
 --Print all utxos of given wallet
-printUtxoOfWalletAtomic :: DetailedChainInfo -> SigningKey PaymentKey -> Int -> ([Char] -> IO b) -> IO b
-printUtxoOfWalletAtomic ctx wallet index atomicPutStrLn = do
-  utxos <- getUtxosOfWallet ctx wallet
-  let balance = utxoSum utxos
-      utxoCount = case utxos of UTxO map -> Map.size map
-  atomicPutStrLn $ "\nFor Wallet Set " ++ show index ++ " For wallet " ++ show wallet ++ " Utxo Count : " ++ show utxoCount
-  atomicPutStrLn $ toConsoleText "  " balance
+-- printUtxoOfWalletAtomic :: DetailedChainInfo -> SigningKey PaymentKey -> Int -> ([Char] -> IO b) -> IO b
+-- printUtxoOfWalletAtomic ctx wallet index atomicPutStrLn = do
+--   utxos <- getUtxosOfWallet ctx wallet
+--   let balance = utxoSum utxos
+--       utxoCount = case utxos of UTxO map -> Map.size map
+--   atomicPutStrLn $ "\nFor Wallet Set " ++ show index ++ " For wallet " ++ show wallet ++ " Utxo Count : " ++ show utxoCount
+--   atomicPutStrLn $ toConsoleText "  " balance
 
 --Print all utxos of given wallet
-printUtxoOfWalletAtomic' :: DetailedChainInfo -> AddressAny -> Int -> ([Char] -> IO ()) -> (AddressAny -> IO (UTxO BabbageEra)) -> IO ()
-printUtxoOfWalletAtomic' ctx addrAny index atomicPutStrLn atomicQueryUtxos = do
-  utxos <- atomicQueryUtxos addrAny
-  let balance = utxoSum utxos
-      utxoCount = case utxos of UTxO map -> Map.size map
-  atomicPutStrLn $ "\nFor Wallet Set " ++ show index ++ " For wallet " ++ show addrAny ++ " Utxo Count : " ++ show utxoCount
-  atomicPutStrLn $ toConsoleText "  " balance
+-- printUtxoOfWalletAtomic' :: DetailedChainInfo -> AddressAny -> Int -> ([Char] -> IO ()) -> (AddressAny -> IO (UTxO BabbageEra)) -> IO ()
+-- printUtxoOfWalletAtomic' ctx addrAny index atomicPutStrLn atomicQueryUtxos = do
+--   utxos <- atomicQueryUtxos addrAny
+--   let balance = utxoSum utxos
+--       utxoCount = case utxos of UTxO map -> Map.size map
+--   atomicPutStrLn $ "\nFor Wallet Set " ++ show index ++ " For wallet " ++ show addrAny ++ " Utxo Count : " ++ show utxoCount
+--   atomicPutStrLn $ toConsoleText "  " balance
 
 getUtxosOfWallet ::
   ChainInfo v => v ->
@@ -413,38 +413,38 @@ pPrint balances = do
     TIO.putStrLn $ T.pack (show s) <> ": " <> renderValue value
 
 --Print all utxos of given wallet
-printUtxoOfWallet :: ChainInfo v => v -> SigningKey PaymentKey -> IO ()
-printUtxoOfWallet ctx wallet = do
-  utxos@(UTxO utxoMap) <- getUtxosOfWallet ctx wallet
-  let addrAny = getAddrAnyFromSignKey ctx wallet
-      addr = serialiseAddress addrAny
-  printUtxos utxos addr
+-- printUtxoOfWallet :: ChainInfo v => v -> SigningKey PaymentKey -> IO ()
+-- printUtxoOfWallet ctx wallet = do
+--   utxos@(UTxO utxoMap) <- getUtxosOfWallet ctx wallet
+--   let addrAny = getAddrAnyFromSignKey ctx wallet
+--       addr = serialiseAddress addrAny
+--   printUtxos utxos addr
 
-printUtxos :: UTxO BabbageEra -> Text -> IO ()
-printUtxos utxos@(UTxO utxoMap) addr = do
-  putStrLn $ "\n\nUtxos " <> show addr <> " Count: " <> show (Map.size utxoMap)
-  forM_ (Map.toList utxoMap) $ \(txIn, txOut) -> do
-    TIO.putStrLn $ " " <> renderTxIn txIn <> ": " <> renderTxOut txOut
+-- printUtxos :: UTxO BabbageEra -> Text -> IO ()
+-- printUtxos utxos@(UTxO utxoMap) addr = do
+--   putStrLn $ "\n\nUtxos " <> show addr <> " Count: " <> show (Map.size utxoMap)
+--   forM_ (Map.toList utxoMap) $ \(txIn, txOut) -> do
+--     TIO.putStrLn $ " " <> renderTxIn txIn <> ": " <> renderTxOut txOut
 
-  putStrLn "\nTotal balance: "
-  let balance = utxoSum utxos
-  putStrLn $ toConsoleText " " balance
+--   putStrLn "\nTotal balance: "
+--   let balance = utxoSum utxos
+--   putStrLn $ toConsoleText " " balance
 
-printUtxosMap :: Map.Map TxIn (TxOut CtxUTxO BabbageEra) -> IO ()
-printUtxosMap utxoMap = do
-  forM_ (Map.toList utxoMap) $ \(txIn, txOut) -> do
-    TIO.putStrLn $ " " <> renderTxIn txIn <> ": " <> renderTxOut txOut
+-- printUtxosMap :: Map.Map TxIn (TxOut CtxUTxO BabbageEra) -> IO ()
+-- printUtxosMap utxoMap = do
+--   forM_ (Map.toList utxoMap) $ \(txIn, txOut) -> do
+--     TIO.putStrLn $ " " <> renderTxIn txIn <> ": " <> renderTxOut txOut
 
-  putStrLn "\nTotal balance: "
-  let balance = utxoMapSum utxoMap
-  putStrLn $ toConsoleText " " balance
+--   putStrLn "\nTotal balance: "
+--   let balance = utxoMapSum utxoMap
+--   putStrLn $ toConsoleText " " balance
 
 
--- printUtxosWithoutTotal :: UTxO AlonzoEra -> AddressAny -> IO ()
-printUtxosWithoutTotal utxos@(UTxO utxoMap) addrAny atomicPutStrLn = do
-  atomicPutStrLn $ "\n\nUtxos for addr " <> show (serialiseAddress addrAny) <> " Count: " <> show (Map.size utxoMap)
-  forM_ (Map.toList utxoMap) $ \(txIn, txOut) -> do
-    atomicPutStrLn $ " " <> show (renderTxIn txIn) <> ": " <> show (renderTxOut txOut)
+-- -- printUtxosWithoutTotal :: UTxO AlonzoEra -> AddressAny -> IO ()
+-- printUtxosWithoutTotal utxos@(UTxO utxoMap) addrAny atomicPutStrLn = do
+--   atomicPutStrLn $ "\n\nUtxos for addr " <> show (serialiseAddress addrAny) <> " Count: " <> show (Map.size utxoMap)
+--   forM_ (Map.toList utxoMap) $ \(txIn, txOut) -> do
+--     atomicPutStrLn $ " " <> show (renderTxIn txIn) <> ": " <> show (renderTxOut txOut)
 
 -- Watch market address for transaction id to appear
 watchMarketForTxId ctx txId index atomicPutStrLn atomicPutStr marketState@(MarketUTxOState m) marketAddrAny typeOfSell= do
@@ -456,7 +456,7 @@ watchMarketForTxId ctx txId index atomicPutStrLn atomicPutStr marketState@(Marke
 
   utxo@(UTxO utxoMap) <- readMVar m
   -- loopedQueryUtxos ctx marketAddrAny
-  atomicPutStrLn $ "Size of map " ++ show (Map.size utxoMap) ++ show (renderTxIn txIn)
+  -- atomicPutStrLn $ "Size of map " ++ show (Map.size utxoMap) ++ show (renderTxIn txIn)
   let isTxIdPresent =  Map.member txIn utxoMap
 
   if isTxIdPresent
@@ -682,25 +682,26 @@ splitUtxos ctx utxos signKey addrEra addrAny atomicQueryUtxos = do
           loopedSubmitTx txBody
         Right tx -> pure tx
 
-simpleMintingScript :: SimpleScript SimpleScriptV2
-simpleMintingScript  =
+simpleMintingScript :: Hash PaymentKey -> SimpleScript SimpleScriptV2
+simpleMintingScript  paymentKeyHash =
   RequireAllOf
-    [ RequireSignature "6a05513e00c66d20c25d6c1e09f7d5799a1c245c05b5df50685fe447"
+    [ RequireSignature paymentKeyHash
     ]
 
 simpleMintTest ctx signKey= do
   let addrEra = getAddrEraFromSignKey ctx signKey
-      mintScript = SimpleScript SimpleScriptV2 simpleMintingScript
+      paymentKeyHash = verificationKeyHash   $ getVerificationKey signKey
+      mintScript = SimpleScript SimpleScriptV2 $ simpleMintingScript paymentKeyHash
       policyId = scriptPolicyId mintScript
-  mint ctx signKey addrEra policyId "testtoken" 100_000_000_000_000
+  mint ctx signKey addrEra policyId "testtoken" 100_000_000_000_000 paymentKeyHash
   -- mint ctx signKey addrEra policyId "testtoken" 1
 
-mint ctx signKey addrEra policyId assetName amount= do
+mint ctx signKey addrEra policyId assetName amount paymentKeyHash= do
   let txBuilder = txWalletAddress addrEra
         <> txMint [
           TxMintData
             policyId
-            (SimpleScriptWitness SimpleScriptV2InBabbage SimpleScriptV2 simpleMintingScript)
+            (SimpleScriptWitness SimpleScriptV2InBabbage SimpleScriptV2 $ simpleMintingScript paymentKeyHash)
             (valueFromList [(AssetId policyId assetName, Quantity amount)])
             ]
   txBodyE <- txBuilderToTxBodyIO ctx txBuilder

@@ -92,7 +92,7 @@ import System.Random (newStdGen)
 import System.Random.Shuffle (shuffle')
 import qualified Data.ByteString.Char8 as BS8
 
-testTokensStr = "8b9cc2e75b745eb75459578d0141c99beae033e315ca86ba605ebd8b.testtoken"
+testTokensStr = "fe0f87df483710134f34045b516763bad1249307dfc543bc56a9e738.testtoken"
 
 defaultNoOfWallets = 1
 
@@ -108,8 +108,6 @@ getDefaultConnection networkName networkId= do
           if exists then return defaultSockPath else  error $ "Socket File is Missing: "++defaultSockPath ++"\n\tSet environment variable CARDANO_NODE_SOCKET_PATH  to use different path"
     Right s -> pure s
   pure (localNodeConnInfo networkId socketPath )
-
-
 
 main :: IO ()
 main = do
@@ -132,32 +130,36 @@ main = do
       testAsset <- parseAssetIdText $ T.pack testTokensStr
       let network=Testnet  (NetworkMagic 9)
       conn <-getDefaultConnection  "testnet" network
-      let ctx = ChainConnectInfo conn
+      let connectInfo = ChainConnectInfo conn
+      dcInfo <- withDetails connectInfo
       fundedSignKey <- readSignKey "/home/krunx/.cardano/default.skey"
-      wallets <- setupWallets requiredWallets ctx testAsset fundedSignKey
 
-      -- printUtxoOfWallets ctx wallets
+      -- printUtxoOfWallet dcInfo fundedSignKey
+
+      wallets <- setupWallets requiredWallets dcInfo testAsset fundedSignKey
+
+      -- printUtxoOfWallets dcInfo wallets
 
       --Setup step for collatral until vasil collateral is used
-      splitUtxosOfWallets ctx wallets
+      splitUtxosOfWallets dcInfo wallets
 
       rng <- newStdGen
       let shuffledWallets = shuffle' wallets (length wallets) rng
-      performMarketBench ctx noOfWallets shuffledWallets testAsset fundedSignKey
+      -- performMarketBench dcInfo noOfWallets shuffledWallets testAsset fundedSignKey
 
-      -- printUtxoOfWallets ctx shuffledWallets
+      -- printUtxoOfWallets dcInfo shuffledWallets
       putStrLn "\nFinished..."
 
 -- TODO Refactor and remove unused code
-setupWallets :: ChainInfo v => Int -> v -> AssetId -> SigningKey PaymentKey -> IO [SigningKey PaymentKey]
-setupWallets noOfWallets ctx testAssetId fundedSignKey = do
+setupWallets :: Int -> DetailedChainInfo -> AssetId -> SigningKey PaymentKey -> IO [SigningKey PaymentKey]
+setupWallets noOfWallets dcInfo testAssetId fundedSignKey = do
   readHandle <- openFile "1000-wallets.txt" ReadMode
   content <- hGetContents readHandle
   let linesOfFile = lines content
       walletStrs = take noOfWallets linesOfFile
   wallets <- mapM parseSigningKey walletStrs
-  let walletsAddrs = map (\s -> AddressShelley $ skeyToAddr s (getNetworkId ctx)) wallets
-  utxosE <- queryUtxos (getConnectInfo ctx) $ Set.fromList walletsAddrs
+  let walletsAddrs = map (\s -> AddressShelley $ skeyToAddr s (getNetworkId dcInfo)) wallets
+  utxosE <- queryUtxos (getConnectInfo dcInfo) $ Set.fromList walletsAddrs
   utxos@(UTxO utxoMap) <- case utxosE of
     Left err -> error $ "Error getting utxos: " ++ show err
     Right utxos -> return utxos
@@ -174,7 +176,7 @@ setupWallets noOfWallets ctx testAssetId fundedSignKey = do
           Map.empty
           utxoList
 
-      walletsAddrsInShelley = map (\s -> skeyToAddrInEra s (getNetworkId ctx)) wallets
+      walletsAddrsInShelley = map (\s -> skeyToAddrInEra s (getNetworkId dcInfo)) wallets
       walletsWithNoUtxos = filter (\addr -> isNothing $ Map.lookup (toShelleyAddr addr) addrValueMap) walletsAddrsInShelley
       balancesWithLess = Map.filter (\v -> not $ v `valueGte` valueFromList [(AdaAssetId, Quantity 20_000_000), (testAssetId, Quantity 10)]) addrValueMap
       balancesWithLessAddrs = walletsWithNoUtxos <> map (\(Shelley.Addr nw pc scr, _) -> shelleyAddressInEra $ ShelleyAddress nw pc scr) (Map.toList balancesWithLess)
@@ -185,12 +187,12 @@ setupWallets noOfWallets ctx testAssetId fundedSignKey = do
       print $ map (\a -> show (serialiseAddress a) ++ "0 Ada") balancesWithLessAddrs
       pPrint balancesWithLess
        --TODO Already split the utxo into chunks of main wallet
-      let walletAddrsChunks = chunksOf 200 balancesWithLessAddrs
+      let walletAddrsChunks = chunksOf 100 balancesWithLessAddrs
       mapM_
         ( \walletChunk -> do
             putStrLn $ "Funding wallet chunk " ++ show (length walletChunk)
-            fundWallets ctx walletChunk fundedSignKey
-            -- fundWalletsWithAdaOnly ctx walletChunk fundedSignKey
+            fundWallets dcInfo walletChunk fundedSignKey
+            -- fundWalletsWithAdaOnly dcInfo walletChunk fundedSignKey
         )
         walletAddrsChunks
       print "Wallet funding completed."
@@ -200,36 +202,36 @@ setupWallets noOfWallets ctx testAssetId fundedSignKey = do
 
   where
     fundWallets :: ChainInfo v => v -> [AddressInEra BabbageEra] -> SigningKey PaymentKey -> IO ()
-    fundWallets ctx walletAddrs fundedSignKey = do
-      let fundAddr = getAddrEraFromSignKey ctx fundedSignKey
-          utxoValue = valueFromList [(AdaAssetId, Quantity 100_000_000), (testAssetId, Quantity 100)]
+    fundWallets dcInfo walletAddrs fundedSignKey = do
+      let fundAddr = getAddrEraFromSignKey dcInfo fundedSignKey
+          utxoValue = valueFromList [(AdaAssetId, Quantity 100_000_000), (testAssetId, Quantity 1000)]
           addressesWithValue = map (,utxoValue) walletAddrs
           tokenAnd100AdaPayOperation = foldMap (uncurry txPayTo) addressesWithValue
           txOperations = tokenAnd100AdaPayOperation <> txWalletAddress fundAddr
-      txBodyE <- txBuilderToTxBodyIO ctx txOperations
+      txBodyE <- txBuilderToTxBodyIO dcInfo txOperations
       txBody <- case txBodyE of
         Left err -> error $ "Error building tx: " ++ show err
         Right txBody -> return txBody
-      tx <- signAndSubmitTxBody (getConnectInfo ctx) txBody [fundedSignKey]
+      tx <- signAndSubmitTxBody (getConnectInfo dcInfo) txBody [fundedSignKey]
       let txHash = getTxId $ getTxBody tx
       putStrLn $ "\nSubmitted successfully TxHash " ++ show txHash
       --Wait for single transaction to complete
       let firstAddrAny = getAddrAnyFromEra $ fst $ head addressesWithValue
       putStrLn "Wait for funds to appear on wallet."
-      pollForTxId ctx firstAddrAny txHash
+      pollForTxId dcInfo firstAddrAny txHash
 
     fundWalletsWithAdaOnly :: ChainInfo v => v -> [AddressInEra BabbageEra] -> SigningKey PaymentKey -> IO ()
-    fundWalletsWithAdaOnly ctx walletAddrs fundedSignKey = do
-      let fundAddr = getAddrEraFromSignKey ctx fundedSignKey
+    fundWalletsWithAdaOnly dcInfo walletAddrs fundedSignKey = do
+      let fundAddr = getAddrEraFromSignKey dcInfo fundedSignKey
           utxoValue = valueFromList [(AdaAssetId, Quantity 100_000_000)]
           addressesWithValue = map (,utxoValue) walletAddrs
           tokenAnd100AdaPayOperation = foldMap (uncurry txPayTo) addressesWithValue
           txOperations = tokenAnd100AdaPayOperation <> txWalletAddress fundAddr
-      txBodyE <- txBuilderToTxBodyIO ctx txOperations
+      txBodyE <- txBuilderToTxBodyIO dcInfo txOperations
       txBody <- case txBodyE of
         Left err -> error $ "Error building tx: " ++ show err
         Right txBody -> return txBody
-      tx <- signAndSubmitTxBody (getConnectInfo ctx) txBody [fundedSignKey]
+      tx <- signAndSubmitTxBody (getConnectInfo dcInfo) txBody [fundedSignKey]
       let txHash = getTxId $ getTxBody tx
 
       putStrLn $ "\nSubmitted successfully TxHash " ++ show txHash
@@ -237,15 +239,15 @@ setupWallets noOfWallets ctx testAssetId fundedSignKey = do
       --Wait for single transaction to complete
       let firstAddrAny = getAddrAnyFromEra $ fst $ head addressesWithValue
       putStrLn "Wait for funds to appear on wallet."
-      pollForTxId ctx firstAddrAny txHash
+      pollForTxId dcInfo firstAddrAny txHash
 
 
-performMarketBench :: ChainConnectInfo -> Int -> [SigningKey PaymentKey] -> AssetId -> SigningKey PaymentKey -> IO ()
-performMarketBench ctx noOfWallets wallets testAsset fundedSignKey = do
-  eCtx <- resolveContext ctx
-  case eCtx of
+performMarketBench :: DetailedChainInfo -> Int -> [SigningKey PaymentKey] -> AssetId -> SigningKey PaymentKey -> IO ()
+performMarketBench dcInfo noOfWallets wallets testAsset fundedSignKey = do
+  edcInfo <- resolveContext dcInfo
+  case edcInfo of
     Left error -> putStrLn $ "RuntimeConfigurationError:\n - " ++ show error
-    Right (RuntimeContext ctx market _ _ _ _) -> do
+    Right (RuntimeContext _ market _ _ _ _) -> do
       startTime <- getTimeInSec
 
       let loopArray = [0 .. (noOfWallets -1)]
@@ -262,7 +264,7 @@ performMarketBench ctx noOfWallets wallets testAsset fundedSignKey = do
             withMVar
               queryLock
               ( \_ -> do
-                  utxosE <- queryUtxos (getConnectInfo ctx) $ Set.singleton addrAny
+                  utxosE <- queryUtxos (getConnectInfo dcInfo) $ Set.singleton addrAny
                   case utxosE of
                     Left err -> error $ "Error getting utxos: " ++ show err
                     Right utxos -> return utxos
@@ -270,11 +272,10 @@ performMarketBench ctx noOfWallets wallets testAsset fundedSignKey = do
 
       -- Spawn new thread for querying market utxos
       marketState <- newMarketState
-      let marketAddress = marketAddressShelley market (getNetworkId ctx)
+      let marketAddress = marketAddressShelley market (getNetworkId dcInfo)
       let marketAddrAny = getAddrAnyFromEra marketAddress
-      tId <- forkIO $ pollMarketUtxos ctx marketAddrAny marketState atomicQueryUtxos atomicPutStrLn
+      tId <- forkIO $ pollMarketUtxos dcInfo marketAddrAny marketState atomicQueryUtxos atomicPutStrLn
       
-      dcInfo <- withDetails ctx
       -- Perform market operations parrallely for each set of seller and buyers wallet indepdently and at last payback to funded wallet
       forConcurrently_ loopArray $ \index -> do
         performMarketOperation dcInfo testAsset index market startTime walletsTuples atomicPutStrLn atomicPutStr fundedSignKey marketState marketAddrAny atomicQueryUtxos
@@ -328,24 +329,24 @@ performMarketOperation dcInfo testAsset index market afterPaidTime walletTuples 
   printDiffInSecAtomic ("\nTime taken for Wallet Set " ++ show index ++ " to complete market operation") afterPaidTime afterSecondaryBuyTime atomicPutStrLn
 
   --Checking roayalty received
-  -- _ <- checkRoyalty ctx priSellTx secSellTx secBuyTx atomicPutStrLn
+  -- _ <- checkRoyalty dcInfo priSellTx secSellTx secBuyTx atomicPutStrLn
   atomicPutStrLn ("Finished performing market operations for Wallet Set " ++ show index)
 
 -- Perform primary sell from primary seller set of wallets
-performPrimarySale ctx testAsset market marketAddrAny priSellerWallet index atomicPutStrLn atomicPutStr marketState atomicQueryUtxos = do
+performPrimarySale dcInfo testAsset market marketAddrAny priSellerWallet index atomicPutStrLn atomicPutStr marketState atomicQueryUtxos = do
   let primaryCost = (AdaAssetId, Quantity 2_000_000)
 
   --Direct sell from all wallet without waiting
   atomicPutStrLn ("\nPerforming primary sell from wallet Set " ++ show index)
-  priSellTx@(_, txId, _) <- performSingleSale ctx testAsset False market priSellerWallet [] primaryCost index atomicPutStrLn atomicQueryUtxos
+  priSellTx@(_, txId, _) <- performSingleSale dcInfo testAsset False market priSellerWallet [] primaryCost index atomicPutStrLn atomicQueryUtxos
 
   --Now watch for market for tx id to appear in market address
   atomicPutStrLn ("\nWait for primary sell transaction to appear on market address for Wallet Set " ++ show index)
 
-  watchMarketForTxId ctx txId index atomicPutStrLn atomicPutStr marketState marketAddrAny "Primary Sell "
+  watchMarketForTxId dcInfo txId index atomicPutStrLn atomicPutStr marketState marketAddrAny "Primary Sell "
 
   --TODO check if values are deducted on wallet with printing it
-  -- printUtxoOfWalletAtomic ctx priSellerWallet index atomicPutStrLn
+  -- printUtxoOfWalletAtomic dcInfo priSellerWallet index atomicPutStrLn
 
   return priSellTx
 
@@ -400,9 +401,9 @@ performSingleSale dcInfo testAsset isSecondary market sellerWallet sReqParties c
                     <> txConsumeUtxos walletUtxos
 
   txResponse@(TxResponse txRaw datums) <- loopedSellIfFail txOperations
-  -- placeOnMarket' ctx txOperation sellerWallet
+  -- placeOnMarket' dcInfo txOperation sellerWallet
   let txId = txIdFromTxResponse txResponse
-  -- placeOnMarket ctx market model
+  -- placeOnMarket dcInfo market model
   atomicPutStrLn $ "Submitted Tx Id : " ++ show txId ++ "for Wallet Set " ++ show index
   return (txResponse, txId, directSaleDatum)
   where
@@ -416,13 +417,13 @@ performSingleSale dcInfo testAsset isSecondary market sellerWallet sReqParties c
         Right res -> pure res
 
 placeOnMarket' :: ChainInfo v => v -> TxBuilder -> SigningKey PaymentKey -> IO TxResponse
-placeOnMarket' ctx txOperations wallet = do
+placeOnMarket' dcInfo txOperations wallet = do
   -- putStrLn $ BS8.unpack $ prettyPrintJSON txOperations
-  txBodyE <- txBuilderToTxBodyIO ctx txOperations
+  txBodyE <- txBuilderToTxBodyIO dcInfo txOperations
   txBody <- case txBodyE of
     Left err -> error $ "Error in creating transaction " ++ show err
     Right txBody -> return txBody
-  tx <- signAndSubmitTxBody (getConnectInfo ctx) txBody [wallet]
+  tx <- signAndSubmitTxBody (getConnectInfo dcInfo) txBody [wallet]
   pure $ TxResponse tx []
 
 --Perfrom buy from buyerwallets from the previous seller wallets that placed the token on the market
@@ -446,7 +447,7 @@ performBuy dcInfo testAsset market (_,sellTxId, datum) buyerWallet prevSellerWal
   atomicPutStrLn ("\nPerforming " ++ buyType ++ " buy for Wallet Set " ++ show index)
 
   buyTx@(_, addr, txId) <- loopedBuyIfFail
-  -- performSingleBuy ctx buyerWallet testAsset datum artaConfig market
+  -- performSingleBuy dcInfo buyerWallet testAsset datum artaConfig market
 
   putStrLn $ "\nSubmitted successfully TxHash " ++ show txId
   --Wait for transaction to appear on buyers wallet
@@ -454,8 +455,8 @@ performBuy dcInfo testAsset market (_,sellTxId, datum) buyerWallet prevSellerWal
   pollForTxId' dcInfo addr txId atomicPutStrLn atomicQueryUtxos
 
   --TODO check for wallet valule with priting sellers and buyers wallet values
-  printUtxoOfWalletAtomic dcInfo buyerWallet index atomicPutStrLn
-  -- printUtxoOfWalletAtomic ctx prevSellerWallet index atomicPutStrLn
+  -- printUtxoOfWalletAtomic dcInfo buyerWallet index atomicPutStrLn
+  -- printUtxoOfWalletAtomic dcInfo prevSellerWallet index atomicPutStrLn
 
   return buyTx
   where
@@ -488,7 +489,7 @@ performSingleBuy dcInfo buyerWallet tokenAsset sellTxId datum market = do
 txIdFromTxResponse :: TxResponse -> TxId
 txIdFromTxResponse (TxResponse tx _) = getTxId $ getTxBody tx
 -- -- TODO Check royalty recevied or not for primary seller wallet that is placed as party when placing secondary sell
--- checkRoyalty ctx priSellTx secSellTx secBuyTx atomicPutStrLn = do
+-- checkRoyalty dcInfo priSellTx secSellTx secBuyTx atomicPutStrLn = do
 --     atomicPutStrLn "\nCheck for royalty recevied to roalty party sepecifed from secondary sell or not"
 
 --     -- -- forM_ loopArray $ \index -> do
@@ -501,26 +502,26 @@ txIdFromTxResponse (TxResponse tx _) = getTxId $ getTxBody tx
 
 --     -- --     let checkValue = valueFromList [(AdaAssetId , Quantity valueForSreqParty)]
 --     -- --     roaltyPartyAddrAny <- getAddrAnyFromSignKey roaltyParty
---     -- --     pollForTxIdAndValueAtomic ctx roaltyPartyAddrAny secBuyTxId checkValue
+--     -- --     pollForTxIdAndValueAtomic dcInfo roaltyPartyAddrAny secBuyTxId checkValue
 
 -- performTransferBench :: Int -> IO ()
 -- performTransferBench noOfWallets = do
---   ctx <- chainInfoTestnet
+--   dcInfo <- chainInfoTestnet
 --   fundedSignKey <- getDefaultSignKey
 --   let loopArray = [0 .. (noOfWallets -1)]
 --   wallets <- forM loopArray $ \_ -> generateSigningKey AsPaymentKey
 
 --   let utxoValue = valueFromList [(AdaAssetId, Quantity 4_000_000)]
 --       walletsWithValue = map (,utxoValue) wallets
---       addressesWithValue = map (\(wallet, value) -> (skeyToAddrInEra wallet (getNetworkId ctx), value)) walletsWithValue
+--       addressesWithValue = map (\(wallet, value) -> (skeyToAddrInEra wallet (getNetworkId dcInfo), value)) walletsWithValue
 --       txOperation = foldMap (uncurry txPayTo) addressesWithValue
---       fundedAddr = getAddrEraFromSignKey ctx fundedSignKey
+--       fundedAddr = getAddrEraFromSignKey dcInfo fundedSignKey
 
---   txBodyE <- txBuilderToTxBodyIO ctx txOperation
+--   txBodyE <- txBuilderToTxBodyIO dcInfo txOperation
 --   txBody <- case txBodyE of
 --     Left err -> error $ "Error building tx: " ++ show err
 --     Right txBody -> return txBody
---   tx <- signAndSubmitTxBody (getConnectInfo ctx) txBody [fundedSignKey]
+--   tx <- signAndSubmitTxBody (getConnectInfo dcInfo) txBody [fundedSignKey]
 --   let txHash = getTxId $ getTxBody tx
 
 
@@ -529,33 +530,33 @@ txIdFromTxResponse (TxResponse tx _) = getTxId $ getTxBody tx
 --   --Wait for single transaction to complete
 --   let firstAddrAny = getAddrAnyFromEra $ fst $ head addressesWithValue
 --   putStrLn "Wait for funds to appear on wallet."
---   pollForTxId ctx firstAddrAny txHash
+--   pollForTxId dcInfo firstAddrAny txHash
 
 --   printLock <- newMVar ()
 --   let atomicPutStrLn str = withMVar printLock (\_ -> putStrLn str)
 
 --   queryLock <- newMVar ()
---   let atomicQueryUtxos addrAny = withMVar queryLock (\_ -> queryUtxos (getConnectInfo ctx) $ Set.singleton addrAny)
+--   let atomicQueryUtxos addrAny = withMVar queryLock (\_ -> queryUtxos (getConnectInfo dcInfo) $ Set.singleton addrAny)
 
 --   -- forConcurrently_ loopArray $ \index -> do
 --   --Payback to funded wallet from all wallets and wait for transaction to complete
 
 --   --Print utxos of all wallets
 --   putStrLn "\nNow print funds available on all wallets."
---   printUtxoOfWallets ctx wallets
+--   printUtxoOfWallets dcInfo wallets
 
 --   forConcurrently_ loopArray $ \index -> do
 --     let wallet = wallets !! index
---     paybackToFundedWallet' ctx wallet index fundedSignKey atomicPutStrLn atomicQueryUtxos
+--     paybackToFundedWallet' dcInfo wallet index fundedSignKey atomicPutStrLn atomicQueryUtxos
 
---   -- mapConcurrently_ (\wallet-> paybackToFundedWallet' ctx wallet 0 fundedSignKey atomicPutStrLn atomicQueryUtxos) wallets
+--   -- mapConcurrently_ (\wallet-> paybackToFundedWallet' dcInfo wallet 0 fundedSignKey atomicPutStrLn atomicQueryUtxos) wallets
 
 --   --Print utxos of funded wallet
 --   putStrLn "Funds available on funding wallet after transferring to all wallets"
---   printUtxoOfWallet ctx fundedSignKey
+--   printUtxoOfWallet dcInfo fundedSignKey
 
 --   -- Merger all utxos of funded wallet at last
---   mergeAllUtxos ctx fundedSignKey
+--   mergeAllUtxos dcInfo fundedSignKey
 
 hasAtleast :: Value -> Value -> Bool
 hasAtleast _v2 _v1 = all (\(aid, Quantity q) -> q <= lookup aid) (valueToList _v1) -- do we find anything that's greater than q

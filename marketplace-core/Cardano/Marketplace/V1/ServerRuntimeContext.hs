@@ -35,7 +35,7 @@ data AuctionConfig = AuctionConfig {
 }
 
 data RuntimeContext=RuntimeContext{
-  runtimeContextCardanoConn :: ChainConnectInfo,
+  runtimeContextCardanoConn :: DetailedChainInfo,
   runtimeContextMarket :: Market,
   runtimeContextAuctionConfig :: AuctionConfig,
   runtimeContextOperator :: AddressInEra BabbageEra,
@@ -64,7 +64,7 @@ populateTestnetConfig =do
     \}"
   setEnv "TREASURY_ADDRESS" "addr_test1vzz6kpfgav34rzycphlnsuzfh8cyc094kl8s5wapyrqv7yghmdkuf"
 
-resolveContext::  ChainConnectInfo -> IO ( Either [ErrorMessage] RuntimeContext)
+resolveContext::  DetailedChainInfo -> IO ( Either [ErrorMessage] RuntimeContext)
 resolveContext context = do
   populateTestnetConfig
   marketOperatorAddrEither  <- resolveEnv $ createEnvConfigNoDefault addressParser "MARKET_OPERATOR_ADDR"
