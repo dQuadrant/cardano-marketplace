@@ -6,9 +6,11 @@ import {decodeAssetName, listProviders, walletValue} from "@/scripts/wallet";
 import type {CIP30Provider} from "@/types";
 import {BigNum} from "@emurgo/cardano-serialization-lib-asmjs";
 import {getAssetDetail} from "@/scripts/blockfrost";
-import {walletState} from "@/scripts/sotre";
+import {walletState, sellNftState} from "@/scripts/sotre";
+import Modal from "@/components/Modal.vue";
 
 </script>
+
 <template>
   <!-- This example requires Tailwind CSS v2.0+ -->
   <TransitionRoot  as="template" :show="walletState">
@@ -22,7 +24,6 @@ import {walletState} from "@/scripts/sotre";
             <TransitionChild as="template" enter="transform transition ease-in-out duration-300 sm:duration-400" enter-from="translate-x-full" enter-to="translate-x-0" leave="transform transition ease-in-out duration-300 sm:duration-400" leave-from="translate-x-0" leave-to="translate-x-full">
               <DialogPanel class="pointer-events-auto relative w-screen max-w-md">
                 <div class="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
-
 
                   <div  class="px-4 sm:px-6">
                     <div v-if="curProvider" class="flex">
@@ -48,16 +49,17 @@ import {walletState} from "@/scripts/sotre";
                     <div v-else>
                       <div v-for="asset in balance.multiAssets">
                         <img  :alt="asset.tokenName +'_img'" v-if="asset.image" :src="asset.image" />
-                        <span v-if="asset.name" class="text-blue-900 text-xl font-extrabold pb-10"> {{ asset.name }}  </span>
-
-                        <div v-else class="text-blue-700 font-extrabold" > {{ asset.policy.substring(0, 8) }}...{{
-                            asset.tokenName
-                          }}
+                        <div class="flex justify-between items-start">
+                          <span v-if="asset.name" class="text-blue-900 text-xl font-extrabold pb-10"> {{ asset.name }}  </span>
+                          <div v-else class="text-blue-700 font-extrabold" > {{ asset.policy.substring(0, 8) }}...{{
+                              asset.tokenName
+                            }}
+                          </div>
+                          <div class="text-blue-600" @click="sellNftState=true">Sell</div>
                         </div>
                       </div>
-
+                      <Modal :provider="this.curProvider"/>
                     </div>
-
                   </div>
                 </div>
               </DialogPanel>
@@ -68,6 +70,7 @@ import {walletState} from "@/scripts/sotre";
     </Dialog>
   </TransitionRoot>
 </template>
+
 <script lang="ts">
 
 import {transformNftImageUrl} from "@/scripts/wallet";
