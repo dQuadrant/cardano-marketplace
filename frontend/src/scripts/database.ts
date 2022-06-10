@@ -42,7 +42,7 @@ export function saveUtxos(db: IDBDatabase| undefined|null ,objects:Array<any>){
     if(!db){
         return Promise.reject("Null db instance")
     }
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve, reject):void => {
         console.log("Starting to save")
         let trans: IDBTransaction = db.transaction('utxoContent', 'readwrite');
         trans.oncomplete = (e) => {

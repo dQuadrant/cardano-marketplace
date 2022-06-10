@@ -59,6 +59,7 @@ ace.config.setModuleUrl("ace/mode/json_worker", workerJsonUrl);
     />
   </div>
 </template>
+
 <script lang="ts">
 import * as _notification from "@dafcoe/vue-notification";
 
@@ -163,6 +164,7 @@ export default {
   },
 };
 </script>
+
 <style>
 @import "../assets/base.css";
 </style>

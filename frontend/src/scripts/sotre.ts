@@ -1,2 +1,4 @@
 import { ref } from 'vue'
-export   const walletState = ref(false)
+import type {CIP30Provider} from "@/types";
+export const walletState = ref(false)
+export const sellNftState = ref(false)
