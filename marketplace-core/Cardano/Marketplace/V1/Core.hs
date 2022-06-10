@@ -30,17 +30,20 @@ import Plutus.V1.Ledger.Api hiding( Address,TxOut,Value,getTxId)
 import qualified Plutus.V1.Ledger.Api (Address)
 import Cardano.Api.Shelley (ProtocolParameters, scriptDataToJsonDetailedSchema, fromPlutusData)
 import qualified Data.Text.Lazy as TLE
+import qualified Data.ByteString as BS
 
-mint ctx signKey addrEra  assetName amount = do
-  let script = RequireSignature (verificationKeyHash  $ getVerificationKey  signKey)
-      policyId = scriptPolicyId $ SimpleScript SimpleScriptV2 $   script
+mint :: ChainInfo v => v -> SigningKey PaymentKey -> BS.ByteString -> Integer -> IO ()
+mint ctx signKey assetName amount = do
+  let addrEra = getAddrEraFromSignKey ctx signKey
+      script = RequireSignature (verificationKeyHash  $ getVerificationKey  signKey)
+      policyId = scriptPolicyId $ SimpleScript SimpleScriptV2 script
       txBuilder =
         txWalletAddress addrEra
           <> txMint
             [ TxMintData
                 policyId
                 (SimpleScriptWitness SimpleScriptV2InAlonzo SimpleScriptV2 script)
-                (valueFromList [(AssetId policyId assetName, Quantity amount)])
+                (valueFromList [(AssetId policyId (AssetName assetName), Quantity (amount `div` 2))])
             ]
   txBodyE <- txBuilderToTxBodyIO ctx txBuilder
   case txBodyE of

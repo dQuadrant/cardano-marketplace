@@ -43,6 +43,7 @@ import qualified Plutus.V1.Ledger.Api as Plutus
 import System.Console.CmdArgs
 import System.Directory (doesFileExist, getCurrentDirectory, getDirectoryContents)
 import Cardano.Kuber.Console.ConsoleWritable
+import Data.ByteString.Char8 (ByteString)
 
 data Modes
   = Cat -- Cat script binary
@@ -65,7 +66,9 @@ data Modes
   | Ls -- List utxos for market
   | Mint -- It mints a sample token 'testtoken' on the wallet
       { 
-        signingKeyFile :: String
+        signingKeyFile :: String,
+        assetName :: String,
+        amount :: Integer
       }
   | CreateCollateral -- Command for creating new collateral utxo containing 5 Ada
     {
@@ -88,24 +91,26 @@ runCli = do
           Buy
             { txin = "" &= typ "TxIn" &= argPos 0,
               datum = "" &= typ "Datum" &= argPos 1,
-              signingKeyFile = def &= typ "FilePath" &= name "signing-key-file"
+              signingKeyFile = def &= typ "FilePath'" &= name "signing-key-file"
             }
             &= help "Buy an asset on sale after finiding out txIn from market-cli ls.  Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'",
           Withdraw
             { txin = "" &= typ "TxIn'" &= argPos 0,
               datum = "" &= typ "Datum'" &= argPos 1,
-              signingKeyFile = def &= typ "FilePath" &= name "signing-key-file"
+              signingKeyFile = def &= typ "'FilePath'" &= name "signing-key-file"
             }
             &= help "Withdraw an asset by seller after finiding out txIn from market-cli ls. Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'",
           Ls &= help "List utxos for market",
           Mint 
             {
-              signingKeyFile = def &= typ "FilePath" &= name "signing-key-file"
+              assetName = "" &= typ "AssetName" &= argPos 0,
+              amount = def &= typ "Amount" &= argPos 1,
+              signingKeyFile = def &= typ "'FilePath" &= name "signing-key-file"
             }
-          &= help "Mint a new asset",
+          &= help "Mint a new asset for testing purposes.",
           CreateCollateral 
             {
-              signingKeyFile = def &= typ "FilePath" &= name "signing-key-file"
+              signingKeyFile = def &= typ "FilePath''" &= name "signing-key-file"
             }
           &= help "Create a new collateral utxo."
         ]
@@ -131,9 +136,10 @@ runCli = do
     Withdraw txInText datumStr sKeyFile-> do
       sKey <- getDefaultSignKey
       withdrawToken ctx txInText datumStr sKey marketAddr
-    Mint sKeyFile-> do
+    Mint sKeyFile assetName amount-> do
+      let assetNameBs = BS8.pack assetName
       skey <- readSignKey sKeyFile
-      simpleMintTest ctx skey
+      mint ctx skey assetNameBs amount
     CreateCollateral sKeyFile-> do
       skey <- readSignKey sKeyFile
       let addrInEra = getAddrEraFromSignKey ctx skey
