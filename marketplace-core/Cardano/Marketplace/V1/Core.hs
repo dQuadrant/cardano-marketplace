@@ -167,6 +167,7 @@ withdrawToken ctx txInText datumStr sKey marketAddr = do
           txOperations =
             redeemUtxoOperation
               <> txWalletAddress buyerAddr
+              <> txSignBy sellerAddrInEra
       submitTransaction dcInfo txOperations sKey
       putStrLn "Done"
   where
