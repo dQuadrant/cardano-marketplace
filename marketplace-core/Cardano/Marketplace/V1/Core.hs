@@ -30,7 +30,6 @@ import Plutus.V1.Ledger.Api hiding( Address,TxOut,Value,getTxId)
 import qualified Plutus.V1.Ledger.Api (Address)
 import Cardano.Api.Shelley (ProtocolParameters, scriptDataToJsonDetailedSchema, fromPlutusData)
 import qualified Data.Text.Lazy as TLE
-import Cardano.Kuber.Console.ConsoleWritable (ConsoleWritable(toConsoleText))
 
 mint ctx signKey addrEra  assetName amount = do
   let script = RequireSignature (verificationKeyHash  $ getVerificationKey  signKey)

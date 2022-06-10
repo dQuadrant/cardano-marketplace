@@ -70,8 +70,8 @@ data Modes
   | Mint -- It mints a sample token 'testtoken' on the wallet
       {
         signingKeyFile :: String,
-        tokenName :: Text,
-        quantity :: Integer
+        assetName :: Text,
+        amount :: Integer
       }
   | CreateCollateral -- Command for creating new collateral utxo containing 5 Ada
     {
@@ -94,26 +94,26 @@ runCli = do
           Buy
             { txin = "" &= typ "TxIn" &= argPos 0,
               datum = "" &= typ "Datum" &= argPos 1,
-              signingKeyFile = def &= typ "FilePath" &= name "signing-key-file"
+              signingKeyFile = def &= typ "FilePath'" &= name "signing-key-file"
             }
             &= help "Buy an asset on sale after finiding out txIn from market-cli ls.  Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'",
           Withdraw
             { txin = "" &= typ "TxIn'" &= argPos 0,
               datum = "" &= typ "Datum'" &= argPos 1,
-              signingKeyFile = def &= typ "FilePath" &= name "signing-key-file"
+              signingKeyFile = def &= typ "'FilePath'" &= name "signing-key-file"
             }
             &= help "Withdraw an asset by seller after finiding out txIn from market-cli ls. Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'",
           Ls &= help "List utxos for market",
           Mint
             {
-              signingKeyFile = def &= typ "FilePath" &= name "signing-key-file",
-              tokenName = "" &=typ "tokenName" &= argPos 0,
-              quantity = 1 &=typ "quantity"
+              assetName = "" &= typ "AssetName" &= argPos 0,
+              amount = 1 &= typ "Amount" ,
+              signingKeyFile = def &= typ "_FilePath" &= name "signing-key-file"
             }
           &= help "Mint a new asset",
           CreateCollateral
             {
-              signingKeyFile = def &= typ "FilePath" &= name "signing-key-file"
+              signingKeyFile = def &= typ "FilePath''" &= name "signing-key-file"
             }
           &= help "Create a new collateral utxo."
         ]
