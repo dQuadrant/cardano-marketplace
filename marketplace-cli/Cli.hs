@@ -46,21 +46,31 @@ import Cardano.Kuber.Console.ConsoleWritable
 
 data Modes
   = Cat -- Cat script binary
-  | Sell
-      { item :: String,
-        cost :: Integer -- cost in Lovelace
+  | Sell -- Sell item with cost on the market
+      { item :: String, -- Asset to be placed on market <policyId.AssetName>
+        cost :: Integer, -- cost in Lovelace
+        signingKeyFile :: String
       }
-  | Buy
-      { txin :: Text,
-        datum :: String
+  | Buy -- Buy item from marketplace
+      { txin :: Text, -- txin to buy from marketplace
+        datum :: String, -- datum to buy from marketplace
+        signingKeyFile :: String
+
       }
-  | Withdraw
+  | Withdraw -- Withdraw by the seller placed item from the marketplace
       { txin :: Text,
-        datum :: String
+        datum :: String,
+        signingKeyFile :: String
       }
   | Ls -- List utxos for market
-  | Mint
-  | CreateCollateral
+  | Mint -- It mints a sample token 'testtoken' on the wallet
+      { 
+        signingKeyFile :: String
+      }
+  | CreateCollateral -- Command for creating new collateral utxo containing 5 Ada
+    {
+      signingKeyFile :: String
+    }
   deriving (Show, Data, Typeable)
 
 runCli :: IO ()
@@ -71,24 +81,37 @@ runCli = do
         [ Cat &= help "Cat script binary",
           Sell
             { item = def &= typ "Asset" &= argPos 0,
-              cost = def &= typ "Price" &= argPos 1
+              cost = def &= typ "Price" &= argPos 1,
+              signingKeyFile = def &= typ "FilePath" &= name "signing-key-file"
             }
-            &= details ["  Place an asset on sale", "  Eg. sell 8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94.Token \"2000000\""],
+            &= help "Place an asset on sale Eg. sell 8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94.Token \"2000000\"",
           Buy
             { txin = "" &= typ "TxIn" &= argPos 0,
-              datum = "" &= typ "Datum" &= argPos 1
+              datum = "" &= typ "Datum" &= argPos 1,
+              signingKeyFile = def &= typ "FilePath" &= name "signing-key-file"
             }
-            &= details ["Buy an asset on sale after finiding out txIn from market-cli ls.", "  Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'"],
+            &= help "Buy an asset on sale after finiding out txIn from market-cli ls.  Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'",
           Withdraw
             { txin = "" &= typ "TxIn'" &= argPos 0,
-              datum = "" &= typ "Datum'" &= argPos 1
+              datum = "" &= typ "Datum'" &= argPos 1,
+              signingKeyFile = def &= typ "FilePath" &= name "signing-key-file"
             }
-            &= details ["Withdraw an asset by seller after finiding out txIn from market-cli ls.", "  Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'"],
+            &= help "Withdraw an asset by seller after finiding out txIn from market-cli ls. Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'",
           Ls &= help "List utxos for market",
-          Mint &= help "Mint a new asset",
-          CreateCollateral &= help "Create a new collateral utxo."
+          Mint 
+            {
+              signingKeyFile = def &= typ "FilePath" &= name "signing-key-file"
+            }
+          &= help "Mint a new asset",
+          CreateCollateral 
+            {
+              signingKeyFile = def &= typ "FilePath" &= name "signing-key-file"
+            }
+          &= help "Create a new collateral utxo."
         ]
         &= program "market-cli"
+        &= summary "Cardano Marketplace CLI \nVersion 1.0.0.0"
+
   ctx <- chainInfoFromEnv
   let marketAddr = marketAddressShelley (getNetworkId ctx)
   case op of
@@ -99,26 +122,21 @@ runCli = do
     Cat -> do
       let scriptInCbor = serialiseToCBOR simpleMarketplacePlutus
       putStrLn $ toHexString scriptInCbor
-    Sell itemStr cost -> do
-      sKey <- getDefaultSignKey
+    Sell itemStr cost sKeyFile-> do
+      sKey <- readSignKey sKeyFile
       sellToken ctx itemStr cost sKey marketAddr
-    Buy txInText datumStr -> do
-      sKey <- getDefaultSignKey
+    Buy txInText datumStr sKeyFile-> do
+      sKey <- readSignKey sKeyFile
       buyToken ctx txInText datumStr sKey marketAddr
-    Withdraw txInText datumStr -> do
+    Withdraw txInText datumStr sKeyFile-> do
       sKey <- getDefaultSignKey
       withdrawToken ctx txInText datumStr sKey marketAddr
-    Mint -> do
-      skey <- getDefaultSignKey
+    Mint sKeyFile-> do
+      skey <- readSignKey sKeyFile
       simpleMintTest ctx skey
-    CreateCollateral -> do
-      skey <- getDefaultSignKey
+    CreateCollateral sKeyFile-> do
+      skey <- readSignKey sKeyFile
       let addrInEra = getAddrEraFromSignKey ctx skey
-          txOperations = txPayTo addrInEra (lovelaceToValue $ Lovelace 5_000_000) <> txWalletAddress addrInEra
-      txBodyE <- txBuilderToTxBodyIO ctx txOperations
-      txBody <- case txBodyE of
-        Left err -> error $ "Error in creating transaction " ++ show err
-        Right txBody -> return txBody
-      tx <- signAndSubmitTxBody (getConnectInfo ctx) txBody [skey]
-      putStrLn $ "Collateral Transaction submitted sucessfully with transaction hash " ++ getTxIdFromTx tx
-      print "Done"
+          txOperations = txPayTo addrInEra (lovelaceToValue $ Lovelace 5_000_000) <> txWalletAddress addrInEra  
+      submitTransaction ctx txOperations skey
+    
