@@ -1,5 +1,5 @@
 module Main
 where
 
-import Cardano.Marketplace.Cli
+import Cli
 main= do runCli

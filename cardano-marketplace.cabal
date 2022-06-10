@@ -72,8 +72,8 @@ library marketplace-core
 executable  market-cli
   main-is:  Main.hs
   hs-source-dirs: marketplace-cli
-  other-moduels:
-      Cardano.Marketplace.Cli
+  other-modules:
+      Cli
   build-depends:
       base -any
     , marketplace-core

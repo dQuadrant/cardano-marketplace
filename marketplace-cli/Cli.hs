@@ -4,7 +4,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 
-module Cardano.Marketplace.Cli where
+module Cli where
 
 import Cardano.Api
 import Cardano.Api.Byron (Address (ByronAddress))
