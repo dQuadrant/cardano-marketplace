@@ -52,9 +52,9 @@ allScriptInputsCount ctx@(ScriptContext info purpose)=
   countTxOut (TxInInfo _ (TxOut addr _ _)) = if isJust (toValidatorHash addr) then 1 else 0
 
 
-data MarketRedeemer =  Buy
+data MarketRedeemer =  Buy | Withdraw
     deriving (Generic,FromJSON,ToJSON,Show,Prelude.Eq)
-PlutusTx.makeIsDataIndexed ''MarketRedeemer [('Buy, 0)]
+PlutusTx.makeIsDataIndexed ''MarketRedeemer [('Buy, 0), ('Withdraw,0)]
 
 
 data SimpleSale=SimpleSale{
@@ -73,6 +73,8 @@ mkMarket  ds@SimpleSale{sellerAddress,priceOfAsset}  action ctx =
     Just pkh -> case  action of
         Buy       -> traceIfFalse "Multiple script inputs" (allScriptInputsCount  ctx == 1)  && 
                      traceIfFalse "Seller not paid" (assetClassValueOf   (valuePaidTo info pkh) adaAsset >= priceOfAsset)
+        Withdraw -> traceIfFalse "Seller Signature Missing" $ txSignedBy info pkh
+
     where
       sellerPkh= case sellerAddress of { Address cre m_sc -> case cre of
                                                            PubKeyCredential pkh -> Just pkh

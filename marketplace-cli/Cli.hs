@@ -54,6 +54,10 @@ data Modes
       { txin :: Text,
         datum :: String
       }
+  | Withdraw
+      { txin :: Text,
+        datum :: String
+      }
   | Ls -- List utxos for market
   | Mint
   | CreateCollateral
