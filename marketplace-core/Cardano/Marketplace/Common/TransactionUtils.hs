@@ -67,8 +67,6 @@ import qualified Plutus.V1.Ledger.Address as Plutus
 import Plutus.V1.Ledger.Api (ToData (toBuiltinData), toData)
 import qualified Plutus.V1.Ledger.Api as Plutus
 import Plutus.V1.Ledger.Value (AssetClass (AssetClass))
-import System.Console.CmdArgs
-import System.Directory (doesFileExist, getCurrentDirectory, getDirectoryContents)
 import qualified Data.Text.Lazy.Encoding as TL
 import qualified Data.Text.Lazy as TL
 

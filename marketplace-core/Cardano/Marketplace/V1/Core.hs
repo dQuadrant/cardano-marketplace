@@ -73,8 +73,6 @@ import qualified Plutus.V1.Ledger.Address as Plutus
 import Plutus.V1.Ledger.Api (ToData (toBuiltinData), toData)
 import qualified Plutus.V1.Ledger.Api as Plutus
 import Plutus.V1.Ledger.Value (AssetClass (AssetClass))
-import System.Console.CmdArgs
-import System.Directory (doesFileExist, getCurrentDirectory, getDirectoryContents)
 
 simpleMintTest ctx signKey = do
   let addrEra = getAddrEraFromSignKey ctx signKey

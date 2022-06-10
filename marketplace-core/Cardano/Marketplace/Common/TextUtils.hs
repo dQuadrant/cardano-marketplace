@@ -8,7 +8,6 @@ import Data.Functor ((<&>))
 import Cardano.Api
 import Cardano.Kuber.Api
 import Data.Text.Lazy (Text)
-import System.Console.CmdArgs.GetOpt (convert)
 import qualified Data.Text as Data.Text.Internal
 import Cardano.Kuber.Util (pkhToMaybeAddr)
 
