@@ -1,0 +1,112 @@
+cabal-version:      2.4
+name:               cardano-marketplace
+version:            2.0.0.0
+
+-- A short (one-line) description of the package.
+-- synopsis:
+
+-- A longer description of the package.
+-- description:
+
+-- A URL where users can report bugs.
+-- bug-reports:
+
+license: Apache-2.0
+
+author:             Sireto
+maintainer:         Sireto
+
+-- A copyright notice.
+-- copyright:
+-- category:
+-- extra-source-files: CHANGELOG.md
+
+library marketplace-plutus
+  exposed-modules:
+    Plutus.Contracts.V1.SimpleMarketplace
+  hs-source-dirs: marketplace-plutus
+  build-depends:
+      base  -any
+    , plutus-tx
+    , plutus-ledger-api
+    , plutus-tx-plugin
+    , aeson
+    , bytestring
+    , cardano-api
+    , serialise
+    , kuber
+
+library marketplace-core
+  exposed-modules:
+    Cardano.Marketplace.Cli
+    Cardano.Marketplace.V1.Core
+    Cardano.Marketplace.Common.ConsoleWritable
+    Cardano.Marketplace.Common.TextUtils
+    Cardano.Marketplace.Common.TransactionUtils
+  hs-source-dirs: marketplace-core
+  build-depends:
+      base -any
+    , aeson
+    , bytestring
+    , containers
+    , unordered-containers
+    , filepath
+    , directory
+    , serialise
+    , cmdargs >= 0.10.18
+    , http-types
+    , marketplace-plutus
+    , text 
+    , text-conversions
+    , cardano-api
+    , cardano-ledger-shelley
+    , cardano-ledger-core
+    , cardano-ledger-shelley-ma
+    , cardano-ledger-alonzo
+    , plutus-ledger-api
+    , plutus-tx
+    , cborg
+    , cardano-binary
+    , mtl
+    , kuber
+
+executable  market-cli
+  main-is:  Main.hs
+  hs-source-dirs: marketplace-cli
+  build-depends:
+      base -any
+    , marketplace-core
+
+benchmark bench-parallel
+  type:                 exitcode-stdio-1.0
+  hs-source-dirs:       benchmark-parallel
+  Main-is:              ParallelBench.hs
+  default-language:    Haskell2010
+  other-modules: 
+                       ParallelUtils
+  build-depends:        base
+                        , cardano-api
+                        , text
+                        , containers
+                        , criterion
+                        , plutus-tx
+                        , cborg
+                        , cardano-binary
+                        , mtl
+                        , split
+                        , clock
+                        , async
+                        , cardano-ledger-core
+                        , random
+                        , kuber
+                        , marketplace-core
+                        , marketplace-plutus
+                        , plutus-ledger-api
+                        , plutus-tx
+                        , directory
+                        , random-shuffle
+                        , bytestring
+
+
+  ghc-options:  "-with-rtsopts=-A32m" -threaded
+
