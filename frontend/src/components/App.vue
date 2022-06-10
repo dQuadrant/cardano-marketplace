@@ -69,7 +69,7 @@ const open = ref(true)
                   <div class="flex h-full flex-col overflow-y-scroll bg-white py-6 shadow-xl">
 
 
-                    <div  class="px-4 sm:px-6">
+                    <div class="px-4 sm:px-6">
                       <div v-if="curProvider">
                         <img v-if="curProvider.icon" class="inline  w-12 h-12 mr-2 " :src="curProvider.icon" />
                         <img v-else class="inline  w-12 h-12 mr-2" src="/cardano.png" />

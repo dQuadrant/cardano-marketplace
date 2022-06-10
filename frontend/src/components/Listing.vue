@@ -3,12 +3,13 @@ import {VAceEditor} from "vue3-ace-editor";
 import ace from "ace-builds";
 import workerJsonUrl from "ace-builds/src-noconflict/mode-json";
 // @ts-ignore (for some reason ide is giving error on @/ imports)
-import {callKuberAndSubmit, listProviders} from "@/scripts/wallet";
 import type {CIP30Instace, CIP30Provider} from "@/types";
 import {Address} from "@emurgo/cardano-serialization-lib-asmjs";
 import {Buffer} from "buffer";
-import {renderLovelace,transformNftImageUrl} from "@/scripts/wallet";
-
+import * as _notification from "@dafcoe/vue-notification";
+import * as database from "@/scripts/database"
+import {listMarket, getAssetDetail, getDatum} from "@/scripts/blockfrost";
+import {decodeAssetName, listProviders, callKuberAndSubmit, transformNftImageUrl, renderLovelace} from "@/scripts/wallet";
 // @ts-ignore
 ace.config.setModuleUrl("ace/mode/json_worker", workerJsonUrl);
 </script>
@@ -60,12 +61,7 @@ ace.config.setModuleUrl("ace/mode/json_worker", workerJsonUrl);
   </div>
 </template>
 <script lang="ts">
-import * as _notification from "@dafcoe/vue-notification";
-import * as database from "@/scripts/database"
-import {listMarket, getAssetDetail, getDatum} from "@/scripts/blockfrost";
-import {Buffer} from "buffer";
-import type {CIP30Provider} from "@/types";
-import {decodeAssetName, listProviders, transformNftImageUrl} from "@/scripts/wallet";
+
 
 const notification = _notification.useNotificationStore();
 const parser = /^([a-zA-Z0-9+]+):\/\/(.+)/

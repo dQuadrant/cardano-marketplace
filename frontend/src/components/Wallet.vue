@@ -115,7 +115,7 @@ export default{
       prompt: "Connect Wallet",
       selectWallet : false,
       providers: null,
-      curProvider: null,
+      curProvider:null,
       walletPkh:null,
       curInstance:null,
       sellAmount:"",
