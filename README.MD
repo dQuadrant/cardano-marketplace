@@ -1,26 +1,34 @@
 Cardano Simple Marketplace
 ==========================
 
-Cardano Market Place contains a simple  market place contract loacted
-on marketplace-plutus.
+Webapp and cli for marketplace in cardano testnet.
 
-The folder structure is 
-- **/frontend** - contains client side for marketplace
-- **/marketplace-cli** - contains entry point for cli and cli commands and their parsing 
-- **/marketplace-core** - contains marketplace core operations such as listing market 
-utxos, buy sell of token etc which uses kuber library for building and submitting transactions
-- **/marketplace-plutus** - contains plutus contract code for simple marketplace
+#### marketplace-cli
+This  component is command line tool for interacting with the marketplace. Cli used kuber library, which handles transaction creation and submission to node 
 
-Kuber library used functions and their working
-- **For selling token** 
-  - **txPayToScript** - find market address from script, prepare value to be locked and obtain datum hash
-  - **txWalletAddress** - The address to be used for selecting utxos when creating transaction i.e. seller address
-- **For buying token**
-  - **txPayTo** - For paying the seller pay the required value to the seller address obtained from datum
-  - **txRedeemUtxo** - Use txIn and txOut from market utxos, script, datum and redeemer
-  - **txWalletAddress** - The address to be used for selecting utxos when creating transaction i.e. buyer address
+![something](./docs/cli.svg)
 
-### Setting Up
+
+#### marketplace-frontend
+Frontend vue project is located [here](./frontend).
+-  It connects to an existing kuber server to construct transactions.
+- Lists tokens onSale using blockfrost APIs.
+
+![something](./docs/frontend.svg)
+
+
+
+
+
+### Project structure
+
+- **marketplace-plutus/** - contains plutus contract code for simple marketplace
+- **marketplace-cli/** - contains entry point for cli and cli commands and their parsing 
+- **marketplace-core/** - contains marketplace core functions and  interaction with kuber library
+- **frontend/** - contains client side for marketplace
+
+
+### Setting Up Locally
 
 To prepare your system for building kuber from sources, follow these instructions:
 
@@ -33,19 +41,19 @@ To prepare your system for building kuber from sources, follow these instruction
 
 <h3><b>Install ghcup</b></h3>
 
-```
 Check [this page](https://www.haskell.org/ghcup/install/) for further explanation on the installation process.
-```
-<h3><b>Setup ghc and cabal</b></h3>
 
-```
+#### Setup ghc and cabal 
+
+```bash
 ghcup install ghc 8.10.7
-ghcup install cabal 3.6.2.0
+ghcup install cabal 3.6.2.0 
+ghcup install hls # for language support in vs-code
 ghcup set ghc 8.10.7
 ghcup set cabal 3.6.2.0
 ```
 
-<h3><strong>Configuring the build options</strong></h3>
+#### Configuring the build options
 
 We explicitly use the GHC version that we installed earlier.  This avoids defaulting to a system version of GHC that might be older than the one you have installed.
 
@@ -53,6 +61,8 @@ We explicitly use the GHC version that we installed earlier.  This avoids defaul
 cabal configure --with-compiler=ghc-8.10.7
 ```
 
-Usage:
+
+## Usage:
  - [Using Cli](./docs/cli.md)
+
  

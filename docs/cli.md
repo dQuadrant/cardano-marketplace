@@ -8,13 +8,17 @@ cd cardano-marketplace
 cabal update
 cabal build
 ```
-
 3. Now you can run the cli commands
+
+
+market-cli required two environment variables to be properly configured for it to be able to work
+- `CARDANO_NODE_SOCKET_PATH` : Cardano node's socket file path. (&nbsp;Default&nbsp;:&nbsp;$HOME/.cardano/testnet/node.socket&nbsp;)
+- `NETWORK : ` `testnet` or `mainnet` or networkMagic  number (&nbsp;Defaault&nbsp;:&nbsp;testnet&nbsp;)
+
 ### List Market Utxos
 
-- For listing available market utxos
 ```
-cabal run market-cli ls
+$ CARDANO_NODE_SOCKET_PATH=./node.socket  cabal run market-cli ls
 ```
 
 
