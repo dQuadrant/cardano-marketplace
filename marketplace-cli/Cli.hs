@@ -15,7 +15,6 @@ import Cardano.Kuber.Data.Parsers (parseAssetIdText, parseAssetNQuantity, parseS
 import Cardano.Kuber.Util hiding (toHexString)
 import Cardano.Ledger.Alonzo.Tx (TxBody (txfee))
 import qualified Cardano.Ledger.BaseTypes as Shelley (Network (..))
-import Cardano.Marketplace.Common.ConsoleWritable
 import Cardano.Marketplace.Common.TextUtils
 import Cardano.Marketplace.Common.TransactionUtils
 import Cardano.Marketplace.V1.Core
@@ -43,6 +42,7 @@ import Plutus.V1.Ledger.Api (ToData (toBuiltinData))
 import qualified Plutus.V1.Ledger.Api as Plutus
 import System.Console.CmdArgs
 import System.Directory (doesFileExist, getCurrentDirectory, getDirectoryContents)
+import Cardano.Kuber.Console.ConsoleWritable
 
 data Modes
   = Cat -- Cat script binary

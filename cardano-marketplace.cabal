@@ -39,7 +39,6 @@ library marketplace-plutus
 library marketplace-core
   exposed-modules:
     Cardano.Marketplace.V1.Core
-    Cardano.Marketplace.Common.ConsoleWritable
     Cardano.Marketplace.Common.TextUtils
     Cardano.Marketplace.Common.TransactionUtils
   hs-source-dirs: marketplace-core
