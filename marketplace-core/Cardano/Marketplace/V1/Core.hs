@@ -149,3 +149,28 @@ buyToken ctx txInText datumStr sKey marketAddr = do
         diff = minLovelace - currentLovelace
         minLovelace = calculateMinimumLovelace ShelleyBasedEraAlonzo addr value pParams
         currentLovelace = selectLovelace value
+
+withdrawToken :: ChainInfo v => v -> Text -> String -> SigningKey PaymentKey -> Address ShelleyAddr -> IO ()
+withdrawToken ctx txInText datumStr sKey marketAddr = do
+  dcInfo <- withDetails ctx
+  (scriptData, simpleSale@SimpleSale {sellerAddress, priceOfAsset}) <- parseSimpleSale datumStr
+  txIn <- parseTxIn txInText
+  UTxO uMap <- queryMarketUtxos ctx marketAddr
+  let txOut = unMaybe "Error couldn't find the given txin in market utxos." $ Map.lookup txIn uMap
+  if not $ matchesDatumhash (hashScriptData scriptData) txOut
+    then error "Error : The given txin doesn't match the datumhash of the datum."
+    else do
+      let nwId = getNetworkId ctx
+          buyerAddr = getAddrEraFromSignKey ctx sKey
+          sellerAddrInEra = plutusAddressToAddressInEra nwId sellerAddress
+          redeemUtxoOperation = txRedeemUtxo txIn txOut marketScriptToScriptInAnyLang scriptData (fromPlutusData $ Plutus.toData SMP.Withdraw)
+          txOperations =
+            redeemUtxoOperation
+              <> txWalletAddress buyerAddr
+      submitTransaction dcInfo txOperations sKey
+      putStrLn "Done"
+  where
+    matchesDatumhash datumHash (TxOut _ (TxOutValue _ value) (TxOutDatumHash _ hash)) = hash == datumHash
+    matchesDatumhash _ _ = False
+
+    marketScriptToScriptInAnyLang = ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV1) (PlutusScript PlutusScriptV1 simpleMarketplacePlutus)

@@ -79,6 +79,11 @@ runCli = do
               datum = "" &= typ "Datum" &= argPos 1
             }
             &= details ["Buy an asset on sale after finiding out txIn from market-cli ls.", "  Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'"],
+          Withdraw
+            { txin = "" &= typ "TxIn" &= argPos 0,
+              datum = "" &= typ "Datum" &= argPos 1
+            }
+            &= details ["Withdraw an asset by seller after finiding out txIn from market-cli ls.", "  Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'"],
           Ls &= help "List utxos for market",
           Mint &= help "Mint a new asset",
           CreateCollateral &= help "Create a new collateral utxo."
@@ -100,6 +105,9 @@ runCli = do
     Buy txInText datumStr -> do
       sKey <- getDefaultSignKey
       buyToken ctx txInText datumStr sKey marketAddr
+    Withdraw txInText datumStr -> do
+      sKey <- getDefaultSignKey
+      withdrawToken ctx txInText datumStr sKey marketAddr
     Mint -> do
       skey <- getDefaultSignKey
       simpleMintTest ctx skey
