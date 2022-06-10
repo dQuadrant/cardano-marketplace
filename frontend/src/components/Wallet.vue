@@ -52,7 +52,7 @@ import {
                       <div class="align-bottom float-right  text-blue-900">{{renderLovelace(balance.lovelace) }}  Ada</div>
                       <div v-if="walletPkh" class="flex items-center">
                         <div class="text-blue-900 text-md mr-2">{{walletPkh.slice(0,5)}}...{{walletPkh.slice(walletPkh.length-5,)}}</div>
-                        <img class="inline-block align-bottom w-5 h-5 cursor-pointer" @click="copyToClipboard()" src="/clipboard.svg" />
+                        <img class="inline-block align-bottom w-5 h-5 cursor-pointer " @click="copyToClipboard()" src="/clipboard.svg" />
                       </div>
 
                       </span>
@@ -77,7 +77,7 @@ import {
                               asset.tokenName
                             }}
                           </div>
-                          <div v-if="!sellNftState" class="text-blue-600 text-lg cursor-pointer " @click="sellNftState=true">Sell</div>
+                          <div v-if="!sellNftState" class="text-blue-600 text-lg cursor-pointer" @click="sellNftState=true">Sell</div>
                         </div>
 
                         <div v-if="sellNftState">
@@ -119,6 +119,7 @@ export default{
       walletPkh:null,
       curInstance:null,
       sellAmount:"",
+      showToast:false,
       balance: {
         lovelace:BigInt(0),
         multiAssets:[]
@@ -130,7 +131,6 @@ export default{
     let handler=  (newVal,oldVal)=>{
         if(newVal && newVal!=oldVal){
           const providers=listProviders()
-          console.log("Providers",providers)
           this.providers=providers
           unWatch()
         }
