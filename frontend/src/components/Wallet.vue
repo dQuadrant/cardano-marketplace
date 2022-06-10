@@ -4,10 +4,28 @@ import { Buffer } from "buffer";
 import { Dialog, DialogPanel, DialogTitle, TransitionChild, TransitionRoot } from '@headlessui/vue'
 import {decodeAssetName, listProviders, walletValue} from "@/scripts/wallet";
 import type {CIP30Provider} from "@/types";
-import {BigNum} from "@emurgo/cardano-serialization-lib-asmjs";
 import {getAssetDetail} from "@/scripts/blockfrost";
 import {walletState, sellNftState} from "@/scripts/sotre";
-import Modal from "@/components/Modal.vue";
+
+import {
+  Address,
+  AssetName,
+  BaseAddress,
+  BigNum,
+  Ed25519KeyHash,
+  EnterpriseAddress,
+  hash_auxiliary_data,
+  PointerAddress,
+  ScriptHash,
+  ScriptHashes,
+  StakeCredential,
+  Transaction,
+  TransactionBody,
+  TransactionUnspentOutput,
+  TransactionWitnessSet,
+  Value,
+  Vkeywitnesses,
+} from '@emurgo/cardano-serialization-lib-asmjs';
 
 </script>
 
@@ -32,6 +50,10 @@ import Modal from "@/components/Modal.vue";
                       <span class="inline-block w-full ">
                       <div class="text-3xl top-0 pb-1 font-bold text-blue-900">{{curProvider.name}}</div>
                       <div class="align-bottom float-right  text-blue-900">{{renderLovelace(balance.lovelace) }}  Ada</div>
+                      <div v-if="walletPkh" class="flex items-center">
+                        <div class="text-blue-900 text-md mr-2">{{walletPkh.slice(0,5)}}...{{walletPkh.slice(walletPkh.length-5,)}}</div>
+                        <img class="inline-block align-bottom w-5 h-5 cursor-pointer" @click="copyToClipboard()" src="/clipboard.svg" />
+                      </div>
 
                       </span>
                       <button @click="disconnectProvider" class="float-right h-full"> <img class="inline text-red-600 h-4 w-4" src="/disconnect.svg"></button>
@@ -50,15 +72,27 @@ import Modal from "@/components/Modal.vue";
                       <div v-for="asset in balance.multiAssets">
                         <img  :alt="asset.tokenName +'_img'" v-if="asset.image" :src="asset.image" />
                         <div class="flex justify-between items-start">
-                          <span v-if="asset.name" class="text-blue-900 text-xl font-extrabold pb-10"> {{ asset.name }}  </span>
+                          <span v-if="asset.name" class="text-blue-900 text-xl font-extrabold pb-2 "> {{ asset.name }}  </span>
                           <div v-else class="text-blue-700 font-extrabold" > {{ asset.policy.substring(0, 8) }}...{{
                               asset.tokenName
                             }}
                           </div>
-                          <div class="text-blue-600" @click="sellNftState=true">Sell</div>
+                          <div v-if="!sellNftState" class="text-blue-600 text-lg cursor-pointer " @click="sellNftState=true">Sell</div>
                         </div>
+
+                        <div v-if="sellNftState">
+                          <input :value="this.sellAmount" @change="setInputValue" class="w-full mb-2 rounded text-gray-800 py-2 px-3 border-2 border-gray-200 focus:outline-2 focus:outline-indigo-500" placeholder="Enter the amount"/>
+                          <div class="flex w-full justify-between gap-4">
+                            <div
+                                class="w-full border-2 border-indigo-500 cursor-pointer hover:bg-indigo-500 hover:text-white hover:border-indigo-600 active:ring-indigo-700 active:ring-offset-2 active:ring-2 rounded-xl p-2 text-center text-indigo-500"
+                                @click="sellNft(curInstance,asset,sellAmount)">Sell</div>
+                            <div
+                                class="w-full border-2 border-red-500 cursor-pointer hover:bg-red-500 hover:text-white hover:border-red-600 active:ring-red-700 active:ring-offset-2 active:ring-2 rounded-xl p-2 text-center text-red-500"
+                                @click="sellNftState=false">Cancel</div>
+                        </div>
+                        </div>
+
                       </div>
-                      <Modal :provider="this.curProvider"/>
                     </div>
                   </div>
                 </div>
@@ -73,7 +107,7 @@ import Modal from "@/components/Modal.vue";
 
 <script lang="ts">
 
-import {transformNftImageUrl} from "@/scripts/wallet";
+import {callKuberAndSubmit, transformNftImageUrl} from "@/scripts/wallet";
 
 export default{
   data(){
@@ -82,7 +116,9 @@ export default{
       selectWallet : false,
       providers: null,
       curProvider: null,
+      walletPkh:null,
       curInstance:null,
+      sellAmount:"",
       balance: {
         lovelace:BigInt(0),
         multiAssets:[]
@@ -102,35 +138,75 @@ export default{
     unWatch=this.$watch( 'walletState',handler)
   },
   methods:{
+    copyToClipboard(){
+      navigator.clipboard.writeText(this.walletPkh);
+    },
+    async sellNft(providerInstance,asset) {
+      const addresses = await providerInstance.getUsedAddresses()
+      const sellerAddr = BaseAddress.from_address(
+          Address.from_bytes(Uint8Array.from(Buffer.from(addresses[0], 'hex'))),
+      );
+      console.log('sellerAddr', sellerAddr);
+      const sellerPkh = Buffer.from(sellerAddr.payment_cred().to_keyhash().to_bytes()).toString('hex');
+      const sellerStakeKey = Buffer.from(sellerAddr.stake_cred().to_keyhash().to_bytes()).toString('hex')
+      const body = {
+        "selections": await providerInstance.getUtxos(),
+        "outputs": [{
+          "address": "addr_test1wrmh4x8uy2hhfp0qlyqv3rdcqv8ar543pwq8tv8tecjlwfcuxj4zt",
+          "value": `2A + 1 ${asset.policy}.${asset.tokenName}`,
+          "datum": {"fields":[
+              {"fields":[
+                  {"fields":[{"bytes":`${sellerPkh}`}],"constructor":0},
+                  {"fields":[{"bytes":`${sellerStakeKey}`}], "constructor":1}],
+                "constructor":0},
+              {"int":Math.round(this.sellAmount * 1e6)}],
+            "constructor":0}
+        }]
+      };
+      callKuberAndSubmit(providerInstance, JSON.stringify(body));
+    },
+    async renderPubKeyHash(providerInstance) {
+      const addresses = await providerInstance.getUsedAddresses()
+      const sellerAddr = BaseAddress.from_address(
+          Address.from_bytes(Uint8Array.from(Buffer.from(addresses[0], 'hex'))),
+      );
+      const sellerPkh = Buffer.from(sellerAddr.payment_cred().to_keyhash().to_bytes()).toString('hex');
+      console.log("seller public key hash",typeof sellerPkh);
+      return sellerPkh
+    },
+    setInputValue(event){
+      this.sellAmount = event.target.value;
+    },
     renderLovelace(l:BigInt){
       return parseFloat(l/BigInt(10000))/100
     },
     activate(provider:CIP30Provider){
       const vm=this
       this.curProvider=provider
-      return provider.enable().then(instance =>{
-        this.curInstance=instance
-        return  walletValue(instance).then(val=>{
-          let assetList :Array<any>=[]
-          for(let policy in val.multiassets){
-            const tokens=          val.multiassets[policy]
-            for(let token in tokens){
-              console.log(policy,token,tokens[token])
-              if(tokens[token]==1){
-                assetList.push({tokenName: decodeAssetName(token),policy: policy, asset: policy+token})
+      return provider.enable().then(async instance => {
+        this.curInstance = instance
+        this.walletPkh = await this.renderPubKeyHash(instance)
+        return walletValue(instance).then(val => {
+          let assetList: Array<any> = []
+          for (let policy in val.multiassets) {
+            const tokens = val.multiassets[policy]
+            for (let token in tokens) {
+              console.log(policy, token, tokens[token])
+              if (tokens[token] == 1) {
+                assetList.push({tokenName: decodeAssetName(token), policy: policy, asset: policy + token})
               }
             }
           }
-          this.balance.lovelace=val.lovelace
-          this.balance.multiAssets=assetList
-          return Promise.all(this.balance.multiAssets.map((v,i)=> {
+          this.balance.lovelace = val.lovelace
+          this.balance.multiAssets = assetList
+          return Promise.all(this.balance.multiAssets.map((v, i) => {
             return getAssetDetail(v.asset).then(asset => {
               v.name = asset.onchain_metadata?.name
               v.image = transformNftImageUrl(asset.onchain_metadata?.image)
             })
           }))
 
-            //this.balance.multiAssets[i]=v
+          //this.balance.multiAssets[i]=v
         })
       })
     },
