@@ -30,25 +30,21 @@ import Plutus.V1.Ledger.Api hiding( Address,TxOut,Value,getTxId)
 import qualified Plutus.V1.Ledger.Api (Address)
 import Cardano.Api.Shelley (ProtocolParameters, scriptDataToJsonDetailedSchema, fromPlutusData)
 import qualified Data.Text.Lazy as TLE
+import Cardano.Kuber.Console.ConsoleWritable (ConsoleWritable(toConsoleText))
 
 mint ctx signKey addrEra  assetName amount = do
   let script = RequireSignature (verificationKeyHash  $ getVerificationKey  signKey)
-      policyId = scriptPolicyId $ SimpleScript SimpleScriptV2 $   script
       txBuilder =
         txWalletAddress addrEra
-          <> txMint
-            [ TxMintData
-                policyId
-                (SimpleScriptWitness SimpleScriptV2InAlonzo SimpleScriptV2 script)
-                (valueFromList [(AssetId policyId assetName, Quantity amount)])
-            ]
+          <> txMintSimpleScript script [(assetName, amount)]
+
   txBodyE <- txBuilderToTxBodyIO ctx txBuilder
   case txBodyE of
     Left fe -> error $ "Error: " ++ show fe
     Right txBody -> do
       tx <- signAndSubmitTxBody (getConnectInfo ctx) txBody [signKey]
       let txId = getTxId txBody
-      putStrLn "Transaction for mint submitted sucessfully."
+      putStrLn $ "Transaction for mint submitted sucessfully. Txhash : " ++ T.unpack (serialiseToRawBytesHexText  txId)
 
 sellToken :: ChainInfo v => v -> String -> Integer -> SigningKey PaymentKey -> Address ShelleyAddr -> IO ()
 sellToken ctx itemStr cost sKey marketAddr = do

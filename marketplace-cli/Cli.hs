@@ -11,7 +11,7 @@ import Cardano.Api.Byron (Address (ByronAddress))
 import Cardano.Api.Shelley (Address (ShelleyAddress), AsType (AsAlonzoEra), Lovelace (Lovelace), ProtocolParameters, fromPlutusData, fromShelleyStakeReference, scriptDataToJsonDetailedSchema, shelleyPayAddrToPlutusPubKHash, toPlutusData, toShelleyStakeAddr, toShelleyStakeCredential)
 import qualified Cardano.Api.Shelley as Shelley
 import Cardano.Kuber.Api
-import Cardano.Kuber.Data.Parsers (parseAssetIdText, parseAssetNQuantity, parseScriptData, parseTxIn, parseValueText, scriptDataParser)
+import Cardano.Kuber.Data.Parsers (parseAssetIdText, parseAssetNQuantity, parseScriptData, parseTxIn, parseValueText, scriptDataParser, parseAssetId, parseSignKey)
 import Cardano.Kuber.Util hiding (toHexString)
 import Cardano.Ledger.Alonzo.Tx (TxBody (txfee))
 import qualified Cardano.Ledger.BaseTypes as Shelley (Network (..))
@@ -34,6 +34,8 @@ import Data.Maybe (fromMaybe, mapMaybe)
 import qualified Data.Set as Set
 import Data.Text (Text, strip)
 import qualified Data.Text as T
+import qualified Data.Text.IO as T
+
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TL
 import Plutus.Contracts.V1.SimpleMarketplace (SimpleSale (..), simpleMarketplacePlutus)
@@ -43,6 +45,8 @@ import qualified Plutus.V1.Ledger.Api as Plutus
 import System.Console.CmdArgs
 import System.Directory (doesFileExist, getCurrentDirectory, getDirectoryContents)
 import Cardano.Kuber.Console.ConsoleWritable
+import Data.Text.Encoding (encodeUtf8)
+import System.Directory.Internal.Prelude (getEnv)
 
 data Modes
   = Cat -- Cat script binary
@@ -64,8 +68,10 @@ data Modes
       }
   | Ls -- List utxos for market
   | Mint -- It mints a sample token 'testtoken' on the wallet
-      { 
-        signingKeyFile :: String
+      {
+        signingKeyFile :: String,
+        tokenName :: Text,
+        quantity :: Integer
       }
   | CreateCollateral -- Command for creating new collateral utxo containing 5 Ada
     {
@@ -98,12 +104,14 @@ runCli = do
             }
             &= help "Withdraw an asset by seller after finiding out txIn from market-cli ls. Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'",
           Ls &= help "List utxos for market",
-          Mint 
+          Mint
             {
-              signingKeyFile = def &= typ "FilePath" &= name "signing-key-file"
+              signingKeyFile = def &= typ "FilePath" &= name "signing-key-file",
+              tokenName = "" &=typ "tokenName" &= argPos 0,
+              quantity = 1 &=typ "quantity"
             }
           &= help "Mint a new asset",
-          CreateCollateral 
+          CreateCollateral
             {
               signingKeyFile = def &= typ "FilePath" &= name "signing-key-file"
             }
@@ -112,31 +120,45 @@ runCli = do
         &= program "market-cli"
         &= summary "Cardano Marketplace CLI \nVersion 1.0.0.0"
 
-  ctx <- chainInfoFromEnv
-  let marketAddr = marketAddressShelley (getNetworkId ctx)
+  chainInfo <- chainInfoFromEnv
+  let marketAddr = marketAddressShelley (getNetworkId chainInfo)
   case op of
     Ls -> do
-      utxos <- queryMarketUtxos ctx marketAddr
+      utxos <- queryMarketUtxos chainInfo marketAddr
       putStrLn $ "Market Address : " ++ T.unpack (serialiseAddress marketAddr)
       putStrLn $ toConsoleText "  " utxos
     Cat -> do
       let scriptInCbor = serialiseToCBOR simpleMarketplacePlutus
       putStrLn $ toHexString scriptInCbor
     Sell itemStr cost sKeyFile-> do
-      sKey <- readSignKey sKeyFile
-      sellToken ctx itemStr cost sKey marketAddr
+      sKey <- getSignKey sKeyFile
+      sellToken chainInfo itemStr cost sKey marketAddr
     Buy txInText datumStr sKeyFile-> do
-      sKey <- readSignKey sKeyFile
-      buyToken ctx txInText datumStr sKey marketAddr
+      sKey <- getSignKey sKeyFile
+      buyToken chainInfo txInText datumStr sKey marketAddr
     Withdraw txInText datumStr sKeyFile-> do
-      sKey <- getDefaultSignKey
-      withdrawToken ctx txInText datumStr sKey marketAddr
-    Mint sKeyFile-> do
-      skey <- readSignKey sKeyFile
-      simpleMintTest ctx skey
+      sKey <- getSignKey sKeyFile
+      withdrawToken chainInfo txInText datumStr sKey marketAddr
+    Mint sKeyFile tokenNameStr qty-> do
+      asset <- case deserialiseFromRawBytes AsAssetName $ encodeUtf8 tokenNameStr of
+          Nothing -> throwIO $ FrameworkError ParserError ("Invalid assetName string : "++ T.unpack  tokenNameStr)
+          Just an -> pure an
+      skey <- getSignKey sKeyFile
+      mint chainInfo skey (skeyToAddrInEra skey (getNetworkId chainInfo)) asset qty
     CreateCollateral sKeyFile-> do
-      skey <- readSignKey sKeyFile
-      let addrInEra = getAddrEraFromSignKey ctx skey
-          txOperations = txPayTo addrInEra (lovelaceToValue $ Lovelace 5_000_000) <> txWalletAddress addrInEra  
-      submitTransaction ctx txOperations skey
-    
+      skey <- getSignKey sKeyFile
+      let addrInEra = getAddrEraFromSignKey chainInfo skey
+          txOperations = txPayTo addrInEra (lovelaceToValue $ Lovelace 5_000_000) <> txWalletAddress addrInEra
+      submitTransaction chainInfo txOperations skey
+
+
+getSignKey :: [Char] -> IO (SigningKey PaymentKey)
+getSignKey skeyfile =
+  getPath >>=  T.readFile  >>= parseSignKey
+  where
+  getPath = if not (null skeyfile) && head skeyfile == '~'
+                          then (do
+                            home <- getEnv "HOME"
+                            pure  $ home ++  drop 1 skeyfile
+                            )
+                          else pure skeyfile

@@ -17,6 +17,7 @@ import Cardano.Kuber.Data.Parsers
     parseValueText, scriptDataParser
   )
 import Cardano.Kuber.Util
+    ( pkhToMaybeAddr, skeyToAddrInEra, queryUtxos )
 import qualified Data.Text as T
 import qualified Data.ByteString.Char8 as BS8
 import qualified Plutus.V1.Ledger.Address as Plutus

@@ -10,6 +10,10 @@ cabal build
 ```
 3. Now you can run the cli commands
 
+**Note** before using market-cli, You should be failiar with  `cardano-cli`  and be able to at last  following : 
+- generate signing key
+- obtain enterprise address corresponding to the signkey
+- querying account balance 
 
 market-cli required two environment variables to be properly configured for it to be able to work
 - `CARDANO_NODE_SOCKET_PATH` : Cardano node's socket file path. (&nbsp;Default&nbsp;:&nbsp;$HOME/.cardano/testnet/node.socket&nbsp;)
