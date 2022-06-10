@@ -44,9 +44,6 @@ import qualified Plutus.V1.Ledger.Api as Plutus
 import System.Console.CmdArgs
 import System.Directory (doesFileExist, getCurrentDirectory, getDirectoryContents)
 
--- getAddrEraFromSignKey signKey =
---   skeyToAddrInEra signKey . getNetworkId <$> chainInfoFromEnv
-
 data Modes
   = Cat -- Cat script binary
   | Sell
@@ -58,10 +55,6 @@ data Modes
         datum :: String
       }
   | Ls -- List utxos for market
-  | Withdraw
-      { txin :: Text,
-        datum :: String
-      }
   | Mint
   | CreateCollateral
   deriving (Show, Data, Typeable)
@@ -108,11 +101,6 @@ runCli = do
     Buy txInText datumStr -> do
       sKey <- getDefaultSignKey
       buyToken ctx txInText datumStr sKey marketAddr
-    Withdraw txInText datumStr -> do
-      --TODO
-      -- skey <- getDefaultSignKey
-      -- withdrawToken ctx  txInText datumStr sKey
-      putStrLn "Not implemented currently."
     Mint -> do
       skey <- getDefaultSignKey
       simpleMintTest ctx skey
