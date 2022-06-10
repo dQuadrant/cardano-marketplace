@@ -145,7 +145,7 @@ main = do
 
       rng <- newStdGen
       let shuffledWallets = shuffle' wallets (length wallets) rng
-      -- performMarketBench dcInfo noOfWallets shuffledWallets testAsset fundedSignKey
+      performMarketBench dcInfo noOfWallets shuffledWallets testAsset fundedSignKey
 
       -- printUtxoOfWallets dcInfo shuffledWallets
       putStrLn "\nFinished..."
