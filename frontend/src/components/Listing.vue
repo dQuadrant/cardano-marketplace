@@ -6,8 +6,6 @@ import workerJsonUrl from "ace-builds/src-noconflict/mode-json";
 import type {CIP30Instace, CIP30Provider} from "@/types";
 import {Address} from "@emurgo/cardano-serialization-lib-asmjs";
 import {Buffer} from "buffer";
-import * as _notification from "@dafcoe/vue-notification";
-import * as database from "@/scripts/database"
 import {listMarket, getAssetDetail, getDatum} from "@/scripts/blockfrost";
 import {decodeAssetName, listProviders, callKuberAndSubmit, transformNftImageUrl, renderLovelace} from "@/scripts/wallet";
 // @ts-ignore
@@ -61,7 +59,12 @@ ace.config.setModuleUrl("ace/mode/json_worker", workerJsonUrl);
   </div>
 </template>
 <script lang="ts">
-
+import * as _notification from "@dafcoe/vue-notification";
+import * as database from "@/scripts/database"
+import {listMarket, getAssetDetail, getDatum} from "@/scripts/blockfrost";
+import {Buffer} from "buffer";
+import type {CIP30Provider} from "@/types";
+import {decodeAssetName} from "@/scripts/wallet";
 
 const notification = _notification.useNotificationStore();
 const parser = /^([a-zA-Z0-9+]+):\/\/(.+)/
