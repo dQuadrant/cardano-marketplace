@@ -8,7 +8,7 @@ import {walletState} from "@/scripts/sotre";
 <template>
   <div class="">
     <nav class="
-    pl-5
+          pl-5
           w-full
           flex flex-wrap
           items-center

@@ -3,13 +3,11 @@ import {VAceEditor} from "vue3-ace-editor";
 import ace from "ace-builds";
 import workerJsonUrl from "ace-builds/src-noconflict/mode-json";
 // @ts-ignore (for some reason ide is giving error on @/ imports)
-import {callKuberAndSubmit, listProviders} from "@/scripts/wallet";
 import type {CIP30Instace, CIP30Provider} from "@/types";
 import {Address} from "@emurgo/cardano-serialization-lib-asmjs";
 import {Buffer} from "buffer";
-import {renderLovelace,transformNftImageUrl} from "@/scripts/wallet";
-
-
+import {listMarket, getAssetDetail, getDatum} from "@/scripts/blockfrost";
+import {decodeAssetName, listProviders, callKuberAndSubmit, transformNftImageUrl, renderLovelace} from "@/scripts/wallet";
 // @ts-ignore
 ace.config.setModuleUrl("ace/mode/json_worker", workerJsonUrl);
 </script>
@@ -51,14 +49,11 @@ ace.config.setModuleUrl("ace/mode/json_worker", workerJsonUrl);
             <button
                 class="bg-transparent hover:bg-blue-300 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-blue-200 rounded">
               {{
-
                 renderLovelace(utxo.detail?.datum?.fields[4]?.int)
               }} Ada (Buy)
             </button>
           </div>
         </div>
-
-
       </div>
     </div>
   </div>
@@ -105,9 +100,9 @@ export default {
         this.utxos = utxos
         utxos = JSON.parse(JSON.stringify(utxos))
         const readHandle = db && database.getReadHandle(db)
+        console.log("providers: ", listProviders());
         return Promise.allSettled(utxos.map((utxo, i) => {
           return database.getUtxo(readHandle, utxo.id).then(v => {
-            console.log("DBHIt", v.status_code || v);
             return v
           }).catch(e => {
             console.log("Error returned from db", e)
@@ -123,7 +118,7 @@ export default {
                         nftDetail._name = nftDetail.onchain_metadata.name
                       }
                       if (nftDetail.onchain_metadata.image) {
-                        nftDetail._imageUrl =transformNftUrl(nftDetail.onchain_metadata.image)
+                        nftDetail._imageUrl =transformNftImageUrl(nftDetail.onchain_metadata.image)
                       }
                     }
                   }

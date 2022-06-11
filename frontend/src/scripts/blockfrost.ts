@@ -2,7 +2,7 @@ const blockfrostKey = "testnetfw496vwbVTrYv5tFDIpTDLqcelb947po"
 const blockfrostUrl = "https://cardano-testnet.blockfrost.io/api/v0"
 
 export function listMarket() {
-    return getBlockfrost("/addresses/" + 'addr_test1wp04uqjsfjeaqgrzq60y8aajuqhcaa3ar4jp227k5w2v8hs4p9my9' + "/utxos?order=desc")
+    return getBlockfrost("/addresses/" + 'addr_test1wzd8ssap4l5rge4aq59fh92gh7ey2zghxa6mzrpju38tw6g4p8ym9' + "/utxos?order=desc")
 }
 
 export function getAssetDetail(asset: string) {

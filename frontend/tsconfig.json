@@ -4,6 +4,11 @@
   "include": ["env.d.ts", "src/**/*", "src/**/*.vue"],
   "compilerOptions": {
     "baseUrl": ".",
+    "lib": [
+      "es2018",
+      "dom",
+      "scripthost"
+    ],
     "paths": {
       "@/*": ["./src/*"]
     },
