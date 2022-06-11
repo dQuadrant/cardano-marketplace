@@ -2,30 +2,30 @@
 import {VAceEditor} from "vue3-ace-editor";
 import ace from "ace-builds";
 import workerJsonUrl from "ace-builds/src-noconflict/mode-json";
-// @ts-ignore (for some reason ide is giving error on @/ imports)
 import type {CIP30Instace, CIP30Provider} from "@/types";
-import {Address} from "@emurgo/cardano-serialization-lib-asmjs";
 import {Buffer} from "buffer";
 import {listMarket, getAssetDetail, getDatum} from "@/scripts/blockfrost";
 import {decodeAssetName, listProviders, callKuberAndSubmit, transformNftImageUrl, renderLovelace} from "@/scripts/wallet";
-// @ts-ignore
+import * as database from "@/scripts/database"
+import {market} from "@/config";
+import {Address, BaseAddress, Ed25519KeyHash, StakeCredential} from "@emurgo/cardano-serialization-lib-asmjs";
+import {walletAction} from "@/scripts/sotre"
 ace.config.setModuleUrl("ace/mode/json_worker", workerJsonUrl);
 </script>
 
 <template>
   <div>
-    <vue-notification-list position="top-right"></vue-notification-list>
-
-    <div class=" ml-2">
+    <div class=" ml-2"> 
+      <div v-if="utxos.length==0" class="text-gray-400 font-semibold text-center my-5"> {{message}}</div>
       <div v-for="utxo in utxos" :key="utxo.id" class="p-2 flex">
-        <img :alt="utxo.assetName +'_img'" class="inline-block h-32 w-32  mr-4" :src="utxo.detail._imageUrl"/>
+        <img :alt="utxo.assetName +'_img'" class="inline-block h-32 w-32  mr-4 border-red-300 border-2" :src="utxo.detail._imageUrl"/>
         <div class="flex flex-col justify-between pb-2">
           <div>
 
             <div v-if="utxo.detail._name">
               <a :href="'https://testnet.cardanoscan.io/token/'+utxo.nft"> &#x29c9; </a>
 
-              <span class="text-blue-900 text-xl font-extrabold"> {{ utxo.detail._name }}  </span>
+              <span class="text-blue-900 text-xl font-extrabol"> {{ utxo.detail._name }}  </span>
               <span v-if="utxo.detail?.onchain_metadata?.artist"> <span
                   class="text-gray-400 text-xs"> &nbsp; by {{ utxo.detail.onchain_metadata.artist }}</span>  </span>
             </div>
@@ -46,10 +46,10 @@ ace.config.setModuleUrl("ace/mode/json_worker", workerJsonUrl);
             </div>
           </div>
           <div>
-            <button
+            <button  @click="buy(utxo)"
                 class="bg-transparent hover:bg-blue-300 text-blue-700 font-semibold hover:text-white py-2 px-4 border border-blue-500 hover:border-blue-200 rounded">
               {{
-                renderLovelace(utxo.detail?.datum?.fields[4]?.int)
+                renderLovelace(utxo.detail?.datum?.fields[1]?.int)
               }} Ada (Buy)
             </button>
           </div>
@@ -59,16 +59,6 @@ ace.config.setModuleUrl("ace/mode/json_worker", workerJsonUrl);
   </div>
 </template>
 <script lang="ts">
-import * as _notification from "@dafcoe/vue-notification";
-import * as database from "@/scripts/database"
-import {listMarket, getAssetDetail, getDatum} from "@/scripts/blockfrost";
-import {Buffer} from "buffer";
-import type {CIP30Provider} from "@/types";
-import {decodeAssetName} from "@/scripts/wallet";
-
-const notification = _notification.useNotificationStore();
-const parser = /^([a-zA-Z0-9+]+):\/\/(.+)/
-
 export default {
   created() {
     const _this = this
@@ -78,7 +68,6 @@ export default {
       db = dbInstance
     }).finally(() => {
       return listMarket().then(response => {
-        const _this = this
         console.log("All  Marketet utxos", response)
         let utxos: Array<any> = response.filter(utxo => {
           const amount_ = utxo.amount.filter(x => x.unit !== 'lovelace')
@@ -97,10 +86,7 @@ export default {
             return false
           }
         })
-        this.utxos = utxos
-        utxos = JSON.parse(JSON.stringify(utxos))
         const readHandle = db && database.getReadHandle(db)
-        console.log("providers: ", listProviders());
         return Promise.allSettled(utxos.map((utxo, i) => {
           return database.getUtxo(readHandle, utxo.id).then(v => {
             return v
@@ -152,8 +138,17 @@ export default {
               const validUtxos = utxos.filter(v => v.detail)
               console.log("Valid market utxos", validUtxos)
               this.utxos = validUtxos
+              if(validUtxos.length == 0){
+                this.message="Marketplace is empty"
+              }
             }
         )
+      }).catch((e)=>{
+        if(e.status_code == 404){
+            this.message="Marketplace is empty"
+        }else{
+          alert(e.message)
+        }
       })
     })
   },
@@ -162,11 +157,11 @@ export default {
     const providers: Array<CIP30Provider> = [];
 
     return {
+      message: "Loading ...",
       hasIndexDb: false,
       utxos: [],
       providers: providers,
       addSelections: true,
-      editor: null,
       interval: 0,
       timeout: 0,
     };
@@ -175,56 +170,43 @@ export default {
     mapDescription(desc: Array<string> | string) {
       return Array.isArray(desc) ? desc.join('') : desc
     },
-    submitTx(provider: CIP30Provider) {
-      const editorContent = this.editor.getValue();
-      this.save(editorContent);
-      let request;
-      try {
-        request = JSON.parse(editorContent);
-      } catch (e: any) {
-        notification.setNotification({
-          type: "alert",
-          message: e.message,
-        });
-        return;
+    async buy( utxo) {
+      console.log(utxo)
+      const datum = utxo.detail.datum
+      const cost = datum.fields[1].int;
+      const sellerPubKeyHashHex =datum.fields[0].fields[0].fields[0].bytes
+      const sellerStakeKeyHashHex = datum.fields[0].fields[1].fields[0].bytes
+      const vkey = StakeCredential.from_keyhash(Ed25519KeyHash.from_bytes(Buffer.from(sellerPubKeyHashHex, "hex")))
+      const stakeKey = StakeCredential.from_keyhash(Ed25519KeyHash.from_bytes(Buffer.from(sellerStakeKeyHashHex, "hex")))
+      const sellerAddr= BaseAddress.new(0,vkey,stakeKey)
+      console.log("SellerAddr",sellerAddr.to_address().to_bech32())
+
+      walletAction.callback=async (provider : CIP30Instace)=>{
+          const request = {
+        selections: await provider.getUtxos(),
+        inputs: [
+          {
+            address: market.address,
+            utxo: {
+              "hash":utxo.tx_hash,
+              "index": utxo.tx_index
+            },
+            script: market.script,
+            // value: `2A + ${nft.policy}.${nft.asset_name}`,
+            datum: datum,
+            redeemer: { fields: [], constructor: 0 },
+          },
+        ],
+        outputs: [
+          {
+            address: sellerAddr.to_address().to_bech32("addr_test"),
+            value: cost
+          }
+        ],
+      };
+      return callKuberAndSubmit(provider,JSON.stringify(request))
       }
-      return provider
-          .enable()
-          .then(async (instance: CIP30Instace) => {
-            const collateral = instance.getCollateral ? await instance.getCollateral().catch(() => {
-            }) || [] : [];
-            if (request.collaterals && typeof request.collaterals.push === "function") {
-              collateral.forEach((x) => request.collaterals.push(x));
-            } else if (collateral.length) {
-              request.collaterals = collateral;
-            }
-            if (this.addSelections) {
-              const availableUtxos = await instance.getUtxos();
-
-              if (request.selections) {
-                if (typeof request.selections.push === "function") {
-                  availableUtxos.forEach((v) => {
-                    request.selections.push(v);
-                  });
-                }
-              } else {
-                request.selections = availableUtxos;
-              }
-              return callKuberAndSubmit(instance, JSON.stringify(request));
-            } else {
-              return callKuberAndSubmit(instance, JSON.stringify(request));
-            }
-          })
-          .catch((e: any) => {
-            console.error("SubmitTx", e);
-            notification.setNotification({
-              type: "alert",
-              message: e.message || "Oopsie, Nobody knows what happened",
-            });
-          });
-    },
-    editorInit(v: any) {
-
+      walletAction.enable=true
     },
     save(v: string) {
       localStorage.setItem("editor.content", v);

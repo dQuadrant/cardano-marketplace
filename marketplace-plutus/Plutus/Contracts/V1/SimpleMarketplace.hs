@@ -54,7 +54,7 @@ allScriptInputsCount ctx@(ScriptContext info purpose)=
 
 data MarketRedeemer =  Buy | Withdraw
     deriving (Generic,FromJSON,ToJSON,Show,Prelude.Eq)
-PlutusTx.makeIsDataIndexed ''MarketRedeemer [('Buy, 0), ('Withdraw,0)]
+PlutusTx.makeIsDataIndexed ''MarketRedeemer [('Buy, 0), ('Withdraw,1)]
 
 
 data SimpleSale=SimpleSale{

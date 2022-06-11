@@ -1,8 +1,9 @@
-const blockfrostKey = "testnetfw496vwbVTrYv5tFDIpTDLqcelb947po"
-const blockfrostUrl = "https://cardano-testnet.blockfrost.io/api/v0"
+
+import {blockfrost,market} from    "@/config"
+
 
 export function listMarket() {
-    return getBlockfrost("/addresses/" + 'addr_test1wzd8ssap4l5rge4aq59fh92gh7ey2zghxa6mzrpju38tw6g4p8ym9' + "/utxos?order=desc")
+    return getBlockfrost("/addresses/" + market.address + "/utxos?order=desc")
 }
 
 export function getAssetDetail(asset: string) {
@@ -14,9 +15,9 @@ export function getDatum(hash: string) {
 }
 
 function getBlockfrost(path) {
-    const url= blockfrostUrl + path
+    const url= blockfrost.apiUrl + path
     return fetch(url, {
-        headers: {project_id: blockfrostKey}
+        headers: {project_id: blockfrost.apiKey}
     }).then(res => {
         if (res.status === 200) {
             return res.json()

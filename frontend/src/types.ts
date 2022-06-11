@@ -2,9 +2,9 @@ export type HexString  = string;
 
 export  interface CIP30Provider {
     apiVersion: String ;
-    enable : Awaited<Promise<any>>;
+    enable : ()=> Promise<CIP30Instace>;
     icon: string;
-    isEnabled: Awaited<Promise<Boolean>>;
+    isEnabled:()=> Promise<Boolean>;
     name: string;
 }
 

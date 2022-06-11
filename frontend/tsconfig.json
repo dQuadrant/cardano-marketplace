@@ -5,7 +5,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "lib": [
-      "es2018",
+      "es2020",
       "dom",
       "scripthost"
     ],

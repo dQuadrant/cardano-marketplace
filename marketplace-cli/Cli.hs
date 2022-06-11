@@ -128,6 +128,7 @@ runCli = do
       putStrLn $ "Market Address : " ++ T.unpack (serialiseAddress marketAddr)
       putStrLn $ toConsoleText "  " utxos
     Cat -> do
+
       let scriptInCbor = serialiseToCBOR simpleMarketplacePlutus
       putStrLn $ toHexString scriptInCbor
     Sell itemStr cost sKeyFile-> do
