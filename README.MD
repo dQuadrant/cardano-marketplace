@@ -63,6 +63,5 @@ cabal configure --with-compiler=ghc-8.10.7
 
 
 ## Usage:
- - [Using Cli](./docs/cli.md)
-
- 
+- [Using frontend](./frontend) : (Preferred Way) Its easier to get started.
+- [Using Cli](./docs/cli.md)
