@@ -9,12 +9,12 @@ export function openDB():Promise<IDBDatabase> {
                 reject('Error');
             };
 
-            request.onsuccess = e => {
+            request.onsuccess = (e:any ) => {
                 console.log("Success opening db",e)
                 resolve(e.target.result);
             };
 
-            request.onupgradeneeded = event => {
+            request.onupgradeneeded = (event: any) => {
                 console.log("Upgrading db",event)
                 var db: IDBDatabase = event.target.result;
 
@@ -38,15 +38,15 @@ export function openDB():Promise<IDBDatabase> {
         }
     });
 }
-export function saveUtxos(db: IDBDatabase| undefined|null ,objects:Array<any>){
+export function saveUtxos(db: IDBDatabase| undefined|null ,objects:Array<any>): Promise<any>{
     if(!db){
         return Promise.reject("Null db instance")
     }
     return new Promise((resolve, reject):void => {
         console.log("Starting to save")
         let trans: IDBTransaction = db.transaction('utxoContent', 'readwrite');
-        trans.oncomplete = (e) => {
-            resolve();
+        trans.oncomplete = () => {
+            resolve(objects);
         };
         trans.onerror=(e)=>{
             console.log("Saving error",e)

@@ -33,6 +33,12 @@ export async function signAndSubmit(provider: CIP30Instace, _tx: string) {
         if(_txBody.required_signers()){
             txBody.set_required_signers(_txBody.required_signers())
         }
+        if(_txBody.validity_start_interval_bignum()) {
+            txBody.set_validity_start_interval_bignum(_txBody.validity_start_interval_bignum())
+        }
+        if(_txBody.network_id()){
+            txBody.set_network_id(_txBody.network_id())
+        }
         tx = Transaction.new(txBody, tx.witness_set(), tx.auxiliary_data())
       }
     } catch (e:any) {
@@ -226,7 +232,7 @@ export async function walletValue(provider): Promise<any> {
             const assetName = Buffer.from(a.name())
             policyMap[assetName.toString('hex')] = BigInt(q.to_str())
         })
-        
+
     })
     console.log("policymap",assetObj)
 

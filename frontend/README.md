@@ -4,7 +4,6 @@ Vue project for interacting with marketplace contract on cardano testnet. Fronte
 
 ![](../docs/frontend.svg)
 
-You can run your own kuber server and cardano-node instance locally (this is the preferable way of using the kuber server)
 ## Recommended IDE Setup
 
 [VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.vscode-typescript-vue-plugin).
@@ -22,3 +21,8 @@ npm install
 ```sh
 npm run dev
 ```
+        
+**Configuration file : [src/config.ts](./src/config.ts)**
+
+You can either use `https://testnet.cnftregistry.io/kuber`  for apiServer. Better approach is to run your own kuber server and cardano-node instance locally.
+

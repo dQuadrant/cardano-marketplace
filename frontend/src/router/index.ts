@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import Editor from '@/components/Editor.vue'
 import Listing from '@/components/Listing.vue'
 import Wallet from '@/components/Wallet.vue'
 
@@ -20,15 +19,7 @@ const router = createRouter({
           path:"/wallet",
           name : "walet",
           component: Wallet
-      },
-    {
-      path: '/kuber',
-      name: 'kuber',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: Editor
-    }
+      }
   ]
 })
 
