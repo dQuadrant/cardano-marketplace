@@ -1,5 +1,5 @@
 
-export const kuberApiUrl = "https://cnftregistry.io/kuber"
+export const kuberApiUrl = "https://testnet.cnftregistry.io/kuber"
 export const blockfrost = {
     apiUrl: "https://cardano-testnet.blockfrost.io/api/v0",
     apiKey: "testnetfw496vwbVTrYv5tFDIpTDLqcelb947po",  // NEVER COMMIT API_KEYS in your source code  (Made available only for Plutus Developer Hackathon)
