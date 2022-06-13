@@ -29,6 +29,7 @@ import qualified Cardano.Api.Shelley as Shelley
 import Plutus.V1.Ledger.Api (toData)
 import Control.Exception (throwIO)
 import Data.Maybe (fromMaybe)
+import qualified Data.Set as Set
 
 
 
@@ -57,7 +58,7 @@ scriptCredential = PaymentCredentialByScript marketHash
 
 queryMarketUtxos :: ChainInfo v => v -> Address ShelleyAddr -> IO (UTxO AlonzoEra)
 queryMarketUtxos ctx addr = do
-  utxos <- queryUtxos (getConnectInfo ctx) $ mempty  (toAddressAny addr)
+  utxos <- queryUtxos (getConnectInfo ctx) $ Set.singleton  (toAddressAny addr)
   case utxos of
     Left err -> error $ "Error while querying utxos " ++ show err
     Right utxos' -> pure utxos'
