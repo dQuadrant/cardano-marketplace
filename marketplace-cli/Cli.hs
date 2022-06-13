@@ -77,6 +77,10 @@ data Modes
     {
       signingKeyFile :: String
     }
+  | Balance -- Command for showing funds of the wallet
+    {
+      signingKeyFile :: String
+    }
   deriving (Show, Data, Typeable)
 
 runCli :: IO ()
@@ -115,7 +119,12 @@ runCli = do
             {
               signingKeyFile = def &= typ "FilePath''" &= name "signing-key-file"
             }
-          &= help "Create a new collateral utxo."
+          &= help "Create a new collateral utxo.",
+          Balance
+            {
+              signingKeyFile = def &= typ "'FilePath''" &= name "signing-key-file"
+            }
+          &= help "Show funds of wallet."
         ]
         &= program "market-cli"
         &= summary "Cardano Marketplace CLI \nVersion 1.0.0.0"
@@ -151,6 +160,13 @@ runCli = do
       let addrInEra = getAddrEraFromSignKey chainInfo skey
           txOperations = txPayTo addrInEra (lovelaceToValue $ Lovelace 5_000_000) <> txWalletAddress addrInEra
       submitTransaction chainInfo txOperations skey
+    Balance sKeyFile-> do
+      skey <- getSignKey sKeyFile
+      let addrInEra = getAddrEraFromSignKey chainInfo skey
+      utxosE <- queryAddressInEraUtxos (getConnectInfo chainInfo) [addrInEra]
+      case utxosE of 
+        Left fe -> throwIO $ FrameworkError ParserError (show fe)
+        Right utxos -> putStrLn $ toConsoleText " " utxos
 
 
 getSignKey :: [Char] -> IO (SigningKey PaymentKey)
