@@ -93,11 +93,21 @@ parseSimpleSale datumStr = do
   let simpleSale = unMaybe "Failed to convert datum to SimpleSale" $ Plutus.fromData $ toPlutusData scriptData
   return (scriptData, simpleSale)
 
+signTxBody :: TxBody AlonzoEra -> [SigningKey PaymentKey] -> Tx AlonzoEra
+signTxBody txBody skeys= do
+          makeSignedTransaction (map toWitness skeys) txBody
+  where
+    toWitness skey = makeShelleyKeyWitness txBody (WitnessPaymentKey skey)
+
 submitTransaction :: ChainInfo v => v -> TxBuilder -> SigningKey PaymentKey -> IO ()
 submitTransaction dcInfo txOperations sKey = do
   txBodyE <- txBuilderToTxBodyIO dcInfo txOperations
   txBody <- case txBodyE of
     Left fe -> throwIO fe
     Right txBody -> pure txBody
-  tx <- signAndSubmitTxBody (getConnectInfo dcInfo) txBody [sKey]
+  let tx = signTxBody txBody [sKey]
+  result <- executeSubmitTx (getConnectInfo dcInfo) tx
+  case result of
+    Left err -> throwIO err
+    Right _ -> pure ()
   putStrLn $ "Transaction submitted sucessfully with transaction hash " ++ getTxIdFromTx tx
