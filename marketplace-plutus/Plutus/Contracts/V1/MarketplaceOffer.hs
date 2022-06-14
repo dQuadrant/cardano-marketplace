@@ -21,7 +21,8 @@ module Plutus.Contracts.V1.MarketplaceOffer(
   offerValidator,
   offerScript,
   OfferRedeemer(..),
-  SimpleOffer(..)
+  SimpleOffer(..),
+  OperatorConfig(..)
 )
 where
 
@@ -40,7 +41,7 @@ import Plutus.V1.Ledger.Address (toPubKeyHash, scriptHashAddress, toValidatorHas
 import Plutus.V1.Ledger.Scripts (getScriptHash, ScriptHash (ScriptHash))
 import qualified Data.ByteString.Short as SBS
 import qualified Data.ByteString.Lazy  as LBS
-import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV1)
+import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV1, AssetId (AdaAssetId))
 import Codec.Serialise ( serialise )
 
 
@@ -66,36 +67,49 @@ data SimpleOffer=SimpleOffer{
   } deriving(Show,Generic)
 
 
-PlutusTx.makeIsDataIndexed ''SimpleOffer [('SimpleOffer, 0)]    
+PlutusTx.makeIsDataIndexed ''SimpleOffer [('SimpleOffer, 0)]
+
+
+data OperatorConfig = OperatorConfig{
+    operatorPkh:: PubKeyHash, -- The address of the operator
+    operatorFee :: Integer -- The fee that the operator charges for each transaction it is in ada for simplicity
+  } deriving(Show,Generic)
+
+PlutusTx.makeLift ''OperatorConfig
 
 {-# INLINABLE mkOffer #-}
-mkOffer ::  SimpleOffer   -> OfferRedeemer -> ScriptContext    -> Bool
-mkOffer  ds@SimpleOffer{offererAddress,tokenName,policyId}  action ctx =
-  case toPubKeyHash offererAddress of 
+mkOffer ::  OperatorConfig -> SimpleOffer   -> OfferRedeemer -> ScriptContext    -> Bool
+mkOffer  opConfig ds@SimpleOffer{offererAddress,tokenName,policyId}  action ctx =
+  case toPubKeyHash offererAddress of
     Nothing -> traceError "Script Address in Offerer"
     Just pkh -> case  action of
-        AcceptOffer -> traceIfFalse "Multiple script inputs" (allScriptInputsCount  ctx == 1)  && 
-                        traceIfFalse "Offerer not paid" (assetClassValueOf   (valuePaidTo info pkh) offerAsset > 0)
+        AcceptOffer -> traceIfFalse "Multiple script inputs" (allScriptInputsCount  ctx == 1)
+                        && traceIfFalse "Offerer not paid" (assetClassValueOf (valuePaidTo info pkh) offerAsset > 0)
+                        && traceIfFalse "Operator not paid" isOperatorFeePaid
         CancelOffer -> traceIfFalse "Offerer Signature Missing" $ txSignedBy info pkh
 
     where
       info  =  scriptContextTxInfo ctx
       offerAsset=AssetClass (policyId,tokenName )
+      operatorAsset= AssetClass (adaSymbol,adaToken)
+      isOperatorFeePaid = assetClassValueOf (valuePaidTo info (operatorPkh opConfig)) operatorAsset >= operatorFee opConfig
 
 {-# INLINABLE mkWrappedOffer #-}
-mkWrappedOffer ::  BuiltinData -> BuiltinData -> BuiltinData -> ()
-mkWrappedOffer  d r c = check $ mkOffer (unsafeFromBuiltinData d) (unsafeFromBuiltinData r) (unsafeFromBuiltinData c)
+mkWrappedOffer ::  OperatorConfig -> BuiltinData -> BuiltinData -> BuiltinData -> ()
+mkWrappedOffer opConfig d r c = check $ mkOffer opConfig (unsafeFromBuiltinData d) (unsafeFromBuiltinData r) (unsafeFromBuiltinData c)
 
 
-offerValidator ::   Validator
-offerValidator = mkValidatorScript  $
+offerValidator ::   OperatorConfig -> Validator
+offerValidator opConfig = mkValidatorScript  $
             $$(PlutusTx.compile [|| mkWrappedOffer ||])
+            `applyCode` PlutusTx.liftCode opConfig
 
-offerScript ::   Script
-offerScript  =  unValidatorScript  offerValidator
 
-offerScriptBS :: SBS.ShortByteString
-offerScriptBS  =  SBS.toShort . LBS.toStrict $ serialise $ offerScript 
+offerScript ::   OperatorConfig -> Script
+offerScript  opConfig =  unValidatorScript $ offerValidator opConfig
 
-offerScriptPlutus  ::  PlutusScript PlutusScriptV1
-offerScriptPlutus  = PlutusScriptSerialised $ offerScriptBS
+offerScriptBS :: OperatorConfig -> SBS.ShortByteString
+offerScriptBS opConfig =  SBS.toShort . LBS.toStrict $ serialise $ offerScript opConfig
+
+offerScriptPlutus  ::  OperatorConfig -> PlutusScript PlutusScriptV1
+offerScriptPlutus opConfig = PlutusScriptSerialised $ offerScriptBS opConfig
