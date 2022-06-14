@@ -1,6 +1,6 @@
 cabal-version:      2.4
 name:               cardano-marketplace
-version:            2.0.0.0
+version:            3.0.0.0
 
 -- A short (one-line) description of the package.
 -- synopsis: Simple marketplace for buying and selling of tokens.
@@ -24,6 +24,7 @@ maintainer:         Sireto
 library marketplace-plutus
   exposed-modules:
     Plutus.Contracts.V1.SimpleMarketplace
+    Plutus.Contracts.V2.SimpleMarketplace
   hs-source-dirs: marketplace-plutus
   build-depends:
       base  -any

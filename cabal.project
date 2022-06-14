@@ -1,5 +1,5 @@
 -- Bump this if you need newer packages
-index-state: 2022-01-26T14:47:51Z
+index-state:2022-02-18T00:00:00Z
 
 packages: .
           -- /home/krunx/Projects/easy-cardano
@@ -20,29 +20,23 @@ package eventful-sql-common
   ghc-options: -XDerivingStrategies -XStandaloneDeriving -XUndecidableInstances -XDataKinds -XFlexibleInstances
 
 allow-newer:
-           -- Pins to an old version of Template Haskell, unclear if/when it will be updated
-           size-based:template-haskell
-           , ouroboros-consensus-byron:formatting
-           , beam-core:aeson
-           , beam-sqlite:aeson
-           , beam-sqlite:dlist
-           , beam-migrate:aeson
+  *:aeson
+  , monoidal-containers:aeson
+  , size-based:template-haskell
+  , ouroboros-consensus-byron:formatting
+  , beam-core:aeson
+  , beam-sqlite:aeson
+  , beam-sqlite:dlist
+  , beam-migrate:aeson
 
 constraints:
-  -- big breaking change here, inline-r doens't have an upper bound
-  -- singletons < 3.0
-  -- -- bizarre issue: in earlier versions they define their own 'GEq', in newer
-  -- -- ones they reuse the one from 'some', but there isn't e.g. a proper version
-  -- -- constraint from dependent-sum-template (which is the library we actually use).
-  -- , dependent-sum > 0.6.2.0
-  -- -- Newer Hashable have instances for Set, which breaks beam-migrate
-  -- -- which declares its own instances of Hashable Set
-  -- , hashable < 1.3.4.0
+    hedgehog >= 1.0
+  , bimap >= 0.4.0
+  , libsystemd-journal >= 1.4.4
+  , systemd >= 2.3.0
+  , network >= 3.1.1.0
 
--- These packages appear in our dependency tree and are very slow to build.
--- Empirically, turning off optimization shaves off ~50% build time.
--- It also mildly improves recompilation avoidance.
--- For deve work we don't care about performance so much, so this is okay.
+
 package cardano-ledger-alonzo
   optimization: False
 package ouroboros-consensus-shelley
@@ -79,7 +73,7 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/input-output-hk/cardano-base
-  tag: 41545ba3ac6b3095966316a99883d678b5ab8da8
+  tag: 631cb6cf1fa01ab346233b610a38b3b4cba6e6ab
   subdir:
     base-deriving-via
     binary
@@ -104,41 +98,25 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/input-output-hk/ouroboros-network
-  tag: 4fac197b6f0d2ff60dc3486c593b68dc00969fbf
+  tag: 04245dbd69387da98d3a37de9f400965e922bb0e
   --sha256: 0lfbipfdrzay8v1pcazx0qgkda3d1j0505yig9jrml9j7991rmhl
   subdir:
     monoidal-synchronisation
-    typed-protocols
-    typed-protocols-cborg
-    typed-protocols-examples
-    ouroboros-network
-    ouroboros-network-testing
-    ouroboros-network-framework
+    network-mux
     ouroboros-consensus
     ouroboros-consensus-byron
     ouroboros-consensus-cardano
     ouroboros-consensus-protocol
     ouroboros-consensus-shelley
-    strict-stm
-    io-sim
-    io-classes
-    network-mux
-    ntp-client
+    ouroboros-network
+    ouroboros-network-framework
+    ouroboros-network-testing
+
 
 source-repository-package
   type: git
   location: https://github.com/input-output-hk/iohk-monitoring-framework
-  -- Important Note: Read below, before changing this!
-  tag: 808724ff8a19a33d0ed06f9ef59fbd900b08553c
-  -- Are you thinking of updating this tag to some other commit?  Please
-  -- ensure that the commit you are about to use is the latest one from
-  -- the *develop* branch of this repo:
-  --   * <https://github.com/input-output-hk/iohk-monitoring-framework/commits/develop>
-  -- (not master!)
-  --
-  -- In particular we rely on the code from this PR:
-  --  * <https://github.com/input-output-hk/iohk-monitoring-framework/pull/622>
-  -- being merged.
+  tag: 066f7002aac5a0efc20e49643fea45454f226caa
   subdir:
     iohk-monitoring
     tracer-transformers
@@ -152,9 +130,10 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/input-output-hk/cardano-ledger
-  tag: 1a9ec4ae9e0b09d54e49b2a40c4ead37edadcce5
+  tag: e290bf8d0ea272a51e9acd10adc96b4e12e00d37
   --sha256: 0my3801w1vinc0kf5yh9lxl6saqxgwm6ccg0vvzi104pafcwwcqx
   subdir:
+    eras/babbage/impl
     eras/alonzo/impl
     eras/byron/chain/executable-spec
     eras/byron/crypto
@@ -169,7 +148,7 @@ source-repository-package
     libs/cardano-ledger-pretty
     libs/cardano-protocol-tpraos
     libs/cardano-data
-    libs/compact-map
+    libs/vector-map
     libs/set-algebra
     libs/small-steps
     libs/small-steps-test
@@ -182,7 +161,7 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/input-output-hk/cardano-node.git
-  tag: 73f9a746362695dc2cb63ba757fbcabb81733d23
+  tag: 95c3692cfbd4cdb82071495d771b23e51840fb0e
   subdir:
     cardano-api
 
@@ -202,7 +181,7 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/input-output-hk/plutus
-  tag: fc5fe94d3d9525d032bcbc79ff0e1ebcfd8ef143
+  tag: d24a7540e4659b57ce2ab25dadb968991e232191
   subdir:
    plutus-ledger-api
    word-array
@@ -214,5 +193,37 @@ source-repository-package
 
 source-repository-package
   type: git
+  location: https://github.com/input-output-hk/typed-protocols
+  tag: 181601bc3d9e9d21a671ce01e0b481348b3ca104
+  --sha256: 1h1nh10859kd7j8bb55y577jfdp42aqpppx8fn0pm6fra5748a50
+  subdir:
+    typed-protocols
+    typed-protocols-cborg
+    typed-protocols-examples
+
+source-repository-package
+  type: git
+  location: https://github.com/input-output-hk/optparse-applicative
+  tag: 7497a29cb998721a9068d5725d49461f2bba0e7a
+  --sha256: 1gvsrg925vynwgqwplgjmp53vj953qyh3wbdf34pw21c8r47w35r
+
+source-repository-package
+  type: git
+  location: https://github.com/vshabanov/ekg-json
+  tag: 00ebe7211c981686e65730b7144fbf5350462608
+  --sha256: 1zvjm3pb38w0ijig5wk5mdkzcszpmlp5d4zxvks2jk1rkypi8gsm
+
+source-repository-package
+  type: git
+  location: https://github.com/input-output-hk/io-sim
+  tag: f4183f274d88d0ad15817c7052df3a6a8b40e6dc
+  --sha256: 048djqfdkzrbmdz670knbkjy12wddpvsmhm4x5yldg3w9lwqi1yx
+  subdir:
+    io-classes
+    io-sim
+    strict-stm
+
+source-repository-package
+  type: git
   location: https://github.com/dQuadrant/kuber.git
-  tag: 8cc91b138098c2783e857bd38d4ff42381f9e507
+  tag: 0ac411239407d1db85ac97f7708ee1b2b98e9c89
