@@ -19,16 +19,16 @@ import qualified Cardano.Ledger.BaseTypes as Shelley (Network (..))
 import Cardano.Marketplace.Common.TextUtils
 import Cardano.Marketplace.Common.TransactionUtils
 import Codec.Serialise (serialise)
-import qualified Plutus.Contracts.V1.SimpleMarketplace as SMP
+import qualified Plutus.Contracts.V2.SimpleMarketplace as SMP
 import qualified Data.Map as Map
-import Plutus.Contracts.V1.SimpleMarketplace hiding ( Withdraw)
+import Plutus.Contracts.V2.SimpleMarketplace hiding ( Withdraw)
 import qualified Data.Aeson as Aeson
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Aeson.Text as Aeson
 import Plutus.V1.Ledger.Api hiding( Address,TxOut,Value,getTxId)
 import qualified Plutus.V1.Ledger.Api (Address)
-import Cardano.Api.Shelley (ProtocolParameters, scriptDataToJsonDetailedSchema, fromPlutusData)
+import Cardano.Api.Shelley (ProtocolParameters, scriptDataToJsonDetailedSchema, fromPlutusData, ReferenceScript (ReferenceScriptNone))
 import qualified Data.Text.Lazy as TLE
 
 mint ctx signKey addrEra  assetName amount = do
@@ -36,14 +36,7 @@ mint ctx signKey addrEra  assetName amount = do
       txBuilder =
         txWalletAddress addrEra
           <> txMintSimpleScript script [(assetName, amount)]
-
-  txBodyE <- txBuilderToTxBodyIO ctx txBuilder
-  case txBodyE of
-    Left fe -> error $ "Error: " ++ show fe
-    Right txBody -> do
-      tx <- signAndSubmitTxBody (getConnectInfo ctx) txBody [signKey]
-      let txId = getTxId txBody
-      putStrLn $ "Transaction for mint submitted sucessfully. Txhash : " ++ T.unpack (serialiseToRawBytesHexText  txId)
+  submitTransaction ctx txBuilder signKey
 
 sellToken :: ChainInfo v => v -> String -> Integer -> SigningKey PaymentKey -> Address ShelleyAddr -> IO ()
 sellToken ctx itemStr cost sKey marketAddr = do
@@ -53,52 +46,67 @@ sellToken ctx itemStr cost sKey marketAddr = do
   let lockedValue = valueFromList [item, (AdaAssetId, 2_000_000)]
       saleDatum = constructDatum addrShelley cost
       txOperations =
-        txPayToScript (marketAddressInEra $ getNetworkId ctx) lockedValue (hashScriptData saleDatum)
+        txPayToScriptWithData (marketAddressInEra $ getNetworkId ctx) lockedValue saleDatum
           <> txWalletAddress sellerAddrInEra
   submitTransaction ctx txOperations sKey
   putStrLn "\nDatum to be used for buying :"
   putStrLn (TLE.unpack $ Aeson.encodeToLazyText $ scriptDataToJsonDetailedSchema saleDatum)
   putStrLn $ "\nMarket Address : " ++ T.unpack (serialiseAddress marketAddr)
 
-buyToken :: ChainInfo v => v -> Text -> String -> SigningKey PaymentKey -> Address ShelleyAddr -> IO ()
-buyToken ctx txInText datumStr sKey marketAddr = do
+buyToken :: ChainInfo v => v -> Text -> Maybe String -> SigningKey PaymentKey -> Address ShelleyAddr -> IO ()
+buyToken ctx txInText datumStrM sKey marketAddr = do
   dcInfo <- withDetails ctx
-  (scriptData, simpleSale@SimpleSale {sellerAddress, priceOfAsset}) <- parseSimpleSale datumStr
   txIn <- parseTxIn txInText
   UTxO uMap <- queryMarketUtxos ctx marketAddr
   let txOut = unMaybe "Error couldn't find the given txin in market utxos." $ Map.lookup txIn uMap
-  if not $ matchesDatumhash (hashScriptData scriptData) txOut
-    then error "Error : The given txin doesn't match the datumhash of the datum."
-    else do
-      let nwId = getNetworkId ctx
-          buyerAddr = getAddrEraFromSignKey ctx sKey
-          sellerAddrInEra = plutusAddressToAddressInEra nwId sellerAddress
-          sellerPayOperation = txPayTo sellerAddrInEra (ensureMinAda sellerAddrInEra (lovelaceToValue $ Lovelace priceOfAsset) (dciProtocolParams dcInfo))
-          redeemUtxoOperation = txRedeemUtxo txIn txOut marketScriptToScriptInAnyLang scriptData (fromPlutusData $ toData SMP.Buy)
-          txOperations =
-            sellerPayOperation
-              <> redeemUtxoOperation
-              <> txWalletAddress buyerAddr
-      submitTransaction dcInfo txOperations sKey
-      putStrLn "Done"
+
+  (scriptData,simpleSale@SimpleSale {sellerAddress, priceOfAsset}) <- case datumStrM of
+    Nothing -> do
+      putStrLn "No datum provided. Using the one from the txout inline datum."
+      let datum = f
+      print "ok"
+
+    Just datumStr -> do
+      simpleSaleTuple <- parseSimpleSale datumStr
+      let datumHashMatches = matchesDatumhash (hashScriptData scriptData) txOut
+      if not datumHashMatches
+        then error "Error : The given txin doesn't match the datumhash of the datum."
+        else return simpleSaleTuple
+  
+  let nwId = getNetworkId ctx
+      buyerAddr = getAddrEraFromSignKey ctx sKey
+      sellerAddrInEra = plutusAddressToAddressInEra nwId sellerAddress
+      sellerPayOperation = txPayTo sellerAddrInEra (ensureMinAda sellerAddrInEra (lovelaceToValue $ Lovelace priceOfAsset) (dciProtocolParams dcInfo))
+      redeemUtxoOperation = txRedeemUtxo txIn txOut marketScriptToScriptInAnyLang scriptData (fromPlutusData $ toData SMP.Buy)
+      txOperations =
+        sellerPayOperation
+          <> redeemUtxoOperation
+          <> txWalletAddress buyerAddr
+  submitTransaction dcInfo txOperations sKey
+  putStrLn "Done"
   where
-    matchesDatumhash datumHash (TxOut _ (TxOutValue _ value) (TxOutDatumHash _ hash)) = hash == datumHash
+
+    findDatumFromTxOut :: TxOut CtxUTxO BabbageEra-> Maybe (ScriptData, SimpleSale)
+    findDatumFromTxOut (TxOut _ _ (TxOutDatumInline _ sd) _ ) = Just sd
+    findDatumFromTxOut _ = Nothing
+
+    matchesDatumhash datumHash (TxOut _ (TxOutValue _ value) (TxOutDatumHash _ hash) _) = hash == datumHash
     matchesDatumhash _ _ = False
 
     marketScriptToScriptInAnyLang = ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV1) (PlutusScript PlutusScriptV1 simpleMarketplacePlutus)
 
-    ensureMinAda :: AddressInEra AlonzoEra -> Value -> ProtocolParameters -> Value
+    ensureMinAda :: AddressInEra BabbageEra -> Value -> ProtocolParameters -> Value
     ensureMinAda addr value pParams =
       if diff > 0
         then value <> lovelaceToValue diff
         else value
       where
         diff = minLovelace - currentLovelace
-        minLovelace =unMaybe "minLovelace calculation error" $  calculateTxoutMinLovelace (TxOut addr (TxOutValue MultiAssetInAlonzoEra  value ) TxOutDatumNone )  pParams
+        minLovelace =unMaybe "minLovelace calculation error" $  calculateTxoutMinLovelace (TxOut addr (TxOutValue MultiAssetInBabbageEra  value ) TxOutDatumNone ReferenceScriptNone)  pParams
         currentLovelace = selectLovelace value
 
-withdrawToken :: ChainInfo v => v -> Text -> String -> SigningKey PaymentKey -> Address ShelleyAddr -> IO ()
-withdrawToken ctx txInText datumStr sKey marketAddr = do
+withdrawToken :: ChainInfo v => v -> Text -> Maybe String -> SigningKey PaymentKey -> Address ShelleyAddr -> IO ()
+withdrawToken ctx txInText datumStrM sKey marketAddr = do
   dcInfo <- withDetails ctx
   (scriptData, simpleSale@SimpleSale {sellerAddress, priceOfAsset}) <- parseSimpleSale datumStr
   txIn <- parseTxIn txInText
@@ -118,7 +126,7 @@ withdrawToken ctx txInText datumStr sKey marketAddr = do
       submitTransaction dcInfo txOperations sKey
       putStrLn "Done"
   where
-    matchesDatumhash datumHash (TxOut _ (TxOutValue _ value) (TxOutDatumHash _ hash)) = hash == datumHash
+    matchesDatumhash datumHash (TxOut _ (TxOutValue _ value) (TxOutDatumHash _ hash) _) = hash == datumHash
     matchesDatumhash _ _ = False
 
     marketScriptToScriptInAnyLang = ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV1) (PlutusScript PlutusScriptV1 simpleMarketplacePlutus)
