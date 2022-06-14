@@ -28,8 +28,12 @@ import qualified Data.Text as T
 import qualified Data.Aeson.Text as Aeson
 import Plutus.V1.Ledger.Api hiding( Address,TxOut,Value,getTxId)
 import qualified Plutus.V1.Ledger.Api (Address)
-import Cardano.Api.Shelley (ProtocolParameters, scriptDataToJsonDetailedSchema, fromPlutusData)
+import Cardano.Api.Shelley (ProtocolParameters, scriptDataToJsonDetailedSchema, fromPlutusData, shelleyPayAddrToPlutusPubKHash)
 import qualified Data.Text.Lazy as TLE
+import Plutus.Contracts.V1.MarketplaceOffer (SimpleOffer(SimpleOffer))
+import Plutus.V1.Ledger.Value (AssetClass(AssetClass))
+import Control.Exception (throw)
+import qualified Plutus.V1.Ledger.Api as Plutus
 
 mint ctx signKey addrEra  assetName amount = do
   let script = RequireSignature (verificationKeyHash  $ getVerificationKey  signKey)
@@ -59,6 +63,29 @@ sellToken ctx itemStr cost sKey marketAddr = do
   putStrLn "\nDatum to be used for buying :"
   putStrLn (TLE.unpack $ Aeson.encodeToLazyText $ scriptDataToJsonDetailedSchema saleDatum)
   putStrLn $ "\nMarket Address : " ++ T.unpack (serialiseAddress marketAddr)
+
+offerToken :: ChainInfo v => v -> AssetId-> Integer -> SigningKey PaymentKey -> IO()
+offerToken ctx requestAsset amount sKey =do
+  let userPkh = sKeyToPkh sKey
+      offerScriptAddr = offerAddressInEra (getNetworkId ctx)
+      offerDatum = SimpleOffer (plutusAddr userPkh )  tName curSymbol
+      offerScriptData = fromPlutusData  $ toData offerDatum
+      AssetClass (curSymbol,tName) = toPlutusAssetClass requestAsset
+      lockedValue = valueFromList [(AdaAssetId,Quantity amount)]
+      txBuilder =
+       txPayToScript offerScriptAddr lockedValue (hashScriptData $ offerScriptData)
+           <> txWalletSignKey sKey
+
+  putStrLn "\nDatum to be used for buying :"
+  putStrLn (TLE.unpack $ Aeson.encodeToLazyText $ scriptDataToJsonDetailedSchema offerScriptData)
+
+  txEither <- txBuilderToTxIO ctx txBuilder
+  case txEither of
+    Left fe -> throw fe
+    Right tx -> putStrLn $ "Tx Submitted : " ++ show (getTxId $ getTxBody tx)
+
+  where
+     plutusAddr pkh = Plutus.Address (Plutus.PubKeyCredential pkh) Nothing
 
 buyToken :: ChainInfo v => v -> Text -> String -> SigningKey PaymentKey -> Address ShelleyAddr -> IO ()
 buyToken ctx txInText datumStr sKey marketAddr = do

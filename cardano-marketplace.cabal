@@ -24,6 +24,7 @@ maintainer:         Sireto
 library marketplace-plutus
   exposed-modules:
     Plutus.Contracts.V1.SimpleMarketplace
+    Plutus.Contracts.V1.MarketplaceOffer
   hs-source-dirs: marketplace-plutus
   build-depends:
       base  -any

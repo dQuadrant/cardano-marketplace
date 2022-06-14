@@ -47,6 +47,7 @@ import System.Directory (doesFileExist, getCurrentDirectory, getDirectoryContent
 import Cardano.Kuber.Console.ConsoleWritable
 import Data.Text.Encoding (encodeUtf8)
 import System.Directory.Internal.Prelude (getEnv)
+import Plutus.Contracts.V1.MarketplaceOffer
 
 data Modes
   = Cat -- Cat script binary
@@ -66,6 +67,12 @@ data Modes
         datum :: String,
         signingKeyFile :: String
       }
+  | Offer -- Make an offer
+    {
+      asset :: Text, -- offered asset
+      value :: Integer, -- offered ada
+      signingKeyFile :: String
+    }
   | Ls -- List utxos for market
   | Mint -- It mints a sample token 'testtoken' on the wallet
       {
@@ -104,6 +111,11 @@ runCli = do
             }
             &= help "Withdraw an asset by seller after finiding out txIn from market-cli ls. Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'",
           Ls &= help "List utxos for market",
+          Offer {
+              asset = "" &= typ "AssetName" &= argPos 0,
+              value = 1 &= typ "Amount" &= argPos 1 ,
+              signingKeyFile = def &= typ "_FilePath'" &= name "signing-key-file"
+          } &= help "Make an offer for the token",
           Mint
             {
               assetName = "" &= typ "AssetName" &= argPos 0,
@@ -122,18 +134,29 @@ runCli = do
 
   chainInfo <- chainInfoFromEnv
   let marketAddr = marketAddressShelley (getNetworkId chainInfo)
+  let offerAddr = offerAddressShelley (getNetworkId chainInfo)
   case op of
     Ls -> do
       utxos <- queryMarketUtxos chainInfo marketAddr
       putStrLn $ "Market Address : " ++ T.unpack (serialiseAddress marketAddr)
-      putStrLn $ toConsoleText "  " utxos
+      putStrLn $ if nullUtxo utxos then "  --- Empty Marketplace ---"  else toConsoleText "  " utxos
+      utxos2 <- queryMarketUtxos chainInfo offerAddr 
+      putStrLn $ "\nOffer Address : " ++ T.unpack (serialiseAddress offerAddr)
+      putStrLn $ if nullUtxo utxos2 then "  --- Empty Offers ---"  else toConsoleText "  " utxos2     
+        where 
+          nullUtxo (UTxO mp) = Map.null mp
     Cat -> do
-
-      let scriptInCbor = serialiseToCBOR simpleMarketplacePlutus
-      putStrLn $ toHexString scriptInCbor
+      let marketScriptCbor = serialiseToCBOR simpleMarketplacePlutus
+      let offerScriptCbor = serialiseToCBOR offerScriptPlutus
+      putStrLn $  "Marketplace :\n" ++ toHexString marketScriptCbor
+      putStrLn $  "OfferScript :\n" ++ toHexString offerScriptCbor
     Sell itemStr cost sKeyFile-> do
       sKey <- getSignKey sKeyFile
       sellToken chainInfo itemStr cost sKey marketAddr
+    Offer asset amount skeyFile -> do 
+      skey <- getSignKey skeyFile
+      asset <- parseAssetIdText asset
+      offerToken chainInfo asset amount skey
     Buy txInText datumStr sKeyFile-> do
       sKey <- getSignKey sKeyFile
       buyToken chainInfo txInText datumStr sKey marketAddr
