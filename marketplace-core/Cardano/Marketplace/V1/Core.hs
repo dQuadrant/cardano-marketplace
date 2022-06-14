@@ -30,7 +30,7 @@ import Plutus.V1.Ledger.Api hiding( Address,TxOut,Value,getTxId)
 import qualified Plutus.V1.Ledger.Api (Address)
 import Cardano.Api.Shelley (ProtocolParameters, scriptDataToJsonDetailedSchema, fromPlutusData, shelleyPayAddrToPlutusPubKHash)
 import qualified Data.Text.Lazy as TLE
-import Plutus.Contracts.V1.MarketplaceOffer (SimpleOffer(SimpleOffer))
+import Plutus.Contracts.V1.MarketplaceOffer (SimpleOffer(SimpleOffer), OperatorConfig)
 import Plutus.V1.Ledger.Value (AssetClass(AssetClass))
 import Control.Exception (throw)
 import qualified Plutus.V1.Ledger.Api as Plutus
@@ -64,10 +64,10 @@ sellToken ctx itemStr cost sKey marketAddr = do
   putStrLn (TLE.unpack $ Aeson.encodeToLazyText $ scriptDataToJsonDetailedSchema saleDatum)
   putStrLn $ "\nMarket Address : " ++ T.unpack (serialiseAddress marketAddr)
 
-offerToken :: ChainInfo v => v -> AssetId-> Integer -> SigningKey PaymentKey -> IO()
-offerToken ctx requestAsset amount sKey =do
+offerToken :: ChainInfo v => v -> AssetId-> Integer -> SigningKey PaymentKey -> OperatorConfig -> IO()
+offerToken ctx requestAsset amount sKey opConfig =do
   let userPkh = sKeyToPkh sKey
-      offerScriptAddr = offerAddressInEra (getNetworkId ctx)
+      offerScriptAddr = offerAddressInEra (getNetworkId ctx) opConfig
       offerDatum = SimpleOffer (plutusAddr userPkh )  tName curSymbol
       offerScriptData = fromPlutusData  $ toData offerDatum
       AssetClass (curSymbol,tName) = toPlutusAssetClass requestAsset
