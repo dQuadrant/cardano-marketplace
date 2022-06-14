@@ -22,7 +22,7 @@ import qualified Data.Text as T
 import qualified Data.ByteString.Char8 as BS8
 import qualified Plutus.V1.Ledger.Address as Plutus
 import qualified Plutus.V1.Ledger.Api as Plutus
-import Plutus.Contracts.V1.SimpleMarketplace (SimpleSale (SimpleSale), simpleMarketplacePlutus)
+import Plutus.Contracts.V2.SimpleMarketplace (SimpleSale (SimpleSale), simpleMarketplacePlutus)
 import Cardano.Api.Shelley
 
 import qualified Cardano.Api.Shelley as Shelley
@@ -47,7 +47,7 @@ getAddrEraFromSignKey ctx signKey =
 marketAddressShelley :: NetworkId -> Address ShelleyAddr
 marketAddressShelley network = makeShelleyAddress network scriptCredential NoStakeAddress
 
-marketAddressInEra :: NetworkId -> AddressInEra AlonzoEra
+marketAddressInEra :: NetworkId -> AddressInEra BabbageEra
 marketAddressInEra network = makeShelleyAddressInEra network scriptCredential NoStakeAddress
 
 scriptCredential :: Cardano.Api.Shelley.PaymentCredential
@@ -56,7 +56,7 @@ scriptCredential = PaymentCredentialByScript marketHash
     marketHash = hashScript marketScript
     marketScript = PlutusScript PlutusScriptV1 simpleMarketplacePlutus
 
-queryMarketUtxos :: ChainInfo v => v -> Address ShelleyAddr -> IO (UTxO AlonzoEra)
+queryMarketUtxos :: ChainInfo v => v -> Address ShelleyAddr -> IO (UTxO BabbageEra)
 queryMarketUtxos ctx addr = do
   utxos <- queryUtxos (getConnectInfo ctx) $ Set.singleton  (toAddressAny addr)
   case utxos of
@@ -73,7 +73,7 @@ constructDatum sellerAddr costOfAsset =
 
    in fromPlutusData $ toData datum
 
-getTxIdFromTx :: Tx AlonzoEra -> String
+getTxIdFromTx :: Tx BabbageEra -> String
 getTxIdFromTx tx = T.unpack $ serialiseToRawBytesHexText $ getTxId $ getTxBody tx
 
 unMaybe :: String -> Maybe a -> a
@@ -81,7 +81,7 @@ unMaybe errStr m = case m of
   Nothing -> error errStr
   Just x -> x
 
-plutusAddressToAddressInEra :: NetworkId -> Plutus.Address -> AddressInEra AlonzoEra
+plutusAddressToAddressInEra :: NetworkId -> Plutus.Address -> AddressInEra BabbageEra
 plutusAddressToAddressInEra nw addr = unMaybe "Error Cannot convert pluuts address to address in era" $ pkhToMaybeAddr nw $ unMaybe "Error Validator hash is not supported." $ Plutus.toPubKeyHash addr
 
 printTxBuilder :: TxBuilder -> IO ()
@@ -94,12 +94,6 @@ parseSimpleSale datumStr = do
   let simpleSale = unMaybe "Failed to convert datum to SimpleSale" $ Plutus.fromData $ toPlutusData scriptData
   return (scriptData, simpleSale)
 
-signTxBody :: TxBody AlonzoEra -> [SigningKey PaymentKey] -> Tx AlonzoEra
-signTxBody txBody skeys= do
-          makeSignedTransaction (map toWitness skeys) txBody
-  where
-    toWitness skey = makeShelleyKeyWitness txBody (WitnessPaymentKey skey)
-
 submitTransaction :: ChainInfo v => v -> TxBuilder -> SigningKey PaymentKey -> IO ()
 submitTransaction dcInfo txOperations sKey = do
   txBodyE <- txBuilderToTxBodyIO dcInfo txOperations
@@ -107,7 +101,7 @@ submitTransaction dcInfo txOperations sKey = do
     Left fe -> throwIO fe
     Right txBody -> pure txBody
   let tx = signTxBody txBody [sKey]
-  result <- executeSubmitTx (getConnectInfo dcInfo) tx
+  result <- submitTx (getConnectInfo dcInfo) tx
   case result of
     Left err -> throwIO err
     Right _ -> pure ()
