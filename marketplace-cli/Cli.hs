@@ -38,8 +38,8 @@ import qualified Data.Text.IO as T
 
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TL
-import Plutus.Contracts.V1.SimpleMarketplace (SimpleSale (..), simpleMarketplacePlutus)
-import qualified Plutus.Contracts.V1.SimpleMarketplace as SMP
+import Plutus.Contracts.V2.SimpleMarketplace (SimpleSale (..), simpleMarketplacePlutus)
+import qualified Plutus.Contracts.V2.SimpleMarketplace as SMP
 import Plutus.V1.Ledger.Api (ToData (toBuiltinData))
 import qualified Plutus.V1.Ledger.Api as Plutus
 import System.Console.CmdArgs
@@ -57,13 +57,13 @@ data Modes
       }
   | Buy -- Buy item from marketplace
       { txin :: Text, -- txin to buy from marketplace
-        datum :: String, -- datum to buy from marketplace
+        datum :: Maybe String, -- datum to buy from marketplace
         signingKeyFile :: String
 
       }
   | Withdraw -- Withdraw by the seller placed item from the marketplace
       { txin :: Text,
-        datum :: String,
+        datum :: Maybe String,
         signingKeyFile :: String
       }
   | Ls -- List utxos for market
@@ -97,13 +97,13 @@ runCli = do
             &= help "Place an asset on sale Eg. sell 8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94.Token \"2000000\"",
           Buy
             { txin = "" &= typ "TxIn" &= argPos 0,
-              datum = "" &= typ "Datum" &= argPos 1,
+              datum = Nothing &= typ "Datum",
               signingKeyFile = def &= typ "FilePath'" &= name "signing-key-file"
             }
             &= help "Buy an asset on sale after finiding out txIn from market-cli ls.  Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'",
           Withdraw
             { txin = "" &= typ "TxIn'" &= argPos 0,
-              datum = "" &= typ "Datum'" &= argPos 1,
+              datum = Nothing &= typ "Datum'" &= argPos 1,
               signingKeyFile = def &= typ "'FilePath'" &= name "signing-key-file"
             }
             &= help "Withdraw an asset by seller after finiding out txIn from market-cli ls. Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'",
