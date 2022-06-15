@@ -5,6 +5,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE NumericUnderscores #-}
 
 module Cardano.Marketplace.Common.TransactionUtils where
 
@@ -22,7 +23,7 @@ import qualified Data.Text as T
 import qualified Data.ByteString.Char8 as BS8
 import qualified Plutus.V1.Ledger.Address as Plutus
 import qualified Plutus.V1.Ledger.Api as Plutus
-import Plutus.Contracts.V2.SimpleMarketplace (SimpleSale (SimpleSale), simpleMarketplacePlutus)
+import Plutus.Contracts.V2.SimpleMarketplace (SimpleSale (SimpleSale), simpleMarketplacePlutusV2)
 import Cardano.Api.Shelley
 
 import qualified Cardano.Api.Shelley as Shelley
@@ -30,6 +31,11 @@ import Plutus.V1.Ledger.Api (toData)
 import Control.Exception (throwIO)
 import Data.Maybe (fromMaybe)
 import qualified Data.Set as Set
+import qualified Data.Map as Map
+import Data.List (intercalate)
+import Cardano.Kuber.Console.ConsoleWritable (showStr)
+import qualified Data.Text.Lazy as TLE
+import qualified Data.Aeson.Text as Aeson
 
 
 
@@ -54,7 +60,7 @@ scriptCredential :: Cardano.Api.Shelley.PaymentCredential
 scriptCredential = PaymentCredentialByScript marketHash
   where
     marketHash = hashScript marketScript
-    marketScript = PlutusScript PlutusScriptV1 simpleMarketplacePlutus
+    marketScript = PlutusScript PlutusScriptV2 simpleMarketplacePlutusV2
 
 queryMarketUtxos :: ChainInfo v => v -> Address ShelleyAddr -> IO (UTxO BabbageEra)
 queryMarketUtxos ctx addr = do
@@ -106,3 +112,34 @@ submitTransaction dcInfo txOperations sKey = do
     Left err -> throwIO err
     Right _ -> pure ()
   putStrLn $ "Transaction submitted sucessfully with transaction hash " ++ getTxIdFromTx tx
+
+
+encodeScriptData :: ScriptData -> String
+encodeScriptData sd =  TLE.unpack . Aeson.encodeToLazyText $  scriptDataToJsonDetailedSchema sd
+
+printUtxos (UTxO utxoMap) =  intercalate (" " ++ "\n") (map toStrings $ Map.toList utxoMap)
+  where
+    toStrings (TxIn txId (TxIx index),TxOut addr value datum _  )=    
+      showStr txId ++ 
+      "#" ++  show index ++"\t:\t" ++ 
+      (case value of
+      TxOutAdaOnly oasie (Lovelace v) -> show v
+      TxOutValue masie va ->  intercalate " +" (map vToString $valueToList va ) ) ++ " " ++
+      (case datum of
+      TxOutDatumNone -> "TxOutDatumNone"
+      TxOutDatumHash s h -> show h
+      TxOutDatumInline _ sd -> encodeScriptData sd
+      _ -> ""
+      )
+
+    vToString (AssetId policy asset,Quantity v)=show v ++ " " ++ showStr  policy ++ "." ++ showStr  asset
+    vToString (AdaAssetId, Quantity v) = if v >99999
+      then(
+        let _rem= v `rem` 1_000_000
+            _quot= v `quot` 1_000_000
+        in
+        case _rem of
+              0 -> show _quot ++ " Ada"
+              v-> show _quot ++"." ++ show _rem++ " Ada"
+      )
+      else show v ++ " Lovelace"
