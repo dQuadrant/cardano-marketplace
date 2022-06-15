@@ -38,7 +38,7 @@ import qualified Data.Text.IO as T
 
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TL
-import Plutus.Contracts.V2.SimpleMarketplace (SimpleSale (..), simpleMarketplacePlutus)
+import Plutus.Contracts.V2.SimpleMarketplace (SimpleSale (..), simpleMarketplacePlutusV2)
 import qualified Plutus.Contracts.V2.SimpleMarketplace as SMP
 import Plutus.V1.Ledger.Api (ToData (toBuiltinData))
 import qualified Plutus.V1.Ledger.Api as Plutus
@@ -135,10 +135,11 @@ runCli = do
     Ls -> do
       utxos <- queryMarketUtxos chainInfo marketAddr
       putStrLn $ "Market Address : " ++ T.unpack (serialiseAddress marketAddr)
-      putStrLn $ toConsoleText "  " utxos
+      putStrLn "\nMarket UTXOs:\n"
+      putStrLn $ printUtxos utxos
+      putStrLn "\n"
     Cat -> do
-
-      let scriptInCbor = serialiseToCBOR simpleMarketplacePlutus
+      let scriptInCbor = serialiseToCBOR simpleMarketplacePlutusV2
       putStrLn $ toHexString scriptInCbor
     Sell itemStr cost sKeyFile-> do
       sKey <- getSignKey sKeyFile
@@ -158,13 +159,17 @@ runCli = do
     CreateCollateral sKeyFile-> do
       skey <- getSignKey sKeyFile
       let addrInEra = getAddrEraFromSignKey chainInfo skey
-          txOperations = txPayTo addrInEra (lovelaceToValue $ Lovelace 5_000_000) <> txWalletAddress addrInEra
+      utxosE <- queryAddressInEraUtxos (getConnectInfo chainInfo) [addrInEra]
+      utxos <- case utxosE of
+        Left fe -> error $ "Error querying utxos: " <> show fe
+        Right utxos -> pure utxos
+      let txOperations = txPayTo addrInEra (lovelaceToValue $ Lovelace 60_000_000) <> txWalletAddress addrInEra <> txConsumeUtxos utxos
       submitTransaction chainInfo txOperations skey
     Balance sKeyFile-> do
       skey <- getSignKey sKeyFile
       let addrInEra = getAddrEraFromSignKey chainInfo skey
       utxosE <- queryAddressInEraUtxos (getConnectInfo chainInfo) [addrInEra]
-      case utxosE of 
+      case utxosE of
         Left fe -> throwIO $ FrameworkError ParserError (show fe)
         Right utxos -> putStrLn $ toConsoleText " " utxos
 
