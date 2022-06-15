@@ -132,8 +132,3 @@ findInlineDatumFromTxOut _ = error "Error : The given txin doesn't have an inlin
 matchesDatumhash :: Hash ScriptData -> TxOut ctx era -> Bool
 matchesDatumhash datumHash (TxOut _ (TxOutValue _ value) (TxOutDatumHash _ hash) _) = hash == datumHash
 matchesDatumhash _ _ = False
-
-
-createCollateral
-
-listMarket
