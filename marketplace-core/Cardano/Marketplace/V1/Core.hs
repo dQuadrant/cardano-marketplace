@@ -47,7 +47,7 @@ sellToken ctx itemStr cost sKey marketAddr = do
   let lockedValue = valueFromList [item, (AdaAssetId, 2_000_000)]
       saleDatum = constructDatum addrShelley cost
       txOperations =
-        txPayToScriptWithData (marketAddressInEra $ getNetworkId ctx) lockedValue saleDatum
+        txPayToScriptWithDataAndReference simpleMarketScript lockedValue saleDatum
           <> txWalletAddress sellerAddrInEra
   submitTransaction ctx txOperations sKey
   putStrLn "\nDatum to be used for buying :"
@@ -132,3 +132,8 @@ findInlineDatumFromTxOut _ = error "Error : The given txin doesn't have an inlin
 matchesDatumhash :: Hash ScriptData -> TxOut ctx era -> Bool
 matchesDatumhash datumHash (TxOut _ (TxOutValue _ value) (TxOutDatumHash _ hash) _) = hash == datumHash
 matchesDatumhash _ _ = False
+
+
+createCollateral
+
+listMarket
