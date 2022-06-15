@@ -17,7 +17,7 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 module Plutus.Contracts.V2.SimpleMarketplace(
-  simpleMarketplacePlutus,
+  simpleMarketplacePlutusV2,
   simpleMarketValidator,
   simpleMarketScript,
   MarketRedeemer(..),
@@ -37,7 +37,7 @@ import Plutus.V2.Ledger.Api
 import Plutus.V2.Ledger.Contexts (valuePaidTo, ownHash, valueLockedBy, findOwnInput, findDatum,txSignedBy)
 import qualified Data.ByteString.Short as SBS
 import qualified Data.ByteString.Lazy  as LBS
-import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV1)
+import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV2)
 import Codec.Serialise ( serialise )
 import Plutus.V1.Ledger.Value (assetClassValueOf, AssetClass (AssetClass))
 
@@ -97,5 +97,5 @@ simpleMarketScript  =  unValidatorScript  simpleMarketValidator
 marketScriptSBS :: SBS.ShortByteString
 marketScriptSBS  =  SBS.toShort . LBS.toStrict $ serialise $ simpleMarketScript 
 
-simpleMarketplacePlutus ::  PlutusScript PlutusScriptV1
-simpleMarketplacePlutus  = PlutusScriptSerialised $ marketScriptSBS
+simpleMarketplacePlutusV2 ::  PlutusScript PlutusScriptV2
+simpleMarketplacePlutusV2  = PlutusScriptSerialised $ marketScriptSBS
