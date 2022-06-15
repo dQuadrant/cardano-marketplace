@@ -104,7 +104,7 @@ getSimpleSaleTuple datumStrM txOut = case datumStrM of
 redeemMarketUtxo :: DetailedChainInfo -> TxIn -> TxOut CtxUTxO BabbageEra -> SigningKey PaymentKey -> TxBuilder -> ScriptData -> SMP.MarketRedeemer -> IO ()
 redeemMarketUtxo dcInfo txIn txOut sKey extraOperations scriptData redeemer = do
   let walletAddr = getAddrEraFromSignKey dcInfo sKey
-      redeemUtxoOperation = txRedeemUtxo txIn txOut marketScriptToScriptInAnyLang scriptData (fromPlutusData $ toData redeemer) (Just $ ExecutionUnits 10000000 10000000000)
+      redeemUtxoOperation = txRedeemUtxoWithInlineDatum txIn txOut marketScriptToScriptInAnyLang (fromPlutusData $ toData redeemer) Nothing
       txOperations =
         redeemUtxoOperation
           <> txWalletAddress walletAddr
