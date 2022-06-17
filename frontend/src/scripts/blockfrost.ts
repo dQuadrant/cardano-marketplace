@@ -1,10 +1,14 @@
 
-import {blockfrost,market} from    "@/config"
+import {blockfrost,market,offerScript} from    "@/config"
 
 
 export function listMarket() {
     return getBlockfrost("/addresses/" + market.address + "/utxos?order=desc")
 }
+export function listOffer() {
+    return getBlockfrost("/addresses/" + offerScript.address + "/utxos?order=desc")
+}
+
 
 export function getAssetDetail(asset: string) {
     return getBlockfrost("/assets/" + asset)

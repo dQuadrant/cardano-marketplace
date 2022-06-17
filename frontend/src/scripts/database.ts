@@ -17,18 +17,8 @@ export function openDB():Promise<IDBDatabase> {
             request.onupgradeneeded = (event: any) => {
                 console.log("Upgrading db",event)
                 var db: IDBDatabase = event.target.result;
-
-                // Create an objectStore to hold information about our customers. We're
-                // going to use "ssn" as our key path because it's guaranteed to be
-                // unique - or at least that's what I was told during the kickoff meeting.
                 var objectStore = db.createObjectStore("utxoContent", { keyPath: "utxo" });
-
-                // Create an index to search customers by name. We may have duplicates
-                // so we can't use a unique index.
                 objectStore.createIndex("utxo", "utxo", { unique: true });
-
-                // Use transaction oncomplete to make sure the objectStore creation is
-                // finished before adding data into it.
                 objectStore.transaction.oncomplete = event => {
                     Promise.resolve(db)
                 }
@@ -43,7 +33,6 @@ export function saveUtxos(db: IDBDatabase| undefined|null ,objects:Array<any>): 
         return Promise.reject("Null db instance")
     }
     return new Promise((resolve, reject):void => {
-        console.log("Starting to save")
         let trans: IDBTransaction = db.transaction('utxoContent', 'readwrite');
         trans.oncomplete = () => {
             resolve(objects);
@@ -55,7 +44,6 @@ export function saveUtxos(db: IDBDatabase| undefined|null ,objects:Array<any>): 
 
         let store = trans.objectStore('utxoContent');
         objects.forEach(x =>{
-            console.log("putting",x)
             store.put(x);
         })
         trans.commit()

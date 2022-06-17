@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Listing from '@/components/Listing.vue'
 import Wallet from '@/components/Wallet.vue'
+import Offer from '@/components/Offer.vue'
 
 
 console.log(import.meta.env.BASE_URL)
@@ -15,11 +16,16 @@ const router = createRouter({
       name: 'home',
       component: Listing
     },
-      {
-          path:"/wallet",
-          name : "walet",
-          component: Wallet
-      }
+    {
+        path:"/offers",
+        name : "offers",
+        component: Offer
+    },
+    {
+        path:"/wallet",
+        name : "walet",
+        component: Wallet
+    }
   ]
 })
 

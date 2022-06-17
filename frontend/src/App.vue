@@ -28,7 +28,10 @@ import {market} from "@/config"
         <ul class=" navbar-nav flex flex-column pl-0 list-style-none mr-auto">
 
           <li class="nav-item px-2">
-            <a class="nav-link active" aria-current="page" href="/">Marketplace</a>
+            <a class="nav-link active" aria-current="page" href="/">Marketplace</a> 
+          </li>  
+          <li class="nav-item border-l-2 border-l-gray-300 px-2">
+            <a class="nav-link " href="/offers">Offers</a>
           </li>
           <li class="nav-item  border-l-2 border-l-gray-300 pl-2">
             <a class="nav-link text-gray-500 hover:text-gray-700 focus:text-gray-700 p-0" @click="walletState=true">Wallet</a>

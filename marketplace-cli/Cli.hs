@@ -48,6 +48,7 @@ import Cardano.Kuber.Console.ConsoleWritable
 import Data.Text.Encoding (encodeUtf8)
 import System.Directory.Internal.Prelude (getEnv)
 import Plutus.Contracts.V1.MarketplaceOffer
+import Plutus.Contracts.V1.MarketplaceOffer (SimpleOffer(SimpleOffer))
 
 data Modes
   = Cat -- Cat script binary

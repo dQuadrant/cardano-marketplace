@@ -16,6 +16,10 @@ Frontend vue project is located [here](./frontend).
 
 ![something](./docs/frontend.svg)
 
+ToDo: 
+ - Withdraw from sale
+ - Cancel Offer
+
 
 
 

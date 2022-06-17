@@ -249,12 +249,14 @@ export function decodeAssetName(asset) {
     }
 }
 
-export function renderLovelace(l: bigint | number) {
+export function renderLovelace(l: bigint | number|string) {
 
     if (typeof l === 'number') {
-        return Math.floor(l / 1e4) / 100
+        return Math.floor(l / 1e3) / 1000
+    }else if(typeof l == 'string'){
+        return Math.floor(parseFloat(l)/1e3)/1000
     }
-    return l && parseFloat((l / BigInt(10000)).toString()) / 100
+    return l && parseFloat((l / BigInt(1000)).toString()) / 1000
 }
 
 const parser = /^([a-zA-Z0-9+]+):\/\/(.+)/

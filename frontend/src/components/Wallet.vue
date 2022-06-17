@@ -416,6 +416,7 @@ export default {
         walletAction.enable = false;
         console.log("calling", walletAction.callback);
         return walletAction.callback(await provider.enable())?.catch?.((e) => {
+          console.error(e)
           alert("Error" + e.message);
         });
       }
