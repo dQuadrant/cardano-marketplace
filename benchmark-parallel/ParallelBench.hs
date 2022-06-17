@@ -54,7 +54,7 @@ import Cardano.Kuber.Util (addrInEraToPkh, getDefaultSignKey, queryUtxos, skeyTo
 import qualified Cardano.Ledger.Address as Shelley
 import Cardano.Ledger.Crypto (StandardCrypto)
 import Cardano.Marketplace.Common.ConsoleWritable (ConsoleWritable (toConsoleText))
-import Cardano.Marketplace.V1.Core (buyToken, marketAddressShelley, marketScriptAddr, placeOnMarket)
+import Cardano.Marketplace.V1.Core (buyToken, marketAddressShelley, marketScriptAddr, placeOnMarket, signAndSubmitTxBody)
 import Cardano.Marketplace.V1.RequestModels
 import Cardano.Marketplace.V1.ServerRuntimeContext (RuntimeContext (RuntimeContext), resolveContext)
 import Control.Concurrent (MVar, forkIO, killThread, newMVar, putMVar, takeMVar, threadDelay, withMVar)
@@ -150,14 +150,20 @@ main = do
       -- printUtxoOfWallets dcInfo shuffledWallets
       putStrLn "\nFinished..."
 
--- TODO Refactor and remove unused code
-setupWallets :: Int -> DetailedChainInfo -> AssetId -> SigningKey PaymentKey -> IO [SigningKey PaymentKey]
-setupWallets noOfWallets dcInfo testAssetId fundedSignKey = do
+
+readWalletsFromFile  :: Int -> IO [SigningKey PaymentKey]
+readWalletsFromFile noOfWallets = do
   readHandle <- openFile "1000-wallets.txt" ReadMode
   content <- hGetContents readHandle
   let linesOfFile = lines content
       walletStrs = take noOfWallets linesOfFile
-  wallets <- mapM parseSigningKey walletStrs
+  mapM parseSigningKey walletStrs
+
+
+-- TODO Refactor and remove unused code
+setupWallets :: Int -> DetailedChainInfo -> AssetId -> SigningKey PaymentKey -> IO [SigningKey PaymentKey]
+setupWallets noOfWallets dcInfo testAssetId fundedSignKey = do
+  wallets <- readWalletsFromFile noOfWallets
   let walletsAddrs = map (\s -> AddressShelley $ skeyToAddr s (getNetworkId dcInfo)) wallets
   utxosE <- queryUtxos (getConnectInfo dcInfo) $ Set.fromList walletsAddrs
   utxos@(UTxO utxoMap) <- case utxosE of
@@ -275,7 +281,7 @@ performMarketBench dcInfo noOfWallets wallets testAsset fundedSignKey = do
       let marketAddress = marketAddressShelley market (getNetworkId dcInfo)
       let marketAddrAny = getAddrAnyFromEra marketAddress
       tId <- forkIO $ pollMarketUtxos dcInfo marketAddrAny marketState atomicQueryUtxos atomicPutStrLn
-      
+
       -- Perform market operations parrallely for each set of seller and buyers wallet indepdently and at last payback to funded wallet
       forConcurrently_ loopArray $ \index -> do
         performMarketOperation dcInfo testAsset index market startTime walletsTuples atomicPutStrLn atomicPutStr fundedSignKey marketState marketAddrAny atomicQueryUtxos
@@ -300,7 +306,7 @@ performMarketOperation ::
   (String -> IO ()) ->
   SigningKey PaymentKey ->
   MarketUTxOState ->
-    AddressAny -> 
+    AddressAny ->
   (AddressAny -> IO (UTxO BabbageEra)) ->
   IO ()
 performMarketOperation dcInfo testAsset index market afterPaidTime walletTuples atomicPutStrLn atomicPutStr fundedSignKey marketState marketAddrAny atomicQueryUtxos = do
@@ -312,7 +318,7 @@ performMarketOperation dcInfo testAsset index market afterPaidTime walletTuples 
   printDiffInSecAtomic ("\nTime taken on placing token to market for Wallet Set " ++ show index) afterPaidTime afterPrimarySellTime atomicPutStrLn
 
   --Primary buy
-  priBuyTx <- performBuy dcInfo testAsset market priSellTx priBuyer priSeller index atomicPutStrLn atomicPutStr "primary " atomicQueryUtxos
+  priBuyTx <- performBuy dcInfo testAsset market priSellTx priBuyer priSeller index atomicPutStrLn atomicPutStr "primary " atomicQueryUtxos marketState marketAddrAny
   afterPrimaryBuyTime <- getTimeInSec
   printDiffInSecAtomic ("\nTime taken on primary buying token from the market for Wallet Set " ++ show index) afterPrimarySellTime afterPrimaryBuyTime atomicPutStrLn
 
@@ -322,7 +328,7 @@ performMarketOperation dcInfo testAsset index market afterPaidTime walletTuples 
   printDiffInSecAtomic ("\nTime taken on placing secondary token to the market for Wallet Set " ++ show index) afterPrimaryBuyTime afterSecondarySellTime atomicPutStrLn
 
   --Secondary buy
-  secBuyTx <- performBuy dcInfo testAsset market secSellTx secBuyer priBuyer index atomicPutStrLn atomicPutStr "secondary " atomicQueryUtxos
+  secBuyTx <- performBuy dcInfo testAsset market secSellTx secBuyer priBuyer index atomicPutStrLn atomicPutStr "secondary " atomicQueryUtxos marketState marketAddrAny
   afterSecondaryBuyTime <- getTimeInSec
   printDiffInSecAtomic ("\nTime taken on secondary buy of token from the market for Wallet Set " ++ show index) afterSecondarySellTime afterSecondaryBuyTime atomicPutStrLn
 
@@ -442,7 +448,7 @@ placeOnMarket' dcInfo txOperations wallet = do
 --   (AddressAny -> IO (UTxO AlonzoEra)) ->
 --   (v -> IO DetailedChainInfo) ->
 --   IO (SigningKey PaymentKey, AddressAny, TxId)
-performBuy dcInfo testAsset market (_,sellTxId, datum) buyerWallet prevSellerWallet index atomicPutStrLn atomicPutStr buyType atomicQueryUtxos = do
+performBuy dcInfo testAsset market (_,sellTxId, datum) buyerWallet prevSellerWallet index atomicPutStrLn atomicPutStr buyType atomicQueryUtxos marketState marketAddrAny= do
   --Perform Primary buy of the token from another set of wallets
   atomicPutStrLn ("\nPerforming " ++ buyType ++ " buy for Wallet Set " ++ show index)
 
@@ -452,7 +458,10 @@ performBuy dcInfo testAsset market (_,sellTxId, datum) buyerWallet prevSellerWal
   putStrLn $ "\nSubmitted successfully TxHash " ++ show txId
   --Wait for transaction to appear on buyers wallet
   atomicPutStrLn ("\nWait for bought token to appear on " ++ buyType ++ " buyer wallet. For Wallet Set " ++ show index)
-  pollForTxId' dcInfo addr txId atomicPutStrLn atomicQueryUtxos
+  -- pollForTxId' dcInfo addr txId atomicPutStrLn atomicQueryUtxos
+
+  watchMarketForTxIdDisappear dcInfo sellTxId index atomicPutStrLn atomicPutStr marketState "Primary Sell "
+
 
   --TODO check for wallet valule with priting sellers and buyers wallet values
   -- printUtxoOfWalletAtomic dcInfo buyerWallet index atomicPutStrLn

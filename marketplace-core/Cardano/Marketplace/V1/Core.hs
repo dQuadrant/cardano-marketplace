@@ -73,6 +73,15 @@ import Plutus.V1.Ledger.Contexts (txSignedBy)
 import qualified Data.ByteString.Char8 as BS8
 
 
+signAndSubmitTxBody :: LocalNodeConnectInfo CardanoMode
+  -> TxBody BabbageEra -> [SigningKey PaymentKey] -> IO (Tx BabbageEra)
+signAndSubmitTxBody ctx txBody signKeys = do
+  let tx = signTxBody txBody signKeys
+  res <- submitTx ctx tx
+  case res of 
+    Left err -> error $ "Error: " ++ show err
+    Right _ -> pure tx
+
 putStrLn' :: [Char] -> IO ()
 putStrLn' v =pure ()
 
@@ -110,14 +119,14 @@ payToAddress dcInfo (PaymentReqModel sKey preqReceivers mPayer mChangeAddr sendE
     Left fe -> throwIO fe
     Right txBody -> pure $ mkSignedResponse sKey txBody
 
-submitTx :: ChainInfo v => v    -> SubmitTxModal -> IO TxResponse
-submitTx ctx (SubmitTxModal tx  mWitness) =do
-  let tx'= case mWitness of
-                Nothing ->   tx
-                Just kw ->  makeSignedTransaction (kw:getTxWitnesses tx) txbody
-      txbody=getTxBody tx
-  executeSubmitTx (getConnectInfo ctx) tx'
-  pure $ TxResponse tx' []
+-- submitTx :: ChainInfo v => v    -> SubmitTxModal -> IO TxResponse
+-- submitTx ctx (SubmitTxModal tx  mWitness) =do
+--   let tx'= case mWitness of
+--                 Nothing ->   tx
+--                 Just kw ->  makeSignedTransaction (kw:getTxWitnesses tx) txbody
+--       txbody=getTxBody tx
+--   executeSubmitTx (getConnectInfo ctx) tx'
+--   pure $ TxResponse tx' []
 
 marketScriptAddr dcInfo market = makeShelleyAddressInEra
                        (getNetworkId dcInfo)
@@ -587,7 +596,7 @@ buyToken  networkCtx market
           coreOperations
         <> extraInputs
         <> mconcat partyPayments
-        <> txRedeemUtxo txin txout (ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV1) (PlutusScript PlutusScriptV1 $ marketScriptSerialised market)) consumedData (fromPlutusData $ PlutusTx.builtinDataToData $ toBuiltinData Buy)
+        <> txRedeemUtxo txin txout (ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV1) (PlutusScript PlutusScriptV1 $ marketScriptSerialised market)) consumedData (fromPlutusData $ PlutusTx.builtinDataToData $ toBuiltinData Buy) Nothing
         <> txWalletAddress buyerAddr
       signatures = maybeToList (txContextAddressesReqSignKey context) ++ maybeToList mSellerDepositSkey
   
