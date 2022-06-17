@@ -39,15 +39,25 @@ mint ctx signKey addrEra assetName amount = do
           <> txMintSimpleScript script [(assetName, amount)]
   submitTransaction ctx txBuilder signKey
 
+
+createReferenceScript :: ChainInfo v => v -> SigningKey PaymentKey -> IO ()
+createReferenceScript ctx sKey = do
+  let walletAddrInEra = getAddrEraFromSignKey ctx sKey
+      txOperations = txPayToWithReference simpleMarketScript walletAddrInEra (lovelaceToValue $ Lovelace 20_000_000) 
+              <> txWalletAddress walletAddrInEra
+  submitTransaction ctx txOperations sKey
+
+
 sellToken :: ChainInfo v => v -> String -> Integer -> SigningKey PaymentKey -> Address ShelleyAddr -> IO ()
 sellToken ctx itemStr cost sKey marketAddr = do
   let addrShelley = skeyToAddr sKey (getNetworkId ctx)
       sellerAddrInEra = getAddrEraFromSignKey ctx sKey
   item <- parseAssetNQuantity $ T.pack itemStr
-  let lockedValue = valueFromList [item, (AdaAssetId, 2_000_000)]
+  let lockedValue = valueFromList [item, (AdaAssetId, 20_000_000)]
       saleDatum = constructDatum addrShelley cost
+      marketAddrInEra =  marketAddressInEra (getNetworkId ctx)
       txOperations =
-        txPayToScriptWithDataAndReference simpleMarketScript lockedValue saleDatum
+        txPayToScriptWithData marketAddrInEra lockedValue saleDatum
           <> txWalletAddress sellerAddrInEra
   submitTransaction ctx txOperations sKey
   putStrLn "\nDatum to be used for buying :"

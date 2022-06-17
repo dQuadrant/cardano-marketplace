@@ -15,7 +15,7 @@ import Cardano.Kuber.Data.Parsers
   ( parseAssetIdText,
     parseAssetNQuantity,
     parseScriptData,
-    parseValueText, scriptDataParser
+    parseValueText, scriptDataParser, parseSignKey
   )
 import Cardano.Kuber.Util
     ( pkhToMaybeAddr, skeyToAddrInEra, queryUtxos )
@@ -36,6 +36,10 @@ import Data.List (intercalate)
 import Cardano.Kuber.Console.ConsoleWritable (showStr)
 import qualified Data.Text.Lazy as TLE
 import qualified Data.Aeson.Text as Aeson
+import qualified Data.Text.IO as T
+import System.Environment (getEnv)
+import qualified Data.Aeson as A
+import qualified Data.Aeson.Text as A
 
 
 
@@ -117,20 +121,41 @@ submitTransaction dcInfo txOperations sKey = do
 encodeScriptData :: ScriptData -> String
 encodeScriptData sd =  TLE.unpack . Aeson.encodeToLazyText $  scriptDataToJsonDetailedSchema sd
 
-printUtxos (UTxO utxoMap) =  intercalate (" " ++ "\n") (map toStrings $ Map.toList utxoMap)
+jsonEncodeUtxos (UTxO utxoMap) =  intercalate (" " ++ "\n") (map toStrings $ Map.toList utxoMap)
   where
-    toStrings (TxIn txId (TxIx index),TxOut addr value datum _  )=    
-      showStr txId ++ 
-      "#" ++  show index ++"\t:\t" ++ 
-      (case value of
+    toStrings (TxIn txId (TxIx index),TxOut addr value datum refScript  )=   
+      let txInStr = showStr txId ++ "#" ++ show index
+          utxoObject = A.object [ "txIn" A..= txInStr,
+                                  "value" A..= renderTxOutValue value,
+                                  "datum" A..= renderDatum datum,
+                                  "refScript" A..= renderRefScript refScript
+                                ] 
+      in   BS8.unpack $ prettyPrintJSON utxoObject
+      -- showStr txId ++ 
+      -- "#" ++  show index ++"\t:\t" ++ 
+      -- (case value of
+      -- TxOutAdaOnly oasie (Lovelace v) -> show v
+      -- TxOutValue masie va ->  intercalate " +" (map vToString $valueToList va ) ) ++ " " ++
+      -- (case datum of
+      -- TxOutDatumNone -> "TxOutDatumNone"
+      -- TxOutDatumHash s h -> show h
+      -- TxOutDatumInline _ sd -> encodeScriptData sd
+      -- _ -> ""
+      -- ) 
+
+    renderTxOutValue txOutValue = case txOutValue of
       TxOutAdaOnly oasie (Lovelace v) -> show v
-      TxOutValue masie va ->  intercalate " +" (map vToString $valueToList va ) ) ++ " " ++
-      (case datum of
+      TxOutValue masie va ->  intercalate " +" (map vToString $ valueToList va )
+    renderDatum datum = case datum of
       TxOutDatumNone -> "TxOutDatumNone"
       TxOutDatumHash s h -> show h
       TxOutDatumInline _ sd -> encodeScriptData sd
       _ -> ""
-      )
+
+    renderRefScript refScript = case refScript of
+      ReferenceScriptNone -> "ReferenceScriptNone"
+      ReferenceScript _ _ -> "ReferenceScriptPresent" :: String
+        -- TLE.unpack $ A.encodeToLazyText refScript
 
     vToString (AssetId policy asset,Quantity v)=show v ++ " " ++ showStr  policy ++ "." ++ showStr  asset
     vToString (AdaAssetId, Quantity v) = if v >99999
@@ -143,3 +168,14 @@ printUtxos (UTxO utxoMap) =  intercalate (" " ++ "\n") (map toStrings $ Map.toLi
               v-> show _quot ++"." ++ show _rem++ " Ada"
       )
       else show v ++ " Lovelace"
+
+getSignKey :: [Char] -> IO (SigningKey PaymentKey)
+getSignKey skeyfile =
+  getPath >>=  T.readFile  >>= parseSignKey
+  where
+  getPath = if not (null skeyfile) && head skeyfile == '~'
+                          then (do
+                            home <- getEnv "HOME"
+                            pure  $ home ++  drop 1 skeyfile
+                            )
+                          else pure skeyfile

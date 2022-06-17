@@ -136,7 +136,7 @@ runCli = do
       utxos <- queryMarketUtxos chainInfo marketAddr
       putStrLn $ "Market Address : " ++ T.unpack (serialiseAddress marketAddr)
       putStrLn "\nMarket UTXOs:\n"
-      putStrLn $ printUtxos utxos
+      putStrLn $ jsonEncodeUtxos utxos
       putStrLn "\n"
     Cat -> do
       let scriptInCbor = serialiseToCBOR simpleMarketplacePlutusV2
@@ -171,16 +171,4 @@ runCli = do
       utxosE <- queryAddressInEraUtxos (getConnectInfo chainInfo) [addrInEra]
       case utxosE of
         Left fe -> throwIO $ FrameworkError ParserError (show fe)
-        Right utxos -> putStrLn $ toConsoleText " " utxos
-
-
-getSignKey :: [Char] -> IO (SigningKey PaymentKey)
-getSignKey skeyfile =
-  getPath >>=  T.readFile  >>= parseSignKey
-  where
-  getPath = if not (null skeyfile) && head skeyfile == '~'
-                          then (do
-                            home <- getEnv "HOME"
-                            pure  $ home ++  drop 1 skeyfile
-                            )
-                          else pure skeyfile
+        Right utxos -> putStrLn $ jsonEncodeUtxos utxos
