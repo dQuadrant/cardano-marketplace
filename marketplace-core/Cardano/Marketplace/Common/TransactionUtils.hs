@@ -11,7 +11,7 @@ module Cardano.Marketplace.Common.TransactionUtils where
 import Cardano.Api
 import Cardano.Kuber.Api
 import Cardano.Kuber.Data.Parsers
-  ( parseAssetIdText,
+  ( parseAssetId,
     parseAssetNQuantity,
     parseScriptData,
     parseValueText, scriptDataParser

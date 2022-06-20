@@ -11,7 +11,7 @@ import Cardano.Api.Byron (Address (ByronAddress))
 import Cardano.Api.Shelley (Address (ShelleyAddress), AsType (AsAlonzoEra), Lovelace (Lovelace), ProtocolParameters, fromPlutusData, fromShelleyStakeReference, scriptDataToJsonDetailedSchema, shelleyPayAddrToPlutusPubKHash, toPlutusData, toShelleyStakeAddr, toShelleyStakeCredential)
 import qualified Cardano.Api.Shelley as Shelley
 import Cardano.Kuber.Api
-import Cardano.Kuber.Data.Parsers (parseAssetIdText, parseAssetNQuantity, parseScriptData, parseTxIn, parseValueText, scriptDataParser, parseAssetId, parseSignKey)
+import Cardano.Kuber.Data.Parsers ( parseAssetNQuantity, parseScriptData, parseTxIn, parseValueText, scriptDataParser, parseAssetId, parseSignKey)
 import Cardano.Kuber.Util hiding (toHexString)
 import Cardano.Ledger.Alonzo.Tx (TxBody (txfee))
 import qualified Cardano.Ledger.BaseTypes as Shelley (Network (..))

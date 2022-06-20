@@ -215,4 +215,4 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/dQuadrant/kuber.git
-  tag: 8cc91b138098c2783e857bd38d4ff42381f9e507
+  tag: 51ceeba32b10e0e88930d03112e3f62e60301f09
