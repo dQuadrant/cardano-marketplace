@@ -198,5 +198,5 @@ getDefaultOperatorConfig = do
       Just _ -> throwIO $ userError "Error : Byron address is not supported."
   pure OperatorConfig {
       operatorPkh = opPkh,
-      operatorFee = 1 -- Operator fee is 1 ada
+      operatorFee = 1e6 -- Operator fee is 1 ada
     }

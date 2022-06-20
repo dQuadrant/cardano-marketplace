@@ -333,6 +333,10 @@ export default {
           {
             address: offererAddress.to_address().to_bech32("addr_test"),
             value: `2A + ${ datum.fields[2].bytes}.${ datum.fields[1].bytes}`
+          },
+          {
+            address: offerScript.operatorAddress,
+            value: offerScript.fee
           }
         ],
       };
