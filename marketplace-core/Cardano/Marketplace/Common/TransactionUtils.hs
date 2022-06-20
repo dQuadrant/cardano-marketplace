@@ -48,22 +48,22 @@ getAddrEraFromSignKey ctx signKey =
 marketAddressShelley :: NetworkId -> Address ShelleyAddr
 marketAddressShelley network = makeShelleyAddress network scriptCredential NoStakeAddress
 
-offerAddressShelley :: NetworkId -> Address ShelleyAddr 
-offerAddressShelley network = makeShelleyAddress network scriptCredential NoStakeAddress
+offerAddressShelley :: NetworkId -> OperatorConfig -> Address ShelleyAddr 
+offerAddressShelley network opConfig = makeShelleyAddress network scriptCredential NoStakeAddress
     where
       scriptCredential :: Cardano.Api.Shelley.PaymentCredential
       scriptCredential = PaymentCredentialByScript offerHash
       
       offerHash = hashScript offerScript
-      offerScript = PlutusScript PlutusScriptV1 offerScriptPlutus
+      offerScript = PlutusScript PlutusScriptV1 $ offerScriptPlutus opConfig
 
-offerAddressInEra net = makeShelleyAddressInEra net scriptCredential NoStakeAddress
+offerAddressInEra net opConfig = makeShelleyAddressInEra net scriptCredential NoStakeAddress
     where
       scriptCredential :: Cardano.Api.Shelley.PaymentCredential
       scriptCredential = PaymentCredentialByScript offerHash
       
       offerHash = hashScript offerScript
-      offerScript = PlutusScript PlutusScriptV1 offerScriptPlutus
+      offerScript = PlutusScript PlutusScriptV1 $ offerScriptPlutus opConfig
 marketAddressInEra :: NetworkId -> AddressInEra AlonzoEra
 marketAddressInEra network = makeShelleyAddressInEra network scriptCredential NoStakeAddress
 

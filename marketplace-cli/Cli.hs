@@ -134,8 +134,9 @@ runCli = do
         &= summary "Cardano Marketplace CLI \nVersion 1.0.0.0"
 
   chainInfo <- chainInfoFromEnv
+  opConfig <- getDefaultOperatorConfig
   let marketAddr = marketAddressShelley (getNetworkId chainInfo)
-  let offerAddr = offerAddressShelley (getNetworkId chainInfo)
+  let offerAddr = offerAddressShelley (getNetworkId chainInfo) opConfig
   case op of
     Ls -> do
       utxos <- queryMarketUtxos chainInfo marketAddr
@@ -148,7 +149,7 @@ runCli = do
           nullUtxo (UTxO mp) = Map.null mp
     Cat -> do
       let marketScriptCbor = serialiseToCBOR simpleMarketplacePlutus
-      let offerScriptCbor = serialiseToCBOR offerScriptPlutus
+      let offerScriptCbor = serialiseToCBOR $ offerScriptPlutus opConfig
       putStrLn $  "Marketplace :\n" ++ toHexString marketScriptCbor
       putStrLn $  "OfferScript :\n" ++ toHexString offerScriptCbor
     Sell itemStr cost sKeyFile-> do
@@ -157,7 +158,7 @@ runCli = do
     Offer asset amount skeyFile -> do 
       skey <- getSignKey skeyFile
       asset <- parseAssetIdText asset
-      offerToken chainInfo asset amount skey
+      offerToken chainInfo asset amount skey opConfig
     Buy txInText datumStr sKeyFile-> do
       sKey <- getSignKey sKeyFile
       buyToken chainInfo txInText datumStr sKey marketAddr
@@ -187,3 +188,15 @@ getSignKey skeyfile =
                             pure  $ home ++  drop 1 skeyfile
                             )
                           else pure skeyfile
+
+
+getDefaultOperatorConfig :: IO OperatorConfig
+getDefaultOperatorConfig = do
+  opPkh <-case deserialiseAddress AsAddressAny "addr_test1vq66k7sxqef27nwkr4htffs6lgr4pyg5aut4s7ugfclqt5qgxpnz9" of
+      Nothing -> throwIO $ userError "Error : Invalid address format used for operator."
+      Just (AddressShelley shelleyAddr) -> return $ unMaybe "Error operator address as script address is not supported." $ shelleyPayAddrToPlutusPubKHash shelleyAddr
+      Just _ -> throwIO $ userError "Error : Byron address is not supported."
+  pure OperatorConfig {
+      operatorPkh = opPkh,
+      operatorFee = 1 -- Operator fee is 1 ada
+    }
