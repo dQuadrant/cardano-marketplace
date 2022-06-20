@@ -3,5 +3,5 @@ import           Test.Tasty
 
 main :: IO ()
 main = do
-    ReferenceScriptTest.attachReferenceScriptToTxOutTestIO
+    ReferenceScriptTest.marketFlowWithInlineDatumAndReferenceScriptTest
     print "Done"

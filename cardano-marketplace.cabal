@@ -124,11 +124,11 @@ test-suite marketplace-test
     , unordered-containers
     , marketplace-plutus
     , marketplace-core
+    , time
 
 --Used for running tests without the cabal test so output can be viewed without --test-show-details=streaming
 executable market-test
   default-language: Haskell2010
-  type: exitcode-stdio-1.0
   main-is:  Main.hs
   hs-source-dirs: test
   other-modules:
@@ -148,6 +148,7 @@ executable market-test
     , aeson
     , text-conversions
     , cardano-api
+    , cardano-ledger-babbage
     , cardano-ledger-alonzo
     , cardano-ledger-shelley
     , cardano-slotting
@@ -159,3 +160,4 @@ executable market-test
     , unordered-containers
     , marketplace-plutus
     , marketplace-core
+    , time

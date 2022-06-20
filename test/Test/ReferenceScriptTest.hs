@@ -7,25 +7,50 @@
 module Test.ReferenceScriptTest where
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase)
-import Cardano.Marketplace.Common.TransactionUtils (getSignKey, getAddrEraFromSignKey, marketAddressShelley, submitTransaction)
+import Cardano.Marketplace.Common.TransactionUtils (getSignKey, getAddrEraFromSignKey, marketAddressShelley, submitTransaction, marketAddressInEra)
 import Cardano.Kuber.Api
 import Cardano.Api
-import Cardano.Kuber.Util (getDefaultConnection, queryAddressInEraUtxos)
-import Control.Exception (throwIO)
+import Cardano.Kuber.Util (getDefaultConnection, queryAddressInEraUtxos, skeyToAddr, queryUtxos, sKeyToPkh, queryTxins)
+import Control.Exception (throwIO, throw)
 import Cardano.Marketplace.V1.Core (sellToken, createReferenceScript, UtxoWithData (..), ensureMinAda, marketScriptToScriptInAnyLang, getUtxoWithData)
 import Plutus.Contracts.V2.SimpleMarketplace
-    ( SimpleSale(SimpleSale) )
+    ( SimpleSale(SimpleSale), simpleMarketplacePlutusV2, simpleMarketScript )
 import Data.Text (Text, pack)
 import qualified Plutus.Contracts.V2.SimpleMarketplace as SMP
-import Cardano.Api.Shelley ( fromPlutusData )
+import Cardano.Api.Shelley ( fromPlutusData, TxBody (ShelleyTxBody) )
 import Plutus.V2.Ledger.Api ( toData )
+import qualified Control.Concurrent as Control
+import System.Environment
+import qualified Data.ByteString.Char8 as BS8
+import qualified Data.Set as Set
+import qualified Data.Map as Map
+import Data.Time.Clock
+import Data.Time.Calendar
+import Data.Maybe (isJust)
+import Data.Time.LocalTime (utcToLocalZonedTime, getZonedTime)
+import Cardano.Kuber.Console.ConsoleWritable (ConsoleWritable(toConsoleText, toConsoleTextNoPrefix))
+import qualified Plutus.V1.Ledger.Address as Plutus
+import qualified Plutus.V2.Ledger.Api as Plutus
+import qualified Data.Aeson as Aeson
+import qualified Data.Text.Encoding as T
+import qualified Text.Show as T
+import qualified Data.ByteString.Lazy.Char8 as BS8L
+import Data.Functor ( (<&>) )
+import Cardano.Api.Byron (TxBody(ByronTxBody))
+import Cardano.Ledger.Babbage.Tx (txfee)
+import Cardano.Ledger.Shelley.API.Types (Coin(Coin))
 
 
 tests :: TestTree
 tests =
   testGroup "Reference Script Test" [
       attachReferenceScriptToTxOutTest
+       -- 
   ]
+
+attachReferenceScriptToTxOutTest :: TestTree -- ^ Test that we can attach a reference script to a transaction output
+attachReferenceScriptToTxOutTest = testCase "should attach a reference script to a transaction output" attachReferenceScriptToTxOutTestIO
+
 
 chainInfoVasilTestnet :: IO ChainConnectInfo
 chainInfoVasilTestnet = do
@@ -37,8 +62,6 @@ unEither :: Either FrameworkError b -> IO b
 unEither (Right b) = pure b
 unEither (Left err) = error $ "Error: " ++ show err
 
-attachReferenceScriptToTxOutTest :: TestTree -- ^ Test that we can attach a reference script to a transaction output
-attachReferenceScriptToTxOutTest = testCase "should attach a reference script to a transaction output" attachReferenceScriptToTxOutTestIO
 
 attachReferenceScriptToTxOutTestIO :: IO ()
 attachReferenceScriptToTxOutTestIO = do
@@ -60,6 +83,7 @@ sellTestIO = do
 
 buyTestIO :: IO ()
 buyTestIO = do
+  Control.threadDelay 3
   chainInfo <- chainInfoVasilTestnet
   sKey <- getSignKey "pay.skey"
   scriptSaverSKey <- getSignKey "pay2.skey"
@@ -86,3 +110,81 @@ redeemMarketUtxoIO dcInfo txIn txOut sKey extraOperations scriptData redeemer = 
           <> extraOperations
   submitTransaction dcInfo txOperations sKey
   putStrLn "Done"
+
+
+marketFlowWithInlineDatumAndReferenceScriptTest :: IO ()
+marketFlowWithInlineDatumAndReferenceScriptTest = do
+  chainInfo <- chainInfoFromEnv >>= withDetails
+  sKey <-  getEnv "SIGNKEY_FILE" >>= getSignKey
+  marketFlowWithInlineDatumAndReferenceScript chainInfo sKey
+
+marketFlowWithInlineDatumAndReferenceScript ::ChainInfo ci => ci ->  SigningKey PaymentKey ->  IO ()
+marketFlowWithInlineDatumAndReferenceScript chainInfo skey = do
+  let mintingOp =   txMintSimpleScript mintingScript [(assetName, 1)]
+                  <>  txWalletSignKey skey
+  mintTx <- txBuilderToTxIO chainInfo mintingOp >>= orThrow >>= andSubmitOrThrow
+  time <- getZonedTime
+  putStrLn $ show time  ++  " [ Mint    ] : " ++ "TxFee = "++show (fromIntegral  (getTxFee mintTx) /1e6) ++" Ada : Submit tx for minting  1  " ++ show assetId
+  waitConfirmation mintTx 0
+  time <- getZonedTime
+  putStrLn $ show time  ++  " [ Confirm ] : " ++ "Mint tx confirmed "  ++ show (getTxId $ getTxBody mintTx)
+
+  let marketAddrInEra =  marketAddressInEra (getNetworkId chainInfo)
+      sellOp        =  txPayToScriptWithDataAndReference
+                              simpleMarketScript
+                              (valueFromList [(assetId, 1), (AdaAssetId, 15_000_000)])
+                              (fromPlutusData $ toData $  SimpleSale (Plutus.Address (Plutus.PubKeyCredential $ sKeyToPkh skey) Nothing ) 100_000_000)
+                    <> txWalletSignKey  skey
+  sellTx <- txBuilderToTxIO chainInfo sellOp >>= orThrow >>= andSubmitOrThrow
+  let sellTxIn = TxIn  (getTxId $ getTxBody sellTx) (TxIx 0)
+  time <- getZonedTime
+  putStrLn $ show time  ++  " [ Sell    ] : " ++ "TxFee = "++show (fromIntegral  (getTxFee sellTx) /1e6) ++"cAda  : Submit tx for selling " ++ show assetId ++ " at at 100A "
+  waitConfirmation sellTx 1
+  time <- getZonedTime
+  putStrLn $ show time  ++  " [ Confirm ] : " ++ "Sell tx confirmed "  ++ show (getTxId $ getTxBody sellTx)
+  [(_,txout)]<- queryTxins (getConnectInfo chainInfo) (Set.singleton  sellTxIn) >>= orThrow <&> unUTxO <&> Map.toList
+
+  let marketAddrInEra =  marketAddressInEra (getNetworkId chainInfo)
+      withdrawOp        =  txRedeemUtxoWithInlineDatumWithReferenceScript sellTxIn txout sellTxIn (ScriptDataConstructor 1 [])  Nothing -- (Just $ ExecutionUnits 6000000000 14000000)
+                    <> txSign skey
+                    <> txWalletSignKey  skey
+  withdrawTx <- txBuilderToTxIO chainInfo withdrawOp >>= orThrow >>= andSubmitOrThrow
+
+  time <- getZonedTime
+  putStrLn $ show time  ++  " [Withdraw ] : " ++ "TxFee = "++show (fromIntegral  (getTxFee withdrawTx) /1e6) ++" Ada : Submit tx for withdraw " ++ show assetId ++ " "
+  waitConfirmation withdrawTx 0
+  time <- getZonedTime
+  putStrLn $ show time  ++  " [ Confirm ] : " ++ "Withdraw tx confirmed "  ++ show (getTxId $ getTxBody withdrawTx)
+
+  where
+    getFee tx = case getTxBody tx of
+      ByronTxBody an -> error "Unexpected"
+      ShelleyTxBody sbe tb scs tbsd m_ad tsv -> case txFee tb of
+        TxFeeImplicit tfiie -> error "Unexpected"
+        TxFeeExplicit tfeie (Lovelace lo) -> lo
+    _waitForConfirmation txIn  addrs = do
+        (UTxO utxos) <- queryUtxos  (getConnectInfo chainInfo) addrs   >>= orThrow
+        if isJust $  Map.lookup txIn utxos
+          then pure()
+          else  do
+            Control.threadDelay 2_000_000
+            _waitForConfirmation txIn addrs
+
+    waitConfirmation tx index =
+      let txId = getTxId (getTxBody tx)
+      in  _waitForConfirmation (TxIn txId (TxIx index))  ( Set.singleton $ toAddressAny walletAddr)
+
+    andSubmitOrThrow tx  = submitTx (getConnectInfo chainInfo ) tx >>= orThrow >> pure tx
+    orThrow x = case x of
+      Right v -> pure v
+      Left e -> throw e
+    mintingScript  = RequireSignature ( verificationKeyHash  $ getVerificationKey skey)
+    policyId =  scriptPolicyId (SimpleScript SimpleScriptV2 mintingScript)
+    assetName = AssetName $ BS8.pack  "bench-token"
+    assetId = AssetId policyId assetName
+    walletAddr = skeyToAddr skey (getNetworkId chainInfo)
+
+
+getTxFee :: Tx BabbageEra  -> Integer
+getTxFee tx = case getTxBody tx of
+          ShelleyTxBody sbe tb scs tbsd m_ad tsv -> case txfee tb of { Coin n -> n }  
