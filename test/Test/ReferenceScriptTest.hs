@@ -118,62 +118,84 @@ marketFlowWithInlineDatumAndReferenceScriptTest = do
   sKey <-  getEnv "SIGNKEY_FILE" >>= getSignKey
   marketFlowWithInlineDatumAndReferenceScript chainInfo sKey
 
+marketFlowWithInlineDatumAndReferenceScriptUnconsumedTest :: IO ()
+marketFlowWithInlineDatumAndReferenceScriptUnconsumedTest = do
+  chainInfo <- chainInfoFromEnv >>= withDetails
+  sKey <-  getEnv "SIGNKEY_FILE" >>= getSignKey
+  marketFlowWithInlineDatumAndReferenceScriptUnConsumed chainInfo sKey
+
 marketFlowWithInlineDatumAndReferenceScript ::ChainInfo ci => ci ->  SigningKey PaymentKey ->  IO ()
 marketFlowWithInlineDatumAndReferenceScript chainInfo skey = do
-  let mintingOp =   txMintSimpleScript mintingScript [(assetName, 1)]
+  let mintingOp =   txMintSimpleScript mintingScript [(assetName,1 )]
                   <>  txWalletSignKey skey
   mintTx <- txBuilderToTxIO chainInfo mintingOp >>= orThrow >>= andSubmitOrThrow
-  time <- getZonedTime
-  putStrLn $ show time  ++  " [ Mint    ] : " ++ "TxFee = "++show (fromIntegral  (getTxFee mintTx) /1e6) ++" Ada : Submit tx for minting  1  " ++ show assetId
-  waitConfirmation mintTx 0
-  time <- getZonedTime
-  putStrLn $ show time  ++  " [ Confirm ] : " ++ "Mint tx confirmed "  ++ show (getTxId $ getTxBody mintTx)
+  waitConfirmation chainInfo walletAddr mintTx "Mint" ( "Submit tx for minting  1  " ++ show assetId)
+
 
   let marketAddrInEra =  marketAddressInEra (getNetworkId chainInfo)
       sellOp        =  txPayToScriptWithDataAndReference
                               simpleMarketScript
-                              (valueFromList [(assetId, 1), (AdaAssetId, 15_000_000)])
+                              (valueFromList [(assetId, 1), (AdaAssetId, 18_000_000)])
                               (fromPlutusData $ toData $  SimpleSale (Plutus.Address (Plutus.PubKeyCredential $ sKeyToPkh skey) Nothing ) 100_000_000)
                     <> txWalletSignKey  skey
   sellTx <- txBuilderToTxIO chainInfo sellOp >>= orThrow >>= andSubmitOrThrow
   let sellTxIn = TxIn  (getTxId $ getTxBody sellTx) (TxIx 0)
-  time <- getZonedTime
-  putStrLn $ show time  ++  " [ Sell    ] : " ++ "TxFee = "++show (fromIntegral  (getTxFee sellTx) /1e6) ++"cAda  : Submit tx for selling " ++ show assetId ++ " at at 100A "
-  waitConfirmation sellTx 1
-  time <- getZonedTime
-  putStrLn $ show time  ++  " [ Confirm ] : " ++ "Sell tx confirmed "  ++ show (getTxId $ getTxBody sellTx)
+  waitConfirmation chainInfo walletAddr sellTx "Sell" ( "Submit tx for selling " ++ show assetId ++ " at at 100A ")
+
   [(_,txout)]<- queryTxins (getConnectInfo chainInfo) (Set.singleton  sellTxIn) >>= orThrow <&> unUTxO <&> Map.toList
 
   let marketAddrInEra =  marketAddressInEra (getNetworkId chainInfo)
-      withdrawOp        =  txRedeemUtxoWithInlineDatumWithReferenceScript sellTxIn txout sellTxIn (ScriptDataConstructor 1 [])  Nothing -- (Just $ ExecutionUnits 6000000000 14000000)
+      withdrawOp        =  txRedeemUtxoWithInlineDatumWithReferenceScript sellTxIn sellTxIn txout  (ScriptDataConstructor 1 [])  Nothing -- (Just $ ExecutionUnits 6000000000 14000000)
                     <> txSign skey
                     <> txWalletSignKey  skey
   withdrawTx <- txBuilderToTxIO chainInfo withdrawOp >>= orThrow >>= andSubmitOrThrow
+  waitConfirmation chainInfo walletAddr withdrawTx "Withdraw" ( "Submit tx for withdraw " ++ show assetId)
 
-  time <- getZonedTime
-  putStrLn $ show time  ++  " [Withdraw ] : " ++ "TxFee = "++show (fromIntegral  (getTxFee withdrawTx) /1e6) ++" Ada : Submit tx for withdraw " ++ show assetId ++ " "
-  waitConfirmation withdrawTx 0
-  time <- getZonedTime
-  putStrLn $ show time  ++  " [ Confirm ] : " ++ "Withdraw tx confirmed "  ++ show (getTxId $ getTxBody withdrawTx)
 
   where
-    getFee tx = case getTxBody tx of
-      ByronTxBody an -> error "Unexpected"
-      ShelleyTxBody sbe tb scs tbsd m_ad tsv -> case txFee tb of
-        TxFeeImplicit tfiie -> error "Unexpected"
-        TxFeeExplicit tfeie (Lovelace lo) -> lo
-    _waitForConfirmation txIn  addrs = do
-        (UTxO utxos) <- queryUtxos  (getConnectInfo chainInfo) addrs   >>= orThrow
-        if isJust $  Map.lookup txIn utxos
-          then pure()
-          else  do
-            Control.threadDelay 2_000_000
-            _waitForConfirmation txIn addrs
+    andSubmitOrThrow tx  = submitTx (getConnectInfo chainInfo ) tx >>= orThrow >> pure tx
+    orThrow x = case x of
+      Right v -> pure v
+      Left e -> throw e
+    mintingScript  = RequireSignature ( verificationKeyHash  $ getVerificationKey skey)
+    policyId =  scriptPolicyId (SimpleScript SimpleScriptV2 mintingScript)
+    assetName = AssetName $ BS8.pack  "bench-token"
+    assetId = AssetId policyId assetName
+    walletAddr = skeyToAddr skey (getNetworkId chainInfo)
 
-    waitConfirmation tx index =
-      let txId = getTxId (getTxBody tx)
-      in  _waitForConfirmation (TxIn txId (TxIx index))  ( Set.singleton $ toAddressAny walletAddr)
+marketFlowWithInlineDatumAndReferenceScriptUnConsumed ::ChainInfo ci => ci ->  SigningKey PaymentKey ->  IO ()
+marketFlowWithInlineDatumAndReferenceScriptUnConsumed chainInfo skey = do
+  let mintingOp =   txMintSimpleScript mintingScript [(assetName, 2)]
+                  <>  txWalletSignKey skey
+                  <> txPayToScriptWithDataAndReference
+                            simpleMarketScript
+                            (valueFromList [(assetId, 1), (AdaAssetId, 18_000_000)])
+                            (fromPlutusData $ toData $  SimpleSale (Plutus.Address (Plutus.PubKeyCredential $ sKeyToPkh skey) Nothing ) 100_000_000)
+  mintTx <- txBuilderToTxIO chainInfo mintingOp >>= orThrow >>= andSubmitOrThrow
+  waitConfirmation chainInfo walletAddr mintTx "Mint" ( "Submit tx for minting  1  " ++ show assetId)
 
+
+  let marketAddrInEra =  marketAddressInEra (getNetworkId chainInfo)
+      sellOp        =  txPayToScriptWithData
+                              marketAddrInEra
+                              (valueFromList [(assetId, 1), (AdaAssetId, 18_000_000)])
+                              (fromPlutusData $ toData $  SimpleSale (Plutus.Address (Plutus.PubKeyCredential $ sKeyToPkh skey) Nothing ) 100_000_000)
+                    <> txWalletSignKey  skey
+  sellTx <- txBuilderToTxIO chainInfo sellOp >>= orThrow >>= andSubmitOrThrow
+  let sellTxIn = TxIn  (getTxId $ getTxBody sellTx) (TxIx 0)
+  let referenctTxin = TxIn  (getTxId $ getTxBody mintTx) (TxIx 0)
+  waitConfirmation chainInfo walletAddr sellTx "Sell" ( "Submit tx for selling " ++ show assetId ++ " at at 100A ")
+
+  [(_,txout)]<- queryTxins (getConnectInfo chainInfo) (Set.singleton  sellTxIn) >>= orThrow <&> unUTxO <&> Map.toList
+
+  let   withdrawOp  =  txRedeemUtxoWithInlineDatumWithReferenceScript referenctTxin sellTxIn  txout  (ScriptDataConstructor 1 [])  Nothing -- (Just $ ExecutionUnits 6000000000 14000000)
+                    <> txSign skey
+                    <> txWalletSignKey  skey
+  withdrawTx <- txBuilderToTxIO chainInfo withdrawOp >>= orThrow >>= andSubmitOrThrow
+  waitConfirmation chainInfo walletAddr withdrawTx "Withdraw" ( "Submit tx for withdraw " ++ show assetId)
+
+
+  where
     andSubmitOrThrow tx  = submitTx (getConnectInfo chainInfo ) tx >>= orThrow >> pure tx
     orThrow x = case x of
       Right v -> pure v
@@ -187,4 +209,27 @@ marketFlowWithInlineDatumAndReferenceScript chainInfo skey = do
 
 getTxFee :: Tx BabbageEra  -> Integer
 getTxFee tx = case getTxBody tx of
-          ShelleyTxBody sbe tb scs tbsd m_ad tsv -> case txfee tb of { Coin n -> n }  
+          ShelleyTxBody sbe tb scs tbsd m_ad tsv -> case txfee tb of { Coin n -> n }
+
+waitConfirmation :: ChainInfo v =>v -> Address addr -> Tx BabbageEra -> [Char] -> [Char] -> IO ()
+waitConfirmation chainInfo walletAddr tx tag message = do
+  time <- getZonedTime
+  putStrLn $ show time  ++  " ["++ tag ++ "\t] : " ++ "TxFee = "++show (fromIntegral  (getTxFee tx) /1e6) ++" Ada  : "++ message
+  _waitConfirmation  
+  time <- getZonedTime
+  putStrLn $ show time  ++  " [ Confirm ] : " ++ "Tx confirmed "  ++ show xHash
+  where
+      xHash = getTxId $ getTxBody tx
+
+      orThrow x = case x of
+        Right v -> pure v
+        Left e -> throw e
+      _waitForConfirmation  addrs = do
+        (UTxO utxos) <- queryUtxos  (getConnectInfo chainInfo) addrs   >>= orThrow
+        if  any (\(TxIn id _) -> xHash == id) (Map.keys utxos)
+          then pure()
+          else  do
+            Control.threadDelay 2_000_000
+            _waitForConfirmation  addrs
+
+      _waitConfirmation   =_waitForConfirmation  ( Set.singleton $ toAddressAny walletAddr)

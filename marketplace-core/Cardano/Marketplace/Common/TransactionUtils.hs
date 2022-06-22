@@ -9,6 +9,7 @@
 
 module Cardano.Marketplace.Common.TransactionUtils where
 
+import Cardano.Api.Shelley
 import Cardano.Api
 import Cardano.Kuber.Api
 import Cardano.Kuber.Data.Parsers
@@ -24,7 +25,6 @@ import qualified Data.ByteString.Char8 as BS8
 import qualified Plutus.V1.Ledger.Address as Plutus
 import qualified Plutus.V1.Ledger.Api as Plutus
 import Plutus.Contracts.V2.SimpleMarketplace (SimpleSale (SimpleSale), simpleMarketplacePlutusV2)
-import Cardano.Api.Shelley
 
 import qualified Cardano.Api.Shelley as Shelley
 import Plutus.V1.Ledger.Api (toData)

@@ -25,10 +25,13 @@ library marketplace-plutus
   exposed-modules:
     Plutus.Contracts.V1.SimpleMarketplace
     Plutus.Contracts.V2.SimpleMarketplace
+    Plutus.Contracts.V2.MarketplaceConfig
+    Plutus.Contracts.V2.ConfigurableMarketplace
   hs-source-dirs: marketplace-plutus
   build-depends:
       base  -any
-    , plutus-tx
+    , plutus-tx    
+    , cardano-ledger-alonzo
     , plutus-ledger-api
     , plutus-tx-plugin
     , aeson
@@ -133,6 +136,7 @@ executable market-test
   hs-source-dirs: test
   other-modules:
     Test.ReferenceScriptTest
+    Test.ReferenceDataTest
   build-depends:
     base >= 4.9 && <5
     , kuber

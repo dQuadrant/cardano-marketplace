@@ -84,7 +84,11 @@ mkMarket  ds@SimpleSale{sellerAddress,priceOfAsset}  action ctx =
 
 {-# INLINABLE mkWrappedMarket #-}
 mkWrappedMarket ::  BuiltinData -> BuiltinData -> BuiltinData -> ()
-mkWrappedMarket  d r c = check $ mkMarket (unsafeFromBuiltinData d) (unsafeFromBuiltinData r) (unsafeFromBuiltinData c)
+mkWrappedMarket  d r c = check $ mkMarket (parseData d "Invalid data") (parseData r "Invalid redeemer") (unsafeFromBuiltinData c)
+  where
+    parseData md s = case fromBuiltinData  md of 
+      Just datum -> datum
+      _      -> traceError s
 
 
 simpleMarketValidator ::   Validator
