@@ -164,6 +164,17 @@ printDiffInSecAtomic printString t1 t2 atomicPutStrLn = do
       printInGreenAtomic (printString ++ " " ++ show min ++ " min " ++ show sec ++ " sec") atomicPutStrLn
     else printInGreenAtomic (printString ++ " " ++ show diff ++ " sec") atomicPutStrLn
 
+
+printAlreadyCalculatedDiffInSecAtomic :: String -> Int64 -> (String -> IO ()) -> IO ()
+printAlreadyCalculatedDiffInSecAtomic printString diff atomicPutStrLn = do
+    if diff > 60
+    then do
+      let min = diff `div` 60
+      let sec = diff `mod` 60
+      printInGreenAtomic (printString ++ " " ++ show min ++ " min " ++ show sec ++ " sec") atomicPutStrLn
+    else printInGreenAtomic (printString ++ " " ++ show diff ++ " sec") atomicPutStrLn
+
+
 --Print in green text in console
 printInGreenAtomic str atomicPutStrLn = do
   atomicPutStrLn $ "\n\ESC[92m" ++ str
@@ -490,6 +501,7 @@ loopedQueryUtxos ctx addrAny = do
     Left any -> loopedQueryUtxos ctx addrAny
     Right utxosE -> case utxosE of
       Left err -> do
+        putStrLn $ "Loope error on querying utxos: " <> show err
         print err
         loopedQueryUtxos ctx addrAny
       Right utxos -> return utxos
