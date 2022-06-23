@@ -128,6 +128,8 @@ test-suite marketplace-test
     , marketplace-plutus
     , marketplace-core
     , time
+    , cardano-ledger-babbage
+
 
 --Used for running tests without the cabal test so output can be viewed without --test-show-details=streaming
 executable market-test

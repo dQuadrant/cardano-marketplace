@@ -47,6 +47,8 @@ import Plutus.V1.Ledger.Value (assetClassValueOf, AssetClass (AssetClass))
 import Plutus.Contracts.V2.MarketplaceConfig (MarketConfig(..))
 import Cardano.Api (IsCardanoEra,BabbageEra,NetworkId, AddressInEra, ShelleyAddr, BabbageEra, Script (PlutusScript), PlutusScriptVersion (PlutusScriptV2), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress)
 import qualified Cardano.Api.Shelley
+import PlutusTx.Builtins.Class (stringToBuiltinByteString)
+import Data.String
 
 
 
@@ -61,7 +63,7 @@ allScriptInputsCount ctx@(ScriptContext info purpose)=
 getConfigFromInfo :: ValidatorHash -> TxInfo  -> MarketConfig
 getConfigFromInfo configScriptValHash info = findRightDatum (txInfoReferenceInputs info)
   where
-    findRightDatum [] =traceError "ConfigurableMarket: Missing reference configData"
+    findRightDatum [] =traceError "ConfigurableMarket: Missing referenceInput data"
     findRightDatum (TxInInfo _ (TxOut (Address cre m_sc) _ (OutputDatum (Datum d)) _):other) =
       case cre of
           PubKeyCredential pkh -> findRightDatum other
@@ -72,7 +74,7 @@ getConfigFromInfo configScriptValHash info = findRightDatum (txInfoReferenceInpu
 
                                       )
                                     else findRightDatum other
-    findRightDatum _ = traceError "ConfigurableMarket: Missing datum in Reference input"
+    findRightDatum (_:other) = findRightDatum other
 
 
 data MarketRedeemer =  Buy | Withdraw
