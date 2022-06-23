@@ -61,18 +61,18 @@ allScriptInputsCount ctx@(ScriptContext info purpose)=
 getConfigFromInfo :: ValidatorHash -> TxInfo  -> MarketConfig
 getConfigFromInfo configScriptValHash info = findRightDatum (txInfoReferenceInputs info)
   where
-    findRightDatum [] =traceError "Missing reference configData"
+    findRightDatum [] =traceError "ConfigurableMarket: Missing reference configData"
     findRightDatum (TxInInfo _ (TxOut (Address cre m_sc) _ (OutputDatum (Datum d)) _):other) =
       case cre of
           PubKeyCredential pkh -> findRightDatum other
           ScriptCredential vh ->  if  vh == configScriptValHash
                                     then ( case fromBuiltinData  d of
                                             Just bData  -> bData
-                                            _       -> traceError "Invalid reference configData"
+                                            _       -> traceError "ConfigurableMarket: Invalid reference configData"
 
                                       )
                                     else findRightDatum other
-    findRightDatum _ = traceError "Missing datum in Reference input"
+    findRightDatum _ = traceError "ConfigurableMarket: Missing datum in Reference input"
 
 
 data MarketRedeemer =  Buy | Withdraw
@@ -97,24 +97,24 @@ PlutusTx.makeIsDataIndexed ''SimpleSale [('SimpleSale, 0)]
 mkConfigurableMarket   :: MarketConstructor -> SimpleSale   -> MarketRedeemer -> ScriptContext    -> Bool
 mkConfigurableMarket  MarketConstructor{configValidatorytHash} ds@SimpleSale{sellerAddress,priceOfAsset}  action ctx =
     case  action of
-        Buy       -> traceIfFalse "Multiple script inputs" (allScriptInputsCount  ctx == 1)  &&
-                     traceIfFalse "Seller not paid" (assetClassValueOf   (valuePaidTo info sellerPkh) adaAsset >= priceOfAsset) &&
-                     traceIfFalse "Market fee not paid" (assetClassValueOf (valuePaidTo info feePkh ) adaAsset >= fee )
-        Withdraw -> traceIfFalse "Seller Signature Missing" $ txSignedBy info sellerPkh
+        Buy       -> traceIfFalse "ConfigurableMarket: Multiple script inputs" (allScriptInputsCount  ctx == 1)  &&
+                     traceIfFalse "ConfigurableMarket: Seller not paid" (assetClassValueOf   (valuePaidTo info sellerPkh) adaAsset >= priceOfAsset) &&
+                     traceIfFalse "ConfigurableMarket: Market fee not paid" (assetClassValueOf (valuePaidTo info feePkh ) adaAsset >= fee )
+        Withdraw -> traceIfFalse "ConfigurableMarket: Seller Signature Missing" $ txSignedBy info sellerPkh
 
     where
       (MarketConfig _ feeAddr fee)  = getConfigFromInfo configValidatorytHash info
       toPkh addr msg = case sellerAddress of { Address cre m_sc -> case cre of
                                                   PubKeyCredential pkh ->  pkh
                                                   ScriptCredential vh -> traceError msg  }
-      sellerPkh = toPkh sellerAddress "Invalid sellerAddr"
-      feePkh = toPkh feeAddr "Invalid operatorAddr"
+      sellerPkh = toPkh sellerAddress "ConfigurableMarket: Invalid sellerAddr"
+      feePkh = toPkh feeAddr "ConfigurableMarket: Invalid operatorAddr"
       info  =  scriptContextTxInfo ctx
       adaAsset=AssetClass (adaSymbol,adaToken )
 
 {-# INLINABLE mkWrappedConfigurableMarket #-}
 mkWrappedConfigurableMarket :: MarketConstructor ->  BuiltinData -> BuiltinData -> BuiltinData -> ()
-mkWrappedConfigurableMarket constructor   d r c = check $ mkConfigurableMarket constructor (parseData d "Invalid data") (parseData r "Invalid redeemer") (unsafeFromBuiltinData c)
+mkWrappedConfigurableMarket constructor   d r c = check $ mkConfigurableMarket constructor (parseData d "ConfigurableMarket: Invalid data") (parseData r "ConfigurableMarket: Invalid redeemer") (unsafeFromBuiltinData c)
   where
     parseData d s = case fromBuiltinData  d of
       Just d -> d

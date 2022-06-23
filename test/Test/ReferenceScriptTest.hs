@@ -10,7 +10,7 @@ import Test.Tasty.HUnit (testCase)
 import Cardano.Marketplace.Common.TransactionUtils (getSignKey, getAddrEraFromSignKey, marketAddressShelley, submitTransaction, marketAddressInEra)
 import Cardano.Kuber.Api
 import Cardano.Api
-import Cardano.Kuber.Util (getDefaultConnection, queryAddressInEraUtxos, skeyToAddr, queryUtxos, sKeyToPkh, queryTxins)
+import Cardano.Kuber.Util (getDefaultConnection, queryAddressInEraUtxos, skeyToAddr, queryUtxos, sKeyToPkh, queryTxins, skeyToAddrInEra)
 import Control.Exception (throwIO, throw)
 import Cardano.Marketplace.V1.Core (sellToken, createReferenceScript, UtxoWithData (..), ensureMinAda, marketScriptToScriptInAnyLang, getUtxoWithData)
 import Plutus.Contracts.V2.SimpleMarketplace
@@ -39,6 +39,7 @@ import Data.Functor ( (<&>) )
 import Cardano.Api.Byron (TxBody(ByronTxBody))
 import Cardano.Ledger.Babbage.Tx (txfee)
 import Cardano.Ledger.Shelley.API.Types (Coin(Coin))
+import Plutus.V1.Ledger.Value (tokenName)
 
 
 tests :: TestTree
@@ -165,26 +166,20 @@ marketFlowWithInlineDatumAndReferenceScript chainInfo skey = do
 
 marketFlowWithInlineDatumAndReferenceScriptUnConsumed ::ChainInfo ci => ci ->  SigningKey PaymentKey ->  IO ()
 marketFlowWithInlineDatumAndReferenceScriptUnConsumed chainInfo skey = do
-  let mintingOp =   txMintSimpleScript mintingScript [(assetName, 2)]
-                  <>  txWalletSignKey skey
-                  <> txPayToScriptWithDataAndReference
-                            simpleMarketScript
-                            (valueFromList [(assetId, 1), (AdaAssetId, 18_000_000)])
-                            (fromPlutusData $ toData $  SimpleSale (Plutus.Address (Plutus.PubKeyCredential $ sKeyToPkh skey) Nothing ) 100_000_000)
-  mintTx <- txBuilderToTxIO chainInfo mintingOp >>= orThrow >>= andSubmitOrThrow
-  waitConfirmation chainInfo walletAddr mintTx "Mint" ( "Submit tx for minting  1  " ++ show assetId)
-
 
   let marketAddrInEra =  marketAddressInEra (getNetworkId chainInfo)
       sellOp        =  txPayToScriptWithData
                               marketAddrInEra
-                              (valueFromList [(assetId, 1), (AdaAssetId, 18_000_000)])
+                              (valueFromList [(assetId, 1), (AdaAssetId, 3_000_000)])
                               (fromPlutusData $ toData $  SimpleSale (Plutus.Address (Plutus.PubKeyCredential $ sKeyToPkh skey) Nothing ) 100_000_000)
+                    <> txPayToWithReference simpleMarketScript walletAddrInEra (valueFromList [(AdaAssetId, 18_000_000)])
+                    <> txMintSimpleScript mintingScript [(assetName, 1)]
                     <> txWalletSignKey  skey
   sellTx <- txBuilderToTxIO chainInfo sellOp >>= orThrow >>= andSubmitOrThrow
+  waitConfirmation chainInfo walletAddr sellTx "Sell" ( "Submit tx for placing on sale " ++ show assetId ++ " at at 100A ")
+
   let sellTxIn = TxIn  (getTxId $ getTxBody sellTx) (TxIx 0)
-  let referenctTxin = TxIn  (getTxId $ getTxBody mintTx) (TxIx 0)
-  waitConfirmation chainInfo walletAddr sellTx "Sell" ( "Submit tx for selling " ++ show assetId ++ " at at 100A ")
+  let referenctTxin = TxIn  (getTxId $ getTxBody sellTx) (TxIx 1)
 
   [(_,txout)]<- queryTxins (getConnectInfo chainInfo) (Set.singleton  sellTxIn) >>= orThrow <&> unUTxO <&> Map.toList
 
@@ -205,6 +200,7 @@ marketFlowWithInlineDatumAndReferenceScriptUnConsumed chainInfo skey = do
     assetName = AssetName $ BS8.pack  "bench-token"
     assetId = AssetId policyId assetName
     walletAddr = skeyToAddr skey (getNetworkId chainInfo)
+    walletAddrInEra = skeyToAddrInEra skey (getNetworkId chainInfo)
 
 
 getTxFee :: Tx BabbageEra  -> Integer

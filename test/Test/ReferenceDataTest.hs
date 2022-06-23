@@ -12,11 +12,11 @@ import Test.Tasty.HUnit (testCase)
 import Cardano.Marketplace.Common.TransactionUtils (getSignKey, getAddrEraFromSignKey, marketAddressShelley, submitTransaction, marketAddressInEra)
 import Cardano.Kuber.Api
 import Cardano.Api
-import Cardano.Kuber.Util (getDefaultConnection, queryAddressInEraUtxos, skeyToAddr, queryUtxos, sKeyToPkh, queryTxins, toPlutusAddress, dataToScriptData, toPlutusScriptHash)
+import Cardano.Kuber.Util (getDefaultConnection, queryAddressInEraUtxos, skeyToAddr, queryUtxos, sKeyToPkh, queryTxins, toPlutusAddress, dataToScriptData, toPlutusScriptHash, skeyToAddrInEra)
 import Control.Exception (throwIO, throw)
 import Cardano.Marketplace.V1.Core (sellToken, createReferenceScript, UtxoWithData (..), ensureMinAda, marketScriptToScriptInAnyLang, getUtxoWithData)
 import Data.Text (Text, pack)
-import Cardano.Api.Shelley ( fromPlutusData, TxBody (ShelleyTxBody), fromShelleyScriptHash, toShelleyScriptHash )
+import Cardano.Api.Shelley ( fromPlutusData, TxBody (ShelleyTxBody), fromShelleyScriptHash, toShelleyScriptHash, fromShelleyAddr )
 import Plutus.V2.Ledger.Api ( toData )
 import qualified Control.Concurrent as Control
 import System.Environment
@@ -37,7 +37,7 @@ import qualified Data.ByteString.Lazy.Char8 as BS8L
 import Data.Functor ( (<&>) )
 import Cardano.Api.Byron (TxBody(ByronTxBody))
 import Cardano.Ledger.Babbage.Tx (txfee)
-import Cardano.Ledger.Shelley.API.Types (Coin(Coin))
+import Cardano.Ledger.Shelley.API.Types (Coin(Coin), Globals (networkId))
 import Plutus.Contracts.V2.MarketplaceConfig (MarketConfig(MarketConfig), marketConfigAddress, marketConfigValidator, marketConfigPlutusScript, marketConfigScript)
 import Plutus.Contracts.V2.ConfigurableMarketplace (configurableMarketScript, MarketConstructor (MarketConstructor), configurableMarketValidator, configurableMarketAddress, SimpleSale (..), MarketRedeemer(..) )
 import qualified Data.Text as T
@@ -55,16 +55,20 @@ marketConfigScriptCredential = PaymentCredentialByScript $ hashScript marketConf
 
 marketFlowWithInlineDatumReferenceTxin ::ChainInfo ci => ci ->  SigningKey PaymentKey ->  IO ()
 marketFlowWithInlineDatumReferenceTxin chainInfo skey = do
+  buyerSkey <- generateSigningKey  AsPaymentKey
+  artistSkey <- generateSigningKey  AsPaymentKey
+
 
   let marketConfig = MarketConfig ownerAddressPlutus ownerAddressPlutus 1_000_000
       marketConstructor = MarketConstructor  ( toPlutusScriptHash $  toShelleyScriptHash  $ hashScript  marketConfigPlutusScript)
       networkId = getNetworkId chainInfo
-      ownerAddressPlutus = toPlutusAddress (skeyToAddr skey networkId )
+      ownerAddressPlutus = toPlutusAddress walletAddr
       configAddress = marketConfigAddress networkId
       marketAddress = configurableMarketAddress marketConstructor networkId
       setupBuilder =  txPayToScriptWithDataAndReference  marketConfigScript (valueFromList [(AdaAssetId,20_000_000)]) (dataToScriptData  marketConfig)
-                  <>  txPayToScriptWithReference marketScript (valueFromList [(AdaAssetId,20_000_000)]) (hashScriptData $  ScriptDataConstructor 0 [])
+                  -- <>  txPayToScriptWithReference marketScript (valueFromList [(AdaAssetId,20_000_000)]) (hashScriptData $  ScriptDataConstructor 0 [])
                   <>  txMintSimpleScript mintingScript [(assetName, 1)]
+                  <> txPayTo (  skeyToAddrInEra buyerSkey networkId) (valueFromList [(AdaAssetId,110_000_000)])
                   <>  txWalletSignKey skey
       marketScript = configurableMarketScript marketConstructor
   putStrLn $ "MarketConfigScript address : " ++  T.unpack (serialiseAddress configAddress)
@@ -80,10 +84,10 @@ marketFlowWithInlineDatumReferenceTxin chainInfo skey = do
 
 
   let marketAddrInEra =  marketAddressInEra (getNetworkId chainInfo)
-      sellOp        = txPayToScriptWithData
-                              marketAddress
-                              (valueFromList [(assetId, 1), (AdaAssetId, 2_000_000)])
-                              (fromPlutusData $ toData $  SimpleSale (Plutus.Address (Plutus.PubKeyCredential $ sKeyToPkh skey) Nothing ) 100_000_000)
+      sellOp        = txPayToScriptWithDataAndReference 
+                              marketScript
+                              (valueFromList [(assetId, 1), (AdaAssetId, 30_000_000)])
+                              (fromPlutusData $ toData $  SimpleSale (Plutus.Address (Plutus.PubKeyCredential $ sKeyToPkh artistSkey) Nothing ) 100_000_000)
                     <> txWalletSignKey  skey
   sellTx <- txBuilderToTxIO chainInfo sellOp >>= orThrow >>= andSubmitOrThrow
   let sellTxIn = TxIn  (getTxId $ getTxBody sellTx) (TxIx 0)
@@ -91,15 +95,17 @@ marketFlowWithInlineDatumReferenceTxin chainInfo skey = do
   log "info" $ "Utxo to be redeemed at : " ++ T.unpack (renderTxIn sellTxIn) 
 
   [(_,txout)]<- queryTxins (getConnectInfo chainInfo) (Set.singleton  sellTxIn) >>= orThrow <&> unUTxO <&> Map.toList
+  log "debug" $ "Buyer Skey: " ++ T.unpack( serialiseToBech32 buyerSkey) ++ "\n ArtistAddress : " ++T.unpack(serialiseAddress (skeyToAddrInEra artistSkey networkId))
+                ++ "\n Market fee addr :" ++ T.unpack (serialiseToBech32  walletAddr)
   let marketAddrInEra =  marketAddressInEra (getNetworkId chainInfo)
       withdrawOp        =  txRedeemUtxoWithInlineDatumWithReferenceScript scriptReferenceTxin sellTxIn txout  (ScriptDataConstructor 1 [])  Nothing -- (Just $ ExecutionUnits 6000000000 14000000)
                     <> txReferenceTxIn datumRefTxin
-                    <> txSign skey
-                    <> txWalletSignKey  skey
+                    <> txPayTo (skeyToAddrInEra artistSkey networkId ) (valueFromList [(AdaAssetId,99_000_000)])
+                    <> txWalletSignKey  buyerSkey
+
   withdrawTx <- txBuilderToTxIO chainInfo withdrawOp >>= orThrow 
-  putStrLn  ("Withdraw Tx :" ++ show  (getTxBody withdrawTx))
   andSubmitOrThrow withdrawTx
-  waitConfirmation chainInfo walletAddr withdrawTx "Withdraw" ( "Submit tx for withdraw[with reference datum] " ++ show assetId)
+  waitConfirmation chainInfo (skeyToAddr buyerSkey networkId ) withdrawTx "Buy" ( "Submit tx for buy[with reference datum] " ++ show assetId)
 
   where
     andSubmitOrThrow tx  = submitTx (getConnectInfo chainInfo ) tx >>= orThrow >> pure tx
