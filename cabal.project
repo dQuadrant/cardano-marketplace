@@ -200,7 +200,7 @@ source-repository-package
 source-repository-package
   type: git
   location: https://github.com/dquadrant/kuber
-  tag: 662c7075f6afc0fa4baf477b022492a4425a50c0
+  tag: 784c0587c3cd5ecb71051dc2f5ad6ef4a2883d8f
 
 constraints:
     hedgehog >= 1.0

@@ -166,13 +166,14 @@ marketFlowWithInlineDatumAndReferenceScript chainInfo skey = do
 
 marketFlowWithInlineDatumAndReferenceScriptUnConsumed ::ChainInfo ci => ci ->  SigningKey PaymentKey ->  IO ()
 marketFlowWithInlineDatumAndReferenceScriptUnConsumed chainInfo skey = do
+  randomSkey <- generateSigningKey  AsPaymentKey
 
   let marketAddrInEra =  marketAddressInEra (getNetworkId chainInfo)
       sellOp        =  txPayToScriptWithData
                               marketAddrInEra
                               (valueFromList [(assetId, 1), (AdaAssetId, 3_000_000)])
                               (fromPlutusData $ toData $  SimpleSale (Plutus.Address (Plutus.PubKeyCredential $ sKeyToPkh skey) Nothing ) 100_000_000)
-                    <> txPayToWithReference simpleMarketScript walletAddrInEra (valueFromList [(AdaAssetId, 18_000_000)])
+                    <> txPayToWithReference simpleMarketScript (skeyToAddrInEra randomSkey $ getNetworkId chainInfo) (valueFromList [(AdaAssetId, 18_000_000)])
                     <> txMintSimpleScript mintingScript [(assetName, 1)]
                     <> txWalletSignKey  skey
   sellTx <- txBuilderToTxIO chainInfo sellOp >>= orThrow >>= andSubmitOrThrow
@@ -187,6 +188,7 @@ marketFlowWithInlineDatumAndReferenceScriptUnConsumed chainInfo skey = do
                     <> txSign skey
                     <> txWalletSignKey  skey
   withdrawTx <- txBuilderToTxIO chainInfo withdrawOp >>= orThrow >>= andSubmitOrThrow
+
   waitConfirmation chainInfo walletAddr withdrawTx "Withdraw" ( "Submit tx for withdraw " ++ show assetId)
 
 

@@ -31,7 +31,7 @@ where
 
 import GHC.Generics (Generic)
 import PlutusTx.Prelude
-import Prelude(Show)
+import Prelude(Show )
 import qualified Prelude
 import  PlutusTx hiding( txOutDatum)
 import Data.Aeson (FromJSON, ToJSON)
@@ -48,7 +48,7 @@ import Plutus.Contracts.V2.MarketplaceConfig (MarketConfig(..))
 import Cardano.Api (IsCardanoEra,BabbageEra,NetworkId, AddressInEra, ShelleyAddr, BabbageEra, Script (PlutusScript), PlutusScriptVersion (PlutusScriptV2), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress)
 import qualified Cardano.Api.Shelley
 import PlutusTx.Builtins.Class (stringToBuiltinByteString)
-import Data.String
+import PlutusTx.Builtins (decodeUtf8)
 
 
 
@@ -106,7 +106,7 @@ mkConfigurableMarket  MarketConstructor{configValidatorytHash} ds@SimpleSale{sel
 
     where
       (MarketConfig _ feeAddr fee)  = getConfigFromInfo configValidatorytHash info
-      toPkh addr msg = case sellerAddress of { Address cre m_sc -> case cre of
+      toPkh addr msg = case addr of { Address cre m_sc -> case cre of
                                                   PubKeyCredential pkh ->  pkh
                                                   ScriptCredential vh -> traceError msg  }
       sellerPkh = toPkh sellerAddress "ConfigurableMarket: Invalid sellerAddr"
@@ -134,6 +134,7 @@ configurableMarketScript constructor  =  unValidatorScript   $ configurableMarke
 
 
 
+configurableMarketPlutusScript :: MarketConstructor -> Cardano.Api.Shelley.Script PlutusScriptV2
 configurableMarketPlutusScript  constructor = PlutusScript PlutusScriptV2  $ Cardano.Api.Shelley.PlutusScriptSerialised $ configurableMarketScriptBS
   where
   configurableMarketScriptBS :: SBS.ShortByteString

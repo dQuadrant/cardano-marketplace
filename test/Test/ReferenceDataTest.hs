@@ -41,6 +41,8 @@ import Plutus.Contracts.V2.MarketplaceConfig (MarketConfig(MarketConfig), market
 import Plutus.Contracts.V2.ConfigurableMarketplace (configurableMarketScript, MarketConstructor (MarketConstructor), configurableMarketValidator, configurableMarketAddress, SimpleSale (..), MarketRedeemer(..) )
 import qualified Data.Text as T
 import Cardano.Marketplace.Common.TransactionUtils (getSignKey)
+import qualified Debug.Trace as Debug
+import qualified Data.Aeson as A
 
 
 
@@ -53,61 +55,68 @@ marketFlowWithInlineDatumReferenceTxinTest= do
 marketConfigScriptCredential :: PaymentCredential
 marketConfigScriptCredential = PaymentCredentialByScript $ hashScript marketConfigPlutusScript
 
-marketFlowWithInlineDatumReferenceTxin ::ChainInfo ci => ci ->  SigningKey PaymentKey ->  IO ()
+marketFlowWithInlineDatumReferenceTxin ::DetailedChainInfo ->  SigningKey PaymentKey ->  IO ()
 marketFlowWithInlineDatumReferenceTxin chainInfo skey = do
   buyerSkey <- generateSigningKey  AsPaymentKey
   artistSkey <- generateSigningKey  AsPaymentKey
   operatorSkey <- generateSigningKey AsPaymentKey
 
-  let 
-      marketConfig = MarketConfig ownerAddressPlutus ownerAddressPlutus 1_000_000
+  let assetCost = 10_000_000
+      marketFee = 100_000_000
+      marketConfig = MarketConfig ownerAddressPlutus ownerAddressPlutus 100_000_000
       marketConstructor = MarketConstructor  ( toPlutusScriptHash $  toShelleyScriptHash  $ hashScript  marketConfigPlutusScript)
       networkId = getNetworkId chainInfo
       ownerAddressPlutus = toPlutusAddress walletAddr
       configAddress = marketConfigAddress networkId
-      marketAddress = configurableMarketAddress marketConstructor networkId
       marketScript = configurableMarketScript marketConstructor
       marketAddrInEra =  configurableMarketAddress marketConstructor networkId
-      setupBuilder =      
-                  -- create reference script of configurable market contract
-                  txPayToWithReference (marketScript) (walletAddrInEra)   (valueFromList [(AdaAssetId,30_000_000)]) 
-                  -- create marketplace config datum
-              <>  txPayToScriptWithData (configAddress)  (valueFromList [(AdaAssetId,30_000_000)])  (fromPlutusData $ toData marketConfig)
+      setupBuilder =
                   -- mint token for placing on sell
-              <>  txMintSimpleScript mintingScript [(assetName, 1)]
-                  -- donate some money to buyer so that he can buy
-              <>  txPayTo (  skeyToAddrInEra buyerSkey networkId) (valueFromList [(AdaAssetId,110_000_000)])
+                  txMintSimpleScript mintingScript [(assetName, 1)]
+                  -- create reference script of configurable market contract
+              <>  txPayToWithReference marketScript walletAddrInEra   (valueFromList [(AdaAssetId,30_000_000)])
+                  -- create marketplace config datum
+              <>  txPayToScriptWithData configAddress  (valueFromList [(AdaAssetId,5_000_000)])  (fromPlutusData $ toData marketConfig)
                   -- Send the minted token for sale.
               <>  txPayToScriptWithData
                               marketAddrInEra
                               (valueFromList [(assetId, 1), (AdaAssetId, 2_000_000)])
-                              (fromPlutusData $ toData $  SimpleSale (Plutus.Address (Plutus.PubKeyCredential $ sKeyToPkh artistSkey) Nothing ) 50_000_000)
+                              (fromPlutusData $ toData $  SimpleSale (Plutus.Address (Plutus.PubKeyCredential $ sKeyToPkh artistSkey) Nothing ) assetCost)
+                  -- donate some money to buyer so that he can buy
+              <>  txPayTo (skeyToAddrInEra buyerSkey networkId) (valueFromList [(AdaAssetId,Quantity $ assetCost+marketFee+2_000_000)])
                   -- provide the wallet sign key for directly signing the transaction
               <>  txWalletSignKey skey
 
   putStrLn $ "MarketConfigScript address : " ++  T.unpack (serialiseAddress configAddress)
-  putStrLn $ "Marketplace        address : " ++  T.unpack (serialiseAddress marketAddress)
+  putStrLn $ "Marketplace        address : " ++  T.unpack (serialiseAddress marketAddrInEra)
 
-  setupTx <- txBuilderToTxIO chainInfo setupBuilder >>= orThrow >>= andSubmitOrThrow
-  waitConfirmation chainInfo walletAddr setupTx "Setup"  "Submit tx for mint,configScriptData and referenceScript creation "
-  let datumRefTxin = getTxIn setupTx 1
+  setupTx <- txBuilderToTxIO chainInfo setupBuilder >>= orThrow
+
+  let fee=evaluateTransactionFee (dciProtocolParams chainInfo) ( getTxBody setupTx) 1 0
+  andSubmitOrThrow setupTx
+  waitConfirmation chainInfo walletAddr setupTx "Setup"  "Submit tx for mint, referenceData and referenceScript creation "
   let scriptReferenceTxin = getTxIn setupTx 0
-  let onSaleTxin = getTxIn setupTx  3
+  let datumRefTxin = getTxIn setupTx 1
+  let onSaleTxin = getTxIn setupTx  2
 
 
   [(_,txout)]<- queryTxins (getConnectInfo chainInfo) (Set.singleton  onSaleTxin) >>= orThrow <&> unUTxO <&> Map.toList
-  log "debug" $ "Buyer Skey: " ++ T.unpack( serialiseToBech32 buyerSkey) 
-          ++ "\n ArtistAddress : " ++T.unpack(serialiseAddress (skeyToAddrInEra artistSkey networkId))
-          ++ "\n Market fee addr :" ++ T.unpack (serialiseToBech32  walletAddr)
+  log "debug" $ 
+              "\nBuyer Address         : " ++ T.unpack(  serialiseAddress $ skeyToAddrInEra buyerSkey networkId)
+          ++  "\nArtistAddress         : " ++ T.unpack(serialiseAddress (skeyToAddrInEra artistSkey networkId))
+          ++  "\nFee payment Address   : " ++ T.unpack (serialiseToBech32  walletAddr)
+          ++  "\nReference Datum txin  : " ++ T.unpack ( renderTxIn datumRefTxin)
+          ++  "\nReference Script txin : " ++ T.unpack (renderTxIn scriptReferenceTxin)
+          ++  "\nUtxo being bought     : " ++ T.unpack (renderTxIn onSaleTxin)
 
-  let buyOp =  txRedeemUtxoWithInlineDatumWithReferenceScript scriptReferenceTxin onSaleTxin txout  (ScriptDataConstructor 0 [])  Nothing 
+  let buyOp =  txRedeemUtxoWithInlineDatumWithReferenceScript scriptReferenceTxin onSaleTxin txout  (ScriptDataConstructor 0 [])  Nothing
             <> txReferenceTxIn datumRefTxin
-            <> txPayTo (skeyToAddrInEra artistSkey networkId ) (valueFromList [(AdaAssetId,50_000_000)])
+            <> txPayTo (skeyToAddrInEra artistSkey networkId ) (valueFromList [(AdaAssetId,Quantity assetCost)])
+            <> txPayTo walletAddrInEra (valueFromList [(AdaAssetId ,Quantity marketFee )])
             <> txWalletSignKey  buyerSkey
 
-  withdrawTx <- txBuilderToTxIO chainInfo buyOp >>= orThrow 
-  andSubmitOrThrow withdrawTx
-  waitConfirmation chainInfo (skeyToAddr buyerSkey networkId ) withdrawTx "Buy" ( "Submit tx for buy[with reference datum] " ++ show assetId)
+  buyTx <- txBuilderToTxIO chainInfo buyOp >>= orThrow >>= andSubmitOrThrow 
+  waitConfirmation chainInfo (skeyToAddr buyerSkey networkId ) buyTx "Buy" ( "Submit tx for buy[with reference datum] " ++ show assetId)
 
   where
     andSubmitOrThrow tx  = submitTx (getConnectInfo chainInfo ) tx >>= orThrow >> pure tx
@@ -150,6 +159,6 @@ waitConfirmation chainInfo walletAddr tx tag message = do
 
       _waitConfirmation   =_waitForConfirmation  ( Set.singleton $ toAddressAny walletAddr)
 
-log tag message = do  
+log tag message = do
   time <- getZonedTime
-  putStrLn $ show time  ++  " ["++ tag ++ "\t] : " ++ message 
+  putStrLn $ show time  ++  " ["++ tag ++ "\t] : " ++ message
