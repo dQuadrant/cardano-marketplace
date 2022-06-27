@@ -11,7 +11,7 @@ import Cardano.Api.Byron (Address (ByronAddress))
 import Cardano.Api.Shelley (Address (ShelleyAddress), AsType (AsAlonzoEra), Lovelace (Lovelace), ProtocolParameters, fromPlutusData, fromShelleyStakeReference, scriptDataToJsonDetailedSchema, shelleyPayAddrToPlutusPubKHash, toPlutusData, toShelleyStakeAddr, toShelleyStakeCredential)
 import qualified Cardano.Api.Shelley as Shelley
 import Cardano.Kuber.Api
-import Cardano.Kuber.Data.Parsers (parseAssetIdText, parseAssetNQuantity, parseScriptData, parseTxIn, parseValueText, scriptDataParser, parseAssetId, parseSignKey)
+import Cardano.Kuber.Data.Parsers (parseAssetIdText, parseAssetNQuantity, parseScriptData, parseTxIn, parseValueText, scriptDataParser, parseAssetId, parseSignKey, parseAddress)
 import Cardano.Kuber.Util hiding (toHexString)
 import Cardano.Ledger.Alonzo.Tx (TxBody (txfee))
 import qualified Cardano.Ledger.BaseTypes as Shelley (Network (..))
@@ -81,6 +81,10 @@ data Modes
     {
       signingKeyFile :: String
     }
+  | AddressUtxos -- Command for showing funds of the wallet
+    {
+      address :: Text
+    }
   deriving (Show, Data, Typeable)
 
 runCli :: IO ()
@@ -124,6 +128,11 @@ runCli = do
             {
               signingKeyFile = def &= typ "'FilePath''" &= name "signing-key-file"
             }
+          &= help "Show funds of wallet.",
+          AddressUtxos
+            {
+              address = "" &= typ "Address" &= name "address"
+            }
           &= help "Show funds of wallet."
         ]
         &= program "market-cli"
@@ -155,7 +164,7 @@ runCli = do
           Nothing -> throwIO $ FrameworkError ParserError ("Invalid assetName string : "++ T.unpack  tokenNameStr)
           Just an -> pure an
       skey <- getSignKey sKeyFile
-      mint chainInfo skey (skeyToAddrInEra skey (getNetworkId chainInfo)) asset qty
+      void $ mint chainInfo skey (skeyToAddrInEra skey (getNetworkId chainInfo)) asset qty
     CreateCollateral sKeyFile-> do
       skey <- getSignKey sKeyFile
       let addrInEra = getAddrEraFromSignKey chainInfo skey
@@ -164,7 +173,7 @@ runCli = do
         Left fe -> error $ "Error querying utxos: " <> show fe
         Right utxos -> pure utxos
       let txOperations = txPayTo addrInEra (lovelaceToValue $ Lovelace 60_000_000) <> txWalletAddress addrInEra <> txConsumeUtxos utxos
-      submitTransaction chainInfo txOperations skey
+      void $ submitTransaction chainInfo txOperations skey
     Balance sKeyFile-> do
       skey <- getSignKey sKeyFile
       let addrInEra = getAddrEraFromSignKey chainInfo skey
@@ -172,3 +181,10 @@ runCli = do
       case utxosE of
         Left fe -> throwIO $ FrameworkError ParserError (show fe)
         Right utxos -> putStrLn $ jsonEncodeUtxos utxos
+    AddressUtxos addressText -> do
+      addr <- parseAddress addressText
+      utxosE <- queryAddressInEraUtxos (getConnectInfo chainInfo) [addr]
+      case utxosE of
+        Left fe -> throwIO $ FrameworkError ParserError (show fe)
+        Right utxos -> putStrLn $ jsonEncodeUtxos utxos
+      print "Done"

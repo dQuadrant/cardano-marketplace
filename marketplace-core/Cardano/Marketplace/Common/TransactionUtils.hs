@@ -19,7 +19,7 @@ import Cardano.Kuber.Data.Parsers
     parseValueText, scriptDataParser, parseSignKey
   )
 import Cardano.Kuber.Util
-    ( pkhToMaybeAddr, skeyToAddrInEra, queryUtxos )
+    ( pkhToMaybeAddr, skeyToAddrInEra, queryUtxos, queryAddressInEraUtxos )
 import qualified Data.Text as T
 import qualified Data.ByteString.Char8 as BS8
 import qualified Plutus.V1.Ledger.Address as Plutus
@@ -104,7 +104,7 @@ parseSimpleSale datumStr = do
   let simpleSale = unMaybe "Failed to convert datum to SimpleSale" $ Plutus.fromData $ toPlutusData scriptData
   return (scriptData, simpleSale)
 
-submitTransaction :: ChainInfo v => v -> TxBuilder -> SigningKey PaymentKey -> IO ()
+submitTransaction :: ChainInfo v => v -> TxBuilder -> SigningKey PaymentKey -> IO (Tx BabbageEra)
 submitTransaction dcInfo txOperations sKey = do
   txBodyE <- txBuilderToTxBodyIO dcInfo txOperations
   txBody <- case txBodyE of
@@ -114,8 +114,10 @@ submitTransaction dcInfo txOperations sKey = do
   result <- submitTx (getConnectInfo dcInfo) tx
   case result of
     Left err -> throwIO err
-    Right _ -> pure ()
-  putStrLn $ "Transaction submitted sucessfully with transaction hash " ++ getTxIdFromTx tx
+    Right _ -> do
+      putStrLn $ "Transaction submitted sucessfully with transaction hash " ++ getTxIdFromTx tx
+      pure tx
+
 
 
 encodeScriptData :: ScriptData -> String
@@ -179,3 +181,9 @@ getSignKey skeyfile =
                             pure  $ home ++  drop 1 skeyfile
                             )
                           else pure skeyfile
+
+printUtxos chainInfo addr = do
+  utxosE <- queryAddressInEraUtxos (getConnectInfo chainInfo) [addr]
+  case utxosE of
+    Left fe -> throwIO $ FrameworkError ParserError (show fe)
+    Right utxos -> putStrLn $ jsonEncodeUtxos utxos

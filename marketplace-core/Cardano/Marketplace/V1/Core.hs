@@ -31,6 +31,7 @@ import qualified Plutus.Contracts.V2.SimpleMarketplace as SMP
 import Plutus.V1.Ledger.Api hiding (Address, TxOut, Value, getTxId)
 import qualified Plutus.V1.Ledger.Api (Address)
 import qualified Plutus.V1.Ledger.Api as Plutus
+import Control.Monad (void)
 
 mint ctx signKey addrEra assetName amount = do
   let script = RequireSignature (verificationKeyHash $ getVerificationKey signKey)
@@ -45,7 +46,7 @@ createReferenceScript ctx sKey = do
   let walletAddrInEra = getAddrEraFromSignKey ctx sKey
       txOperations = txPayToWithReference simpleMarketScript walletAddrInEra (lovelaceToValue $ Lovelace 20_000_000) 
               <> txWalletAddress walletAddrInEra
-  submitTransaction ctx txOperations sKey
+  void $ submitTransaction ctx txOperations sKey
 
 
 sellToken :: ChainInfo v => v -> String -> Integer -> SigningKey PaymentKey -> Address ShelleyAddr -> IO ()

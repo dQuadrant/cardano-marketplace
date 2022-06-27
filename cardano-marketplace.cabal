@@ -27,6 +27,7 @@ library marketplace-plutus
     Plutus.Contracts.V2.SimpleMarketplace
     Plutus.Contracts.V2.MarketplaceConfig
     Plutus.Contracts.V2.ConfigurableMarketplace
+    Plutus.Contracts.V2.AlwaysFail
   hs-source-dirs: marketplace-plutus
   build-depends:
       base  -any
@@ -139,6 +140,7 @@ executable market-test
   other-modules:
     Test.ReferenceScriptTest
     Test.ReferenceDataTest
+    Test.CollateralReturnTest
   build-depends:
     base >= 4.9 && <5
     , kuber
