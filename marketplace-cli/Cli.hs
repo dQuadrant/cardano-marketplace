@@ -172,7 +172,9 @@ runCli = do
       utxos <- case utxosE of
         Left fe -> error $ "Error querying utxos: " <> show fe
         Right utxos -> pure utxos
-      let txOperations = txPayTo addrInEra (lovelaceToValue $ Lovelace 60_000_000) <> txWalletAddress addrInEra <> txConsumeUtxos utxos
+      let txOperations = txPayTo addrInEra (lovelaceToValue $ Lovelace 60_000_000) 
+            <> txWalletAddress addrInEra 
+            <> txConsumeUtxos utxos
       void $ submitTransaction chainInfo txOperations skey
     Balance sKeyFile-> do
       skey <- getSignKey sKeyFile

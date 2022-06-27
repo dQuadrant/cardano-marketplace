@@ -43,6 +43,7 @@ import Cardano.Ledger.Shelley.API.Types (Coin(Coin))
 import Plutus.V1.Ledger.Value (tokenName)
 import qualified Data.Text as T
 import Plutus.Contracts.V2.AlwaysFail (alwaysFailsScript, alwaysFailPlutusScript)
+import Cardano.Kuber.Data.Parsers (parseTxIn)
 
 
 tests :: TestTree
@@ -81,7 +82,7 @@ collateralReturnTestIO = do
   sKey <- getSignKey "pay.skey"
   let walletAddrInEra = skeyToAddrInEra sKey networkId
   lockedTxIn <- lockValueInScript chainInfo networkId sKey walletAddrInEra
-  -- redeemTxInFromScript chainInfo sKey walletAddrInEra lockedTxIn
+  redeemTxInFromScript chainInfo sKey walletAddrInEra lockedTxIn
   -- printUtxos chainInfo walletAddrInEra
   print "Collateral Return Test Completed Successfully"
 
@@ -90,12 +91,12 @@ lockValueInScript chainInfo networkId sKey walletAddrInEra= do
       scriptAddrInEra = makeShelleyAddressInEra networkId alwaysFailScriptCredential NoStakeAddress :: AddressInEra BabbageEra
       datum = fromPlutusData $ toData $ toBuiltinData (1::Integer)
       txOperations =
-        txPayToScriptWithDataAndReference alwaysFailPlutusScript lockedValue datum
+        txPayToScriptWithData scriptAddrInEra lockedValue datum
           <> txWalletAddress walletAddrInEra
   tx <- submitTransaction chainInfo txOperations sKey
   let txIn = getTxIn tx 0
   putStrLn $ "\nScript Address : " ++ T.unpack (serialiseAddress scriptAddrInEra)
-  waitConfirmation chainInfo (addressInEraToAddressAny scriptAddrInEra) tx "CollateralReturnTest"  "Submit tx for placing token in script address: Waiting for confermation"
+  waitConfirmation chainInfo (addressInEraToAddressAny scriptAddrInEra) tx "CollateralReturnTest"  "Submit tx for placing token in script address: Waiting for conformation"
   printUtxos chainInfo scriptAddrInEra
   pure txIn
 
@@ -110,7 +111,7 @@ redeemTxInFromScript :: ChainInfo v => v
   -> IO ()
 redeemTxInFromScript chainInfo sKey walletAddrInEra txIn= do
   utxo@(UTxO utxoMap) <- queryAddressInEraUtxos (getConnectInfo chainInfo) [walletAddrInEra] >>= unEither
-  let firstTxIn = Map.keys utxoMap !! 1
+  let firstTxIn = Map.keys utxoMap !! 0
   let txOperations = txRedeemTxinWithInlineDatum txIn alwaysFailScriptToScriptInAnyLang (fromPlutusData $ toData (1::Integer)) Nothing
           <> txAddTxInCollateral firstTxIn
           <> txWalletAddress walletAddrInEra
@@ -124,12 +125,12 @@ redeemTxInFromScript chainInfo sKey walletAddrInEra txIn= do
   -- buyTokenUsingRefScriptIO chainInfo (pack token) Nothing sKey marketAddr
   print "Done"
 
-buyTokenUsingRefScriptIO :: ChainInfo v => v -> Text -> Maybe String -> SigningKey PaymentKey -> Address ShelleyAddr -> IO ()
-buyTokenUsingRefScriptIO ctx txInText datumStrM sKey marketAddr = do
-  dcInfo <- withDetails ctx
-  UtxoWithData txIn txOut scriptData sSale@(SimpleSale _ priceOfAsset) sellerAddrInEra <- getUtxoWithData ctx txInText datumStrM marketAddr
-  let sellerPayOperation = txPayTo sellerAddrInEra (ensureMinAda sellerAddrInEra (lovelaceToValue $ Lovelace priceOfAsset) (dciProtocolParams dcInfo))
-  redeemMarketUtxoIO dcInfo txIn txOut sKey sellerPayOperation scriptData SMP.Buy
+-- buyTokenUsingRefScriptIO :: ChainInfo v => v -> Text -> Maybe String -> SigningKey PaymentKey -> Address ShelleyAddr -> IO ()
+-- buyTokenUsingRefScriptIO ctx txInText datumStrM sKey marketAddr = do
+--   dcInfo <- withDetails ctx
+--   UtxoWithData txIn txOut scriptData sSale@(SimpleSale _ priceOfAsset) sellerAddrInEra <- getUtxoWithData ctx txInText datumStrM marketAddr
+--   let sellerPayOperation = txPayTo sellerAddrInEra (ensureMinAda sellerAddrInEra (lovelaceToValue $ Lovelace priceOfAsset) (dciProtocolParams dcInfo))
+--   redeemMarketUtxoIO dcInfo txIn txOut sKey sellerPayOperation scriptData SMP.Buy
 
 redeemMarketUtxoIO :: DetailedChainInfo -> TxIn -> TxOut CtxUTxO BabbageEra -> SigningKey PaymentKey -> TxBuilder -> ScriptData -> SMP.MarketRedeemer -> IO ()
 redeemMarketUtxoIO dcInfo txIn txOut sKey extraOperations scriptData redeemer = do

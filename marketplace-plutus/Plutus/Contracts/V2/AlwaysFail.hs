@@ -23,11 +23,11 @@ import Plutus.V2.Ledger.Api
       mkValidatorScript,
       unValidatorScript )
 import PlutusTx qualified
-import PlutusTx.Prelude ( BuiltinData, ($), error )
+import PlutusTx.Prelude ( BuiltinData, ($), error, check )
 
 {-# INLINABLE mkValidator #-}
 mkValidator :: BuiltinData -> BuiltinData -> BuiltinData -> ()
-mkValidator _ _ _ = PlutusTx.Prelude.error ()
+mkValidator _ _ _ = check False
 
 validator :: Validator
 validator = mkValidatorScript $$(PlutusTx.compile [|| mkValidator ||])
