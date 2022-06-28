@@ -114,6 +114,8 @@ benchmark bench-parallel
                         , directory
                         , random-shuffle
                         , bytestring
+                        , cardano-ledger-babbage
+
 
 
   ghc-options:  "-with-rtsopts=-A32m" -threaded

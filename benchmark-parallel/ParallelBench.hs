@@ -295,19 +295,22 @@ performMarketBench dcInfo noOfWallets wallets testAsset fundedSignKey = do
       tId <- forkIO $ pollMarketUtxos dcInfo marketAddrAny marketState atomicQueryUtxos atomicPutStrLn
 
       -- Perform market operations parrallely for each set of seller and buyers wallet indepdently and at last payback to funded wallet
-      times <- forConcurrently loopArray $ \index -> do
+      results <- forConcurrently loopArray $ \index -> do
             performMarketOperation dcInfo testAsset index market walletsTuples atomicPutStrLn atomicPutStr fundedSignKey marketState marketAddrAny atomicQueryUtxos
 
       -- performMarketOperation dcInfo testAsset index market startTime walletsTuples atomicPutStrLn atomicPutStr fundedSignKey marketState marketAddrAny atomicQueryUtxos
 
+      print results
+
+      let times = map (\(a,_,_,_,_,_,_,_,_)->a) results
       -- Calculate average time taken by wallets from times
       let averageTime = sum times`div` fromIntegral (length times)
 
-      print times
+      print $ map getDiffInSec times
 
       finishedTime <- getTimeInSec
       printDiffInSec "\nTime taken on performing whole market operation for all wallets" startTime finishedTime
-      printAlreadyCalculatedDiffInSecAtomic "\nAverage Time taken on performing whole market cycle " averageTime atomicPutStrLn
+      printAlreadyCalculatedDiffInSecAtomic "\nAverage Time taken by each wallet set on performing whole market cycle " averageTime atomicPutStrLn
   where
     -- loopedPerformMarketOpetaion :: DetailedChainInfo -> AssetId -> Int -> Market -> ([Wallet],[Wallet],[Wallet]) -> (String -> IO ()) -> (String -> IO ()) -> Wallet -> MarketUTxOState -> AddressAny -> (AddressAny -> IO (UTxO BabbageEra)) -> IO Int64
     -- loopedPerformMarketOpetaion dcInfo testAsset index market walletsTuples atomicPutStrLn atomicPutStr fundedSignKey marketState marketAddrAny atomicQueryUtxos = do
@@ -336,7 +339,7 @@ performMarketOperation ::
   MarketUTxOState ->
   AddressAny ->
   (AddressAny -> IO (UTxO BabbageEra)) ->
-  IO Int64
+  IO (Int64,String,String,String,String,Int,Int,Int,Int)
 performMarketOperation dcInfo testAsset index market walletTuples atomicPutStrLn atomicPutStr fundedSignKey marketState marketAddrAny atomicQueryUtxos = do
   let (priSeller, priBuyer, secBuyer) = getSingleWallets index walletTuples
 
@@ -344,33 +347,46 @@ performMarketOperation dcInfo testAsset index market walletTuples atomicPutStrLn
 
   marketCycleStartTime <- getTimeInSec
   --Primary sell
-  priSellTx <-
+  priSellTx@(TxResponse priSellTxRes _,_,_) <-
   -- performPrimarySale dcInfo testAsset market marketAddrAny priSeller index atomicPutStrLn atomicPutStr marketState atomicQueryUtxos
     loopedPerformPrimarySale priSeller
+
+  let priSellFee = getTxFee priSellTxRes
+  let priSellSize = getCborTxSize priSellTxRes
+  
 
   afterPrimarySellTime <- getTimeInSec
   printDiffInSecAtomic ("\nTime taken on placing token to market for Wallet Set " ++ show index) marketCycleStartTime afterPrimarySellTime atomicPutStrLn
 
   --Primary buy
-  priBuyTx <-
+  priBuyTx@(_,_,TxResponse priBuyTxRes _) <-
   -- performBuy dcInfo testAsset market priSellTx priBuyer priSeller index atomicPutStrLn atomicPutStr "primary " atomicQueryUtxos marketState marketAddrAny
     loopedPerformBuy priSellTx priBuyer priSeller
+
+  let priBuyFee = getTxFee priBuyTxRes
+  let priBuySize = getCborTxSize priBuyTxRes
 
   afterPrimaryBuyTime <- getTimeInSec
   printDiffInSecAtomic ("\nTime taken on primary buying token from the market for Wallet Set " ++ show index) afterPrimarySellTime afterPrimaryBuyTime atomicPutStrLn
 
   --Seconday sell
-  secSellTx <-
+  secSellTx@(TxResponse secSellTxRes _,_,_) <-
   -- performSecondarySale dcInfo testAsset market marketAddrAny priBuyer priSeller index atomicPutStrLn atomicPutStr marketState atomicQueryUtxos
     loopedPerformSecondarySale priSeller priBuyer
+
+  let secSellFee = getTxFee secSellTxRes
+  let secSellSize = getCborTxSize secSellTxRes
 
   afterSecondarySellTime <- getTimeInSec
   printDiffInSecAtomic ("\nTime taken on placing secondary token to the market for Wallet Set " ++ show index) afterPrimaryBuyTime afterSecondarySellTime atomicPutStrLn
 
   --Secondary buy
-  secBuyTx <-
+  secBuyTx@(_,_,TxResponse secBuyTxRes _) <-
   -- performBuy dcInfo testAsset market secSellTx secBuyer priBuyer index atomicPutStrLn atomicPutStr "secondary " atomicQueryUtxos marketState marketAddrAny
     loopedPerformBuy secSellTx secBuyer priBuyer
+
+  let secBuyFee = getTxFee secBuyTxRes
+  let secBuySize = getCborTxSize secBuyTxRes
 
   marketCycelEndTime <- getTimeInSec
   printDiffInSecAtomic ("\nTime taken on secondary buy of token from the market for Wallet Set " ++ show index) afterSecondarySellTime marketCycelEndTime atomicPutStrLn
@@ -378,7 +394,7 @@ performMarketOperation dcInfo testAsset index market walletTuples atomicPutStrLn
   printDiffInSecAtomic ("\nTime taken for Wallet Set " ++ show index ++ " to complete market operation") marketCycleStartTime marketCycelEndTime atomicPutStrLn
 
   atomicPutStrLn ("Finished performing market operations for Wallet Set " ++ show index)
-  pure (marketCycelEndTime - marketCycleStartTime)
+  pure (marketCycelEndTime - marketCycleStartTime,priSellFee,priBuyFee,secSellFee,secBuyFee,priSellSize,priBuySize,secSellSize,secBuySize)
 
 
   where
@@ -405,7 +421,7 @@ performMarketOperation dcInfo testAsset index market walletTuples atomicPutStrLn
         try
           ( performBuy dcInfo testAsset market sellTx buyer prevSeller index atomicPutStrLn atomicPutStr "primary " atomicQueryUtxos marketState marketAddrAny
           ) ::
-          IO (Either SomeException (SigningKey PaymentKey, AddressAny, TxId))
+          IO (Either SomeException (SigningKey PaymentKey, AddressAny, TxResponse))
       case result of
         Left any -> do
           atomicPutStrLn "Error in performing buy"
@@ -524,9 +540,9 @@ performBuy dcInfo testAsset market (_, sellTxId, datum) buyerWallet prevSellerWa
   --Perform Primary buy of the token from another set of wallets
   atomicPutStrLn ("\nPerforming " ++ buyType ++ " buy for Wallet Set " ++ show index)
 
-  buyTx@(_, addr, txId) <- performSingleBuy dcInfo buyerWallet testAsset sellTxId datum market
+  buyTx@(_, addr, TxResponse tx _) <- performSingleBuy dcInfo buyerWallet testAsset sellTxId datum market
   -- performSingleBuy dcInfo buyerWallet testAsset datum artaConfig market
-
+  let txId = getTxId $ getTxBody tx
   putStrLn $ "\nSubmitted successfully TxHash " ++ show txId
   --Wait for transaction to appear on buyers wallet
   atomicPutStrLn ("\nWait for bought token to appear on " ++ buyType ++ " buyer wallet. For Wallet Set " ++ show index)
@@ -557,14 +573,13 @@ performSingleBuy ::
   TxId ->
   ScriptData ->
   Market ->
-  IO (SigningKey PaymentKey, AddressAny, TxId)
+  IO (SigningKey PaymentKey, AddressAny, TxResponse)
 performSingleBuy dcInfo buyerWallet tokenAsset sellTxId datum market = do
   let buyerAddr = getAddrEraFromSignKey dcInfo buyerWallet
       buyModel = BuyReqModel (TxContextAddressesReq (Just buyerWallet) Nothing Nothing Nothing Nothing Map.empty) Nothing (Just $ UtxoIdModal (sellTxId, TxIx 0)) (Just tokenAsset) datum Nothing
   txRes <- buyToken dcInfo market buyModel buyerAddr
   let buyerAddrAny = getAddrAnyFromEra buyerAddr
-      txId = txIdFromTxResponse txRes
-  return (buyerWallet, buyerAddrAny, txId)
+  return (buyerWallet, buyerAddrAny, txRes)
 
 txIdFromTxResponse :: TxResponse -> TxId
 txIdFromTxResponse (TxResponse tx _) = getTxId $ getTxBody tx

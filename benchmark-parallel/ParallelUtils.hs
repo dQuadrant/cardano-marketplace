@@ -52,9 +52,9 @@ import Cardano.Api
     valueFromList,
     valueToList,
     valueToLovelace,
-    Value, prettyPrintJSON, Tx, TxBody, BabbageEra, SimpleScript (RequireAllOf, RequireSignature), SimpleScriptV2, Script (SimpleScript), SimpleScriptVersion (SimpleScriptV2), scriptPolicyId, ScriptLanguageInEra (SimpleScriptV2InBabbage), ScriptWitness (SimpleScriptWitness), TxId, Hash
+    Value, prettyPrintJSON, Tx, TxBody, BabbageEra, SimpleScript (RequireAllOf, RequireSignature), SimpleScriptV2, Script (SimpleScript), SimpleScriptVersion (SimpleScriptV2), scriptPolicyId, ScriptLanguageInEra (SimpleScriptV2InBabbage), ScriptWitness (SimpleScriptWitness), TxId, Hash, serialiseToBech32, SerialiseAsCBOR (serialiseToCBOR)
   )
-import Cardano.Api.Shelley (Lovelace (Lovelace), Quantity (Quantity), fromPlutusData)
+import Cardano.Api.Shelley (Lovelace (Lovelace), Quantity (Quantity), fromPlutusData, TxBody (ShelleyTxBody))
 import Cardano.Kuber.Api
 import Cardano.Kuber.Data.Parsers (parseAssetNQuantity, parseScriptData)
 import Cardano.Kuber.Util
@@ -93,6 +93,8 @@ import System.Random (randomRIO)
 import Text.Read (readMaybe)
 import qualified Data.ByteString.Char8 as BS8
 import Control.Concurrent.Async (forConcurrently_)
+import Cardano.Ledger.Coin
+import Cardano.Ledger.Babbage.Tx (txfee)
 
 --Convert to Addr any from Addr in era
 getAddrAnyFromEra addrEra = fromMaybe (error "unexpected error converting address to another type") (deserialiseAddress AsAddressAny (serialiseAddress addrEra))
@@ -143,6 +145,24 @@ getTimeInSec = do
   TimeSpec sec _ <- getTime Monotonic
   return sec
 
+
+lovelaceToAda :: Integer -> String
+lovelaceToAda lovelace = 
+    let _rem= lovelace `rem` 1_000_000
+        _quot= lovelace `quot` 1_000_000
+    in
+    case _rem of
+          0 -> show _quot ++ " Ada"
+          v-> show _quot ++"." ++ show _rem++ " Ada"
+
+
+getTxFee :: Tx BabbageEra  -> String
+getTxFee tx = lovelaceToAda $ case getTxBody tx of
+          ShelleyTxBody sbe tb scs tbsd m_ad tsv -> case txfee tb of { Coin n -> n }
+
+getCborTxSize :: Tx BabbageEra  -> Int
+getCborTxSize tx = BS8.length $ serialiseToCBOR tx 
+
 --Given t1 and t2 print the difference in time t2 - t1
 printDiffInSec :: String -> Int64 -> Int64 -> IO ()
 printDiffInSec printString t1 t2 = do
@@ -174,6 +194,15 @@ printAlreadyCalculatedDiffInSecAtomic printString diff atomicPutStrLn = do
       printInGreenAtomic (printString ++ " " ++ show min ++ " min " ++ show sec ++ " sec") atomicPutStrLn
     else printInGreenAtomic (printString ++ " " ++ show diff ++ " sec") atomicPutStrLn
 
+getDiffInSec :: Int64 -> String
+getDiffInSec diff = 
+  if diff > 60
+    then do
+      let min = diff `div` 60
+      let sec = diff `mod` 60
+      show min ++ " min " ++show sec ++ " sec"
+    else
+      "0 min "++show diff++" sec"
 
 --Print in green text in console
 printInGreenAtomic str atomicPutStrLn = do

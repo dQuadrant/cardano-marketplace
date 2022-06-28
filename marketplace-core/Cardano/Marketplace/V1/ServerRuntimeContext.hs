@@ -93,7 +93,7 @@ resolveContext context = do
                   ,   mOperator         = operatorpkh
                   ,   mPrimarySaleFee   = primarySaleFee
                   ,   mSecondarySaleFee = 2_500_000
-                  ,   mVersion          = 21
+                  ,   mVersion          = 30
                   }
       pure $ Right $ RuntimeContext{
                           runtimeContextCardanoConn = context,
