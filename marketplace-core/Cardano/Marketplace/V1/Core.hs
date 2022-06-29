@@ -78,7 +78,7 @@ signAndSubmitTxBody :: LocalNodeConnectInfo CardanoMode
 signAndSubmitTxBody ctx txBody signKeys = do
   let tx = signTxBody txBody signKeys
   res <- submitTx ctx tx
-  case res of 
+  case res of
     Left err -> error $ "Error: " ++ show err
     Right _ -> pure tx
 
@@ -107,7 +107,7 @@ getBalance ctx addrStr = do
 queryMarketUtxos :: ChainInfo v => v -> Market -> IO (UTxO BabbageEra)
 queryMarketUtxos ctx market = do
   utxos <- queryUtxos (getConnectInfo  ctx) $ Set.singleton (toAddressAny $ marketAddressShelley  market (getNetworkId ctx))
-  case utxos of  
+  case utxos of
     Left err -> throwIO err
     Right utxos' -> pure utxos'
 
@@ -115,7 +115,7 @@ payToAddress :: DetailedChainInfo -> PaymentReqModel -> IO TxResponse
 payToAddress dcInfo (PaymentReqModel sKey preqReceivers mPayer mChangeAddr sendEverything ignoreTinySurplus ignoreTinyinSufficient)=do
   let operation = mconcat $ map    (\(PaymentUtxoModel val addr feeUtxo changeUtxo) -> txPayTo  addr val) preqReceivers
   txBodyE <- txBuilderToTxBodyIO dcInfo operation
-  case txBodyE of 
+  case txBodyE of
     Left fe -> throwIO fe
     Right txBody -> pure $ mkSignedResponse sKey txBody
 
@@ -141,16 +141,16 @@ placeOnMarket dcInfo market  (SellReqBundle context sales topLevel) =do
     Debug.traceM $ "parsedContext : " ++ show tcxa
     Debug.traceM $ "changeAddr    : " ++ T.unpack (serialiseAddress changeAddr)
     sellerPkh <- addrInEraToPkh senderAddr
-      
+
     constraints <- mapM (toConstraint sellerPkh ) sales
 
     txbody <- txBuilderToTxBodyIO dcInfo $ foldMap fst constraints
-    case txbody of 
+    case txbody of
       Left fe -> throwIO fe
       Right tb -> do
         let TxResponse _tx _ =mkTxResponse'' context tb
         pure $ SaleCreateResponse _tx (map snd constraints) topLevel
-      
+
   where
     toConstraint  sellerPkh (SellReqModel (CostModal asset) parties (CostModal (costAsset, Quantity costAmount))  isSecondary) = do
         partiesData <- mapM toParty parties
@@ -552,9 +552,11 @@ unEither :: Either a b -> IO b
 unEither (Right b) = pure b
 unEither (Left a) = error $ "Left occured in unEither "
 
-buyToken :: DetailedChainInfo ->  Market -> BuyReqModel -> AddressInEra BabbageEra-> IO TxResponse
+getAddrAnyFromEra addrEra = fromMaybe (error "unexpected error converting address to another type") (deserialiseAddress AsAddressAny (serialiseAddress addrEra))
+
+buyToken :: DetailedChainInfo ->  Market -> BuyReqModel -> AddressInEra BabbageEra-> (AddressAny -> IO (UTxO BabbageEra))->IO TxResponse
 buyToken  networkCtx market
-    (BuyReqModel context@(TxContextAddressesReq buyerWalletM _ _ _ _ _) mSellerDepositSkey mUtxo mAsset consumedData mCollateral) buyerAddr =do
+    (BuyReqModel context@(TxContextAddressesReq buyerWalletM _ _ _ _ _) mSellerDepositSkey mUtxo mAsset consumedData mCollateral) buyerAddr atomicQueryUtxos =do
   let conn=getConnectInfo  networkCtx
   let network=getNetworkId networkCtx
   let pParam= case networkCtx of { DetailedChainInfo _ _ param _ _ -> param }
@@ -592,21 +594,32 @@ buyToken  networkCtx market
                 then mempty
                 else txPayTo receiverAddr (ensureMinAda (minAdaCalc receiverAddr ) $ txOutValue txout )
 
+  let buyerAddrAny = getAddrAnyFromEra buyerAddr
+  UTxO utxoMap <- atomicQueryUtxos buyerAddrAny
+  let firstUtxoHavingGt4AdaOnly@(UTxO filteredUMap) = UTxO $ fst $ Map.splitAt 1 $ Map.filter (\(TxOut _ (TxOutValue _ v) _ _) -> case valueToLovelace v of
+        Just (Lovelace l) -> l > 5
+        Nothing -> False) utxoMap
+      collateralTxIn = head $ Map.keys filteredUMap
+
+  let otherUtxos = Map.filterWithKey (\k _ -> k /= collateralTxIn ) utxoMap
+
   let txOperations=
           coreOperations
         <> extraInputs
         <> mconcat partyPayments
         <> txRedeemUtxo txin txout (ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV1) (PlutusScript PlutusScriptV1 $ marketScriptSerialised market)) consumedData (fromPlutusData $ PlutusTx.builtinDataToData $ toBuiltinData Buy) Nothing
-        <> txWalletAddress buyerAddr
+        <> txAddTxInCollateral collateralTxIn
+        <> txWalletUtxos (UTxO otherUtxos)
+
       signatures = maybeToList (txContextAddressesReqSignKey context) ++ maybeToList mSellerDepositSkey
-  
+
   -- putStrLn $ BS8.unpack $ prettyPrintJSON txOperations
 
   txbody  <- txBuilderToTxBodyIO networkCtx txOperations
   case txbody of
     Left fe -> throwIO fe
     Right tb -> do
-      case buyerWalletM of 
+      case buyerWalletM of
         Nothing -> pure $ mkTxResponse signatures tb [directSale]
         Just buyerWallet -> do
           tx <- signAndSubmitTxBody (getConnectInfo networkCtx) tb [buyerWallet]

@@ -156,9 +156,10 @@ lovelaceToAda lovelace =
           v-> show _quot ++"." ++ show _rem++ " Ada"
 
 
-getTxFee :: Tx BabbageEra  -> String
-getTxFee tx = lovelaceToAda $ case getTxBody tx of
-          ShelleyTxBody sbe tb scs tbsd m_ad tsv -> case txfee tb of { Coin n -> n }
+getTxFee :: Tx BabbageEra  -> (Integer,String)
+getTxFee tx = let fee = case getTxBody tx of
+                    ShelleyTxBody sbe tb scs tbsd m_ad tsv -> case txfee tb of { Coin n -> n }
+          in (fee,lovelaceToAda fee)
 
 getCborTxSize :: Tx BabbageEra  -> Int
 getCborTxSize tx = BS8.length $ serialiseToCBOR tx 
@@ -357,12 +358,12 @@ getWalletSets noOfWallets wallets =
 -- printUtxoOfWalletAtomic' ctx fundedSignKey index atomicPutStrLn atomicQueryUtxos
 
 --Query and merge all utxos of given signkey
--- mergeAllUtxos ctx signKey = do
---   let addrEra = getAddrEraFromSignKey ctx signKey
+-- mergeAllUtxos dcInfo signKey = do
+--   let addrEra = getAddrEraFromSignKey dcInfo signKey
 --   let addrAny = getAddrAnyFromEra addrEra
 
 --   putStrLn $ "\nPerform merge utxos of wallet" ++ show signKey
---   utxo@(UTxO utxosMap) <- loopedQueryUtxos ctx addrAny
+--   utxo@(UTxO utxosMap) <- loopedQueryUtxos dcInfo addrAny
 --   let utxosList = Map.toList utxosMap
 --   let len = length utxosList
 
@@ -376,11 +377,11 @@ getWalletSets noOfWallets wallets =
 --         let chunkedUtxosMap = Map.fromList chunkedUtxos
 --         let utxoObj = UTxO chunkedUtxosMap
 --         putStrLn "\n"
---         mergeUtxos ctx utxoObj signKey addrEra addrAny
---     else mergeUtxos ctx utxo signKey addrEra addrAny
+--         mergeUtxos dcInfo utxoObj signKey addrEra addrAny
+--     else mergeUtxos dcInfo utxo signKey addrEra addrAny
 
 -- --Merge utxos of any wallet given the signkey, address and utxos
--- mergeUtxos ctx utxos signKey addrEra addrAny = do
+-- mergeUtxos dcInfo utxos signKey addrEra addrAny = do
 --   let utxosSum = utxoSum utxos <> negateValue (lovelaceToValue $ Lovelace 5_000_000)
 --       txOperation = txPayTo addrEra utxosSum <> txConsumeUtxos utxos
 --   txBodyE <- txBuilderToTxBodyIO ctx txOperation
@@ -742,11 +743,70 @@ splitUtxos ctx utxos signKey addrEra addrAny atomicQueryUtxos = do
           loopedSubmitTx txBody
         Right tx -> pure tx
 
-simpleMintingScript :: Hash PaymentKey -> SimpleScript SimpleScriptV2
-simpleMintingScript  paymentKeyHash =
-  RequireAllOf
-    [ RequireSignature paymentKeyHash
-    ]
+
+mergeUtxosOfWallets ctx wallets = do
+  queryLock'' <- newMVar ()
+  let atomicQueryUtxos addrAny =
+        withMVar
+          queryLock''
+          ( \_ -> do
+              utxosE <- queryUtxos (getConnectInfo ctx) $ Set.singleton addrAny
+              case utxosE of
+                Left err -> error $ "Error getting utxos: " ++ show err
+                Right utxos -> return utxos)
+  forConcurrently_ wallets $ \wallet -> do
+    let addrEra = getAddrEraFromSignKey ctx wallet
+        addrAny = getAddrAnyFromEra addrEra
+    utxos@(UTxO utxoMap) <- atomicQueryUtxos addrAny
+    mergeUtxos ctx utxos wallet addrEra addrAny atomicQueryUtxos
+
+mergeUtxos ctx utxos signKey addrEra addrAny atomicQueryUtxos = do
+  let balance = utxoSum utxos <> negateValue (lovelaceToValue $ Lovelace 6_000_000)
+      payOperations = txPayTo addrEra balance
+      txOperations = payOperations
+          <> txConsumeUtxos utxos
+          <> txWalletAddress addrEra
+
+  -- print noOfSplits
+  -- printTxBuilder txOperations
+
+  txBodyE <- loopedTxBuilderToTxBodyIo txOperations
+  txBody <- case txBodyE of
+    Left fe -> error $ "Error: " ++ show fe
+    Right txBody -> pure txBody
+
+  -- tx <- signAndSubmitTxBody (getConnectInfo ctx) txBody [signKey]
+  tx <- loopedSubmitTx txBody
+  let txId = getTxId txBody
+  putStrLn $ "Wait merge utxos to appear on wallet TxId: " ++ show txId
+  pollForTxIdAtomic ctx addrAny txId atomicQueryUtxos
+  putStrLn "Wallet utxo merge completed."
+
+  where
+    loopedTxBuilderToTxBodyIo txOperations = do
+      result <- try (txBuilderToTxBodyIO ctx txOperations ) :: IO (Either SomeException (Either FrameworkError (TxBody BabbageEra)))
+      case result of
+        Left any -> do
+          print any
+          loopedTxBuilderToTxBodyIo txOperations
+        Right tx -> pure tx
+
+    loopedSubmitTx txBody = do
+      result <- try (signAndSubmitTxBody (getConnectInfo ctx) txBody [signKey] ) :: IO (Either SomeException (Tx BabbageEra))
+      case result of
+        Left any -> do
+          print any
+          loopedSubmitTx txBody
+        Right tx -> pure tx
+
+
+
+
+-- simpleMintingScript :: Hash PaymentKey -> SimpleScript SimpleScriptV2
+-- simpleMintingScript  paymentKeyHash =
+--   RequireAllOf
+--     [ RequireSignature paymentKeyHash
+--     ]
 
 -- simpleMintTest ctx signKey= do
 --   let addrEra = getAddrEraFromSignKey ctx signKey

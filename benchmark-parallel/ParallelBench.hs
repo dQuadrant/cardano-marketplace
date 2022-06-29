@@ -67,7 +67,7 @@ import Cardano.Marketplace.V1.RequestModels
 import Cardano.Marketplace.V1.ServerRuntimeContext (RuntimeContext (RuntimeContext), resolveContext)
 import Control.Concurrent (MVar, forkIO, killThread, newMVar, putMVar, takeMVar, threadDelay, withMVar)
 import Control.Concurrent.Async (forConcurrently, forConcurrently_, mapConcurrently, mapConcurrently_, withAsync)
-import Control.Exception (SomeException, try)
+import Control.Exception (SomeException (SomeException), try)
 import Control.Monad (foldM, forM, forM_)
 import Control.Monad.Reader (MonadIO (liftIO), ReaderT (runReaderT))
 import Control.Monad.State
@@ -104,18 +104,15 @@ testTokensStr = "fe0f87df483710134f34045b516763bad1249307dfc543bc56a9e738.testto
 
 defaultNoOfWallets = 1
 
--- If CARDANO_NODE_SOCKET_PATH environment variable is set,  return ConnectInfo instance with the path
--- Otherwise CARDANO_HOME or "$HOME/.cardano"  is used and the socket path becomes "$CARDANO_HOME/node.socket"
-getDefaultConnection :: String -> NetworkId -> IO (LocalNodeConnectInfo CardanoMode)
-getDefaultConnection networkName networkId = do
+getVasilChainInfo :: IO DetailedChainInfo
+getVasilChainInfo = do
   sockEnv <- try $ getEnv "CARDANO_NODE_SOCKET_PATH"
   socketPath <- case sockEnv of
-    Left (e :: IOError) -> do
-      defaultSockPath <- getWorkPath (if null networkName then ["node.socket"] else [networkName, "node.socket"])
-      exists <- doesFileExist defaultSockPath
-      if exists then return defaultSockPath else error $ "Socket File is Missing: " ++ defaultSockPath ++ "\n\tSet environment variable CARDANO_NODE_SOCKET_PATH  to use different path"
+    Left (e::SomeException) -> error "Socket File is Missing: Set environment variable CARDANO_NODE_SOCKET_PATH"
     Right s -> pure s
-  pure (localNodeConnInfo networkId socketPath)
+  let networkId = Testnet (NetworkMagic 9)
+      connectInfo = ChainConnectInfo $ localNodeConnInfo networkId socketPath
+  withDetails connectInfo
 
 main :: IO ()
 main = do
@@ -127,42 +124,46 @@ main = do
   let maybeNoOfWallets = case length args of
         0 -> Just defaultNoOfWallets
         _ -> readMaybe $ last args :: Maybe Int
-  let shouldSplit = not (null args) && head args == "split"
-  -- Run Market operations if the second argument is run market with head args as split
-  let shouldRunMarket = (length args >= 2 && args !! 1 == "runmarket" && head args == "split") || null args || length args == 1
   --Get no of wallets to be used in test from arguments if not present use defaultNoOfWallets
   let noOfWallets = fromMaybe defaultNoOfWallets maybeNoOfWallets
       requiredWallets = noOfWallets * 3
-  -- performTransferBench noOfWallets
+
+  dcInfo <- getVasilChainInfo
+
+  let shouldSplit = not (null args) && head args == "split"
+  -- Run Market operations if the second argument is run market with head args as split
+  let shouldRunMarket = (length args >= 2 && args !! 1 == "runmarket" && head args == "split") || null args || length args == 1
+  let shouldPrintUtxosOnly = not (null args) && head args == "print-utxos-only"
+  let shouldMergeOnly = not (null args) && head args == "merge-utxos-only"
+
+  wallets <- readWalletsFromFile requiredWallets
 
   if noOfWallets > 333
     then error "Currently max no of wallets supported are 333 since total used are 333 * 3 = 999"
     else do
-      testAsset <- parseAssetIdText $ T.pack testTokensStr
-      let network = Testnet (NetworkMagic 9)
-      conn <- getDefaultConnection "testnet" network
-      let connectInfo = ChainConnectInfo conn
-      dcInfo <- withDetails connectInfo
-      fundedSignKey <- readSignKey "/home/krunx/.cardano/default.skey"
+      if shouldPrintUtxosOnly then do
+        printUtxoOfWallets dcInfo wallets
+      else if shouldMergeOnly then do
+        mergeUtxosOfWallets dcInfo wallets
+      else do
+        testAsset <- parseAssetIdText $ T.pack testTokensStr
+        fundedSignKey <- readSignKey "/home/krunx/.cardano/default.skey"
 
-      -- printUtxoOfWallet dcInfo fundedSignKey
+        -- printUtxoOfWallet dcInfo fundedSignKey
 
-      wallets <- setupWallets requiredWallets dcInfo testAsset fundedSignKey
+        wallets <- setupWallets wallets dcInfo testAsset fundedSignKey
 
-      -- printUtxoOfWallets dcInfo wallets
+        -- Setup step for collatral until vasil collateral is used
+        if shouldSplit then
+          splitUtxosOfWallets dcInfo wallets else putStrLn "Warning: Skipping split of utxos for collateral."
 
-      -- Setup step for collatral until vasil collateral is used
-      if shouldSplit then
-        splitUtxosOfWallets dcInfo wallets else putStrLn "Warning: Skipping split of utxos for collateral."
+        if shouldRunMarket then do
+          rng <- newStdGen
+          let shuffledWallets = shuffle' wallets (length wallets) rng
+          performMarketBench dcInfo noOfWallets shuffledWallets testAsset fundedSignKey
+        else putStrLn "Warning: Skipping market benchmark."
 
-      if shouldRunMarket then do
-        rng <- newStdGen
-        let shuffledWallets = shuffle' wallets (length wallets) rng
-        performMarketBench dcInfo noOfWallets shuffledWallets testAsset fundedSignKey
-      else putStrLn "Warning: Skipping market benchmark."
-
-      -- printUtxoOfWallets dcInfo shuffledWallets
-      putStrLn "\nFinished..."
+        putStrLn "\nFinished..."
 
 readWalletsFromFile :: Int -> IO [SigningKey PaymentKey]
 readWalletsFromFile noOfWallets = do
@@ -173,9 +174,8 @@ readWalletsFromFile noOfWallets = do
   mapM parseSigningKey walletStrs
 
 -- TODO Refactor and remove unused code
-setupWallets :: Int -> DetailedChainInfo -> AssetId -> SigningKey PaymentKey -> IO [SigningKey PaymentKey]
-setupWallets noOfWallets dcInfo testAssetId fundedSignKey = do
-  wallets <- readWalletsFromFile noOfWallets
+setupWallets :: [SigningKey PaymentKey] -> DetailedChainInfo -> AssetId -> SigningKey PaymentKey -> IO [SigningKey PaymentKey]
+setupWallets wallets dcInfo testAssetId fundedSignKey = do
   let walletsAddrs = map (\s -> AddressShelley $ skeyToAddr s (getNetworkId dcInfo)) wallets
   utxosE <- queryUtxos (getConnectInfo dcInfo) $ Set.fromList walletsAddrs
   utxos@(UTxO utxoMap) <- case utxosE of
@@ -260,6 +260,9 @@ setupWallets noOfWallets dcInfo testAssetId fundedSignKey = do
 
 type Wallet = SigningKey PaymentKey
 
+calculateAverage items = sum items `div` fromIntegral (length items)
+
+
 performMarketBench :: DetailedChainInfo -> Int -> [SigningKey PaymentKey] -> AssetId -> SigningKey PaymentKey -> IO ()
 performMarketBench dcInfo noOfWallets wallets testAsset fundedSignKey = do
   edcInfo <- resolveContext dcInfo
@@ -298,19 +301,65 @@ performMarketBench dcInfo noOfWallets wallets testAsset fundedSignKey = do
       results <- forConcurrently loopArray $ \index -> do
             performMarketOperation dcInfo testAsset index market walletsTuples atomicPutStrLn atomicPutStr fundedSignKey marketState marketAddrAny atomicQueryUtxos
 
+      finishedTime <- getTimeInSec
       -- performMarketOperation dcInfo testAsset index market startTime walletsTuples atomicPutStrLn atomicPutStr fundedSignKey marketState marketAddrAny atomicQueryUtxos
 
       print results
 
-      let times = map (\(a,_,_,_,_,_,_,_,_)->a) results
+      --TODO Use foldl and other alternatives but for now copy paste
       -- Calculate average time taken by wallets from times
-      let averageTime = sum times`div` fromIntegral (length times)
+      let times = map (\(a,_,_,_,_,_,_,_,_)->a) results
+      let averageTime = sum times `div` fromIntegral (length times)
 
-      print $ map getDiffInSec times
+      let priSellFees = map (\(_,(psf,_),_,_,_,_,_,_,_)->psf) results
+      let avgPriSellFee = sum priSellFees `div` fromIntegral (length priSellFees)
 
-      finishedTime <- getTimeInSec
-      printDiffInSec "\nTime taken on performing whole market operation for all wallets" startTime finishedTime
-      printAlreadyCalculatedDiffInSecAtomic "\nAverage Time taken by each wallet set on performing whole market cycle " averageTime atomicPutStrLn
+      let priBuyFees = map (\(_,_,(pbf,_),_,_,_,_,_,_)->pbf) results
+      let avgPriBuyFee = sum priBuyFees `div` fromIntegral (length priBuyFees)
+
+      let secSellFees = map (\(_,_,_,(ssf,_),_,_,_,_,_)->ssf) results
+      let avgSecSellFee = sum secSellFees `div` fromIntegral (length secSellFees)
+
+      let secBuyFees = map (\(_,_,_,_,(sbf,_),_,_,_,_)->sbf) results
+      let avgSecBuyFee = sum secBuyFees `div` fromIntegral (length secBuyFees)
+
+      let priSellSizes = map (\(_,_,_,_,_,pss,_,_,_)->pss) results
+      let avgPriSellSize = sum priSellSizes `div` fromIntegral (length priSellSizes)
+
+      let priBuySizes = map (\(_,_,_,_,_,_,pbs,_,_)->pbs) results
+      let avgPriBuySize = sum priBuySizes `div` fromIntegral (length priBuySizes)
+
+      let secSellSizes = map (\(_,_,_,_,_,_,_,sss,_)->sss) results
+      let avgSecSellSize = sum secSellSizes `div` fromIntegral (length secSellSizes)
+
+      let secBuySizes = map (\(_,_,_,_,_,_,_,_,sbs)->sbs) results
+      let avgSecBuySize = sum secBuySizes `div` fromIntegral (length secBuySizes)
+
+
+      forM_ results $ \(time,priSellFee,priBuyFee,secSellFee,secBuyFee,priSellSize,priBuySize,secSellSize,secBuySize) -> do
+        putStrLn $
+          "Time " ++ getDiffInSec time ++
+          " Pri sell fee: " ++ show priSellFee ++
+          " Pri buy fee: " ++ show priBuyFee ++
+          " Sec sell fee: " ++ show secSellFee ++
+          " Sec buy fee: " ++ show secBuyFee ++
+          " Pri sell size: " ++ show priSellSize ++ " bytes"++
+          " Pri buy size: " ++ show priBuySize ++ " bytes"++
+          " Sec sell size: " ++ show secSellSize ++ " bytes"++
+          " Sec buy size: " ++ show secBuySize ++ " bytes"
+
+
+      printInGreen $ "\n Average Primary Sell Fee: " ++ show avgPriSellFee
+      printInGreen $ "\n Average Primary Buy Fee: " ++ show avgPriBuyFee
+      printInGreen $ "\n Average Secondary Sell Fee: " ++ show avgSecSellFee
+      printInGreen $ "\n Average Secondary Buy Fee: " ++ show avgSecBuyFee
+      printInGreen $ "\n Average Primary Sell Size: " ++ show avgPriSellSize
+      printInGreen $ "\n Average Primary Buy Size: " ++ show avgPriBuySize
+      printInGreen $ "\n Average Secondary Sell Size: " ++ show avgSecSellSize
+      printInGreen $ "\n Average Secondary Buy Size: " ++ show avgSecBuySize
+      printDiffInSec "\n Time taken on performing whole market operation for all wallets" startTime finishedTime
+      printAlreadyCalculatedDiffInSecAtomic "\n Average Time taken by each wallet set on performing whole market cycle " averageTime atomicPutStrLn
+
   where
     -- loopedPerformMarketOpetaion :: DetailedChainInfo -> AssetId -> Int -> Market -> ([Wallet],[Wallet],[Wallet]) -> (String -> IO ()) -> (String -> IO ()) -> Wallet -> MarketUTxOState -> AddressAny -> (AddressAny -> IO (UTxO BabbageEra)) -> IO Int64
     -- loopedPerformMarketOpetaion dcInfo testAsset index market walletsTuples atomicPutStrLn atomicPutStr fundedSignKey marketState marketAddrAny atomicQueryUtxos = do
@@ -339,7 +388,7 @@ performMarketOperation ::
   MarketUTxOState ->
   AddressAny ->
   (AddressAny -> IO (UTxO BabbageEra)) ->
-  IO (Int64,String,String,String,String,Int,Int,Int,Int)
+  IO (Int64,(Integer,String),(Integer,String),(Integer,String),(Integer,String),Int,Int,Int,Int)
 performMarketOperation dcInfo testAsset index market walletTuples atomicPutStrLn atomicPutStr fundedSignKey marketState marketAddrAny atomicQueryUtxos = do
   let (priSeller, priBuyer, secBuyer) = getSingleWallets index walletTuples
 
@@ -353,7 +402,7 @@ performMarketOperation dcInfo testAsset index market walletTuples atomicPutStrLn
 
   let priSellFee = getTxFee priSellTxRes
   let priSellSize = getCborTxSize priSellTxRes
-  
+
 
   afterPrimarySellTime <- getTimeInSec
   printDiffInSecAtomic ("\nTime taken on placing token to market for Wallet Set " ++ show index) marketCycleStartTime afterPrimarySellTime atomicPutStrLn
@@ -361,7 +410,7 @@ performMarketOperation dcInfo testAsset index market walletTuples atomicPutStrLn
   --Primary buy
   priBuyTx@(_,_,TxResponse priBuyTxRes _) <-
   -- performBuy dcInfo testAsset market priSellTx priBuyer priSeller index atomicPutStrLn atomicPutStr "primary " atomicQueryUtxos marketState marketAddrAny
-    loopedPerformBuy priSellTx priBuyer priSeller
+    loopedPerformBuy priSellTx priBuyer priSeller "Primary "
 
   let priBuyFee = getTxFee priBuyTxRes
   let priBuySize = getCborTxSize priBuyTxRes
@@ -383,7 +432,7 @@ performMarketOperation dcInfo testAsset index market walletTuples atomicPutStrLn
   --Secondary buy
   secBuyTx@(_,_,TxResponse secBuyTxRes _) <-
   -- performBuy dcInfo testAsset market secSellTx secBuyer priBuyer index atomicPutStrLn atomicPutStr "secondary " atomicQueryUtxos marketState marketAddrAny
-    loopedPerformBuy secSellTx secBuyer priBuyer
+    loopedPerformBuy secSellTx secBuyer priBuyer "Secondary "
 
   let secBuyFee = getTxFee secBuyTxRes
   let secBuySize = getCborTxSize secBuyTxRes
@@ -416,17 +465,17 @@ performMarketOperation dcInfo testAsset index market walletTuples atomicPutStrLn
           loopedPerformSecondarySale priSeller priBuyer
         Right res -> pure res
 
-    loopedPerformBuy sellTx buyer prevSeller = do
+    loopedPerformBuy sellTx buyer prevSeller buyType = do
       result <-
         try
-          ( performBuy dcInfo testAsset market sellTx buyer prevSeller index atomicPutStrLn atomicPutStr "primary " atomicQueryUtxos marketState marketAddrAny
+          ( performBuy dcInfo testAsset market sellTx buyer prevSeller index atomicPutStrLn atomicPutStr buyType atomicQueryUtxos marketState marketAddrAny
           ) ::
           IO (Either SomeException (SigningKey PaymentKey, AddressAny, TxResponse))
       case result of
         Left any -> do
           atomicPutStrLn "Error in performing buy"
           atomicPutStrLn $ show any
-          loopedPerformBuy sellTx buyer prevSeller
+          loopedPerformBuy sellTx buyer prevSeller buyType
         Right res -> pure res
 
 -- Perform primary sell from primary seller set of wallets
@@ -485,13 +534,21 @@ performSingleSale dcInfo testAsset isSecondary market sellerWallet sReqParties c
   let sellerAddrInEra = skeyToAddrInEra sellerWallet (getNetworkId dcInfo)
       sellerAddrAny = getAddrAnyFromEra sellerAddrInEra
   sellerPkh <- addrInEraToPkh sellerAddrInEra
-  walletUtxos@(UTxO utxoMap) <- atomicQueryUtxos sellerAddrAny
   directSaleDatum <- constructDirectSaleDatum sellerPkh model
+
+  UTxO utxoMap <- atomicQueryUtxos sellerAddrAny
+  let firstUtxoHavingGt4AdaOnly@(UTxO filteredUMap) = UTxO $ fst $ Map.splitAt 1 $ Map.filter (\(TxOut _ (TxOutValue _ v) _ _) -> case valueToLovelace v of
+        Just (Lovelace l) -> l > 5
+        Nothing -> False) utxoMap
+      collateralTxIn = head $ Map.keys filteredUMap
+
+  let otherUtxos = Map.filterWithKey (\k _ -> k /= collateralTxIn ) utxoMap
+
   let lockedValue = valueFromList [(testAsset, 1), (AdaAssetId, 2_000_000)]
       txOperations =
         txPayToScript (marketScriptAddr dcInfo market) lockedValue (hashScriptData directSaleDatum)
-          <> txWalletAddress sellerAddrInEra
-          <> txConsumeUtxos walletUtxos
+          <> txAddTxInCollateral collateralTxIn
+          <> txWalletUtxos (UTxO otherUtxos)
 
   txResponse@(TxResponse txRaw datums) <- placeOnMarket' dcInfo txOperations sellerWallet
   -- loopedSellIfFail txOperations
@@ -540,7 +597,7 @@ performBuy dcInfo testAsset market (_, sellTxId, datum) buyerWallet prevSellerWa
   --Perform Primary buy of the token from another set of wallets
   atomicPutStrLn ("\nPerforming " ++ buyType ++ " buy for Wallet Set " ++ show index)
 
-  buyTx@(_, addr, TxResponse tx _) <- performSingleBuy dcInfo buyerWallet testAsset sellTxId datum market
+  buyTx@(_, addr, TxResponse tx _) <- performSingleBuy dcInfo buyerWallet testAsset sellTxId datum market atomicQueryUtxos
   -- performSingleBuy dcInfo buyerWallet testAsset datum artaConfig market
   let txId = getTxId $ getTxBody tx
   putStrLn $ "\nSubmitted successfully TxHash " ++ show txId
@@ -548,7 +605,7 @@ performBuy dcInfo testAsset market (_, sellTxId, datum) buyerWallet prevSellerWa
   atomicPutStrLn ("\nWait for bought token to appear on " ++ buyType ++ " buyer wallet. For Wallet Set " ++ show index)
   -- pollForTxId' dcInfo addr txId atomicPutStrLn atomicQueryUtxos
 
-  watchMarketForTxIdDisappear dcInfo sellTxId index atomicPutStrLn atomicPutStr marketState "Primary Sell "
+  watchMarketForTxIdDisappear dcInfo sellTxId index atomicPutStrLn atomicPutStr marketState (buyType ++ " Buy ")
 
   --TODO check for wallet valule with priting sellers and buyers wallet values
   -- printUtxoOfWalletAtomic dcInfo buyerWallet index atomicPutStrLn
@@ -573,11 +630,12 @@ performSingleBuy ::
   TxId ->
   ScriptData ->
   Market ->
+  (AddressAny -> IO (UTxO BabbageEra)) ->
   IO (SigningKey PaymentKey, AddressAny, TxResponse)
-performSingleBuy dcInfo buyerWallet tokenAsset sellTxId datum market = do
+performSingleBuy dcInfo buyerWallet tokenAsset sellTxId datum market atomicQueryUtxos= do
   let buyerAddr = getAddrEraFromSignKey dcInfo buyerWallet
       buyModel = BuyReqModel (TxContextAddressesReq (Just buyerWallet) Nothing Nothing Nothing Nothing Map.empty) Nothing (Just $ UtxoIdModal (sellTxId, TxIx 0)) (Just tokenAsset) datum Nothing
-  txRes <- buyToken dcInfo market buyModel buyerAddr
+  txRes <- buyToken dcInfo market buyModel buyerAddr atomicQueryUtxos
   let buyerAddrAny = getAddrAnyFromEra buyerAddr
   return (buyerWallet, buyerAddrAny, txRes)
 
