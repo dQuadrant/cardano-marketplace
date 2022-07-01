@@ -15,13 +15,13 @@ module ParallelUtils where
 import Cardano.Api
   ( AddressAny,
     AddressInEra,
-    AlonzoEra,
-    AsType (AsAddressAny, AsAddressInEra, AsAlonzoEra, AsPaymentKey, AsSigningKey),
+    -- Alonzo,
+    -- AsType (AsAddressAny, AsAddressInEra, AsAlonzo, AsPaymentKey, AsSigningKey),
     AssetId (AdaAssetId, AssetId),
     AssetName (AssetName),
     CardanoMode,
     CtxUTxO,
-    EraInMode (AlonzoEraInCardanoMode, BabbageEraInCardanoMode),
+    -- EraInMode (AlonzoInCardanoMode, AlonzoEraInCardanoMode),
     Key (getVerificationKey, verificationKeyHash),
     LocalNodeConnectInfo,
     PaymentKey,
@@ -32,7 +32,7 @@ import Cardano.Api
     QueryUTxOFilter (QueryUTxOByAddress),
     SerialiseAddress (deserialiseAddress, serialiseAddress),
     SerialiseAsRawBytes (deserialiseFromRawBytes),
-    ShelleyBasedEra (ShelleyBasedEraAlonzo, ShelleyBasedEraBabbage),
+    ShelleyBasedEra (ShelleyBasedEraAlonzo, ShelleyBasedEraAlonzo),
     SigningKey,
     TxIn (TxIn),
     TxIx (TxIx),
@@ -52,7 +52,7 @@ import Cardano.Api
     valueFromList,
     valueToList,
     valueToLovelace,
-    Value, prettyPrintJSON, Tx, TxBody, BabbageEra, SimpleScript (RequireAllOf, RequireSignature), SimpleScriptV2, Script (SimpleScript), SimpleScriptVersion (SimpleScriptV2), scriptPolicyId, ScriptLanguageInEra (SimpleScriptV2InBabbage), ScriptWitness (SimpleScriptWitness), TxId, Hash, serialiseToBech32, SerialiseAsCBOR (serialiseToCBOR)
+    Value, prettyPrintJSON, Tx, TxBody, AlonzoEra, SimpleScript (RequireAllOf, RequireSignature), SimpleScriptV2, Script (SimpleScript), SimpleScriptVersion (SimpleScriptV2), scriptPolicyId, ScriptLanguageInEra (SimpleScriptV2InAlonzo), ScriptWitness (SimpleScriptWitness), TxId, Hash, serialiseToBech32, SerialiseAsCBOR (serialiseToCBOR), AsType (..)
   )
 import Cardano.Api.Shelley (Lovelace (Lovelace), Quantity (Quantity), fromPlutusData, TxBody (ShelleyTxBody))
 import Cardano.Kuber.Api
@@ -60,7 +60,7 @@ import Cardano.Kuber.Data.Parsers (parseAssetNQuantity, parseScriptData)
 import Cardano.Kuber.Util
 import qualified Cardano.Ledger.Address as Shelley
 import Cardano.Marketplace.Common.ConsoleWritable (ConsoleWritable (toConsoleText), showStr)
-import Cardano.Marketplace.V1.Core (buyToken, marketAddressShelley, placeOnMarket, queryMarketUtxos, signAndSubmitTxBody)
+import Cardano.Marketplace.V1.Core (buyToken, marketAddressShelley, queryMarketUtxos, signAndSubmitTxBody)
 import Cardano.Marketplace.V1.RequestModels
 import Cardano.Marketplace.V1.ServerRuntimeContext (RuntimeContext (..), resolveContext)
 import Control.Concurrent (MVar, newMVar, putMVar, takeMVar, threadDelay, withMVar, readMVar)
@@ -94,7 +94,7 @@ import Text.Read (readMaybe)
 import qualified Data.ByteString.Char8 as BS8
 import Control.Concurrent.Async (forConcurrently_)
 import Cardano.Ledger.Coin
-import Cardano.Ledger.Babbage.Tx (txfee)
+import Cardano.Ledger.Alonzo.Tx (txfee)
 
 --Convert to Addr any from Addr in era
 getAddrAnyFromEra addrEra = fromMaybe (error "unexpected error converting address to another type") (deserialiseAddress AsAddressAny (serialiseAddress addrEra))
@@ -156,12 +156,12 @@ lovelaceToAda lovelace =
           v-> show _quot ++"." ++ show _rem++ " Ada"
 
 
-getTxFee :: Tx BabbageEra  -> (Integer,String)
+getTxFee :: Tx AlonzoEra  -> (Integer,String)
 getTxFee tx = let fee = case getTxBody tx of
                     ShelleyTxBody sbe tb scs tbsd m_ad tsv -> case txfee tb of { Coin n -> n }
           in (fee,lovelaceToAda fee)
 
-getCborTxSize :: Tx BabbageEra  -> Int
+getCborTxSize :: Tx AlonzoEra  -> Int
 getCborTxSize tx = BS8.length $ serialiseToCBOR tx 
 
 --Given t1 and t2 print the difference in time t2 - t1
@@ -324,7 +324,7 @@ getWalletSets noOfWallets wallets =
 --   Int ->
 --   SigningKey PaymentKey ->
 --   ([Char] -> IO ()) ->
---   (AddressAny -> IO (UTxO AlonzoEra)) ->
+--   (AddressAny -> IO (UTxO Alonzo)) ->
 --   IO ()
 -- paybackToFundedWallet' ctx wallet index fundedSignKey atomicPutStrLn atomicQueryUtxos = do
 --   atomicPutStrLn ("\nPerform payback to funded wallet from Wallet Set " ++ show index)
@@ -372,7 +372,7 @@ getWalletSets noOfWallets wallets =
 --     then do
 --       let toChunksNum = len `div` 3
 --       print len
---       let utxosChunk = chunksOf toChunksNum utxosList :: [[(TxIn, TxOut CtxUTxO BabbageEra)]]
+--       let utxosChunk = chunksOf toChunksNum utxosList :: [[(TxIn, TxOut CtxUTxO AlonzoEra)]]
 --       forM_ utxosChunk $ \chunkedUtxos -> do
 --         let chunkedUtxosMap = Map.fromList chunkedUtxos
 --         let utxoObj = UTxO chunkedUtxosMap
@@ -409,7 +409,7 @@ printUtxoOfWallets ctx wallets = do
 --   atomicPutStrLn $ toConsoleText "  " balance
 
 --Print all utxos of given wallet
--- printUtxoOfWalletAtomic' :: DetailedChainInfo -> AddressAny -> Int -> ([Char] -> IO ()) -> (AddressAny -> IO (UTxO BabbageEra)) -> IO ()
+-- printUtxoOfWalletAtomic' :: DetailedChainInfo -> AddressAny -> Int -> ([Char] -> IO ()) -> (AddressAny -> IO (UTxO AlonzoEra)) -> IO ()
 -- printUtxoOfWalletAtomic' ctx addrAny index atomicPutStrLn atomicQueryUtxos = do
 --   utxos <- atomicQueryUtxos addrAny
 --   let balance = utxoSum utxos
@@ -420,7 +420,7 @@ printUtxoOfWallets ctx wallets = do
 getUtxosOfWallet ::
   ChainInfo v => v ->
   SigningKey PaymentKey ->
-  IO (UTxO BabbageEra)
+  IO (UTxO AlonzoEra)
 getUtxosOfWallet ctx wallet = do
   let addrAny = getAddrAnyFromSignKey ctx wallet
   loopedQueryUtxos ctx addrAny
@@ -430,8 +430,8 @@ renderTxIn :: TxIn -> Text
 renderTxIn (TxIn txId (TxIx ix)) =
   serialiseToRawBytesHexText txId <> "#" <> T.pack (show ix)
 
-renderTxOut :: TxOut CtxUTxO BabbageEra -> Text
-renderTxOut (TxOut _ txOutValue _ _) = do
+renderTxOut :: TxOut CtxUTxO AlonzoEra -> Text
+renderTxOut (TxOut _ txOutValue _) = do
   let value = txOutValueToValue txOutValue
   renderValue value
 
@@ -461,7 +461,7 @@ printUtxoOfWallet ctx wallet = do
       addr = serialiseAddress addrAny
   printUtxos utxos addr
 
-printUtxos :: UTxO BabbageEra -> Text -> IO ()
+printUtxos :: UTxO AlonzoEra -> Text -> IO ()
 printUtxos utxos@(UTxO utxoMap) addr = do
   putStrLn $ "\n\nUtxos " <> show addr <> " Count: " <> show (Map.size utxoMap)
   forM_ (Map.toList utxoMap) $ \(txIn, txOut) -> do
@@ -471,7 +471,7 @@ printUtxos utxos@(UTxO utxoMap) addr = do
 --   let balance = utxoSum utxos
 --   putStrLn $ toConsoleText " " balance
 
--- printUtxosMap :: Map.Map TxIn (TxOut CtxUTxO BabbageEra) -> IO ()
+-- printUtxosMap :: Map.Map TxIn (TxOut CtxUTxO AlonzoEra) -> IO ()
 -- printUtxosMap utxoMap = do
 --   forM_ (Map.toList utxoMap) $ \(txIn, txOut) -> do
 --     TIO.putStrLn $ " " <> renderTxIn txIn <> ": " <> renderTxOut txOut
@@ -481,7 +481,7 @@ printUtxos utxos@(UTxO utxoMap) addr = do
 --   putStrLn $ toConsoleText " " balance
 
 
--- -- printUtxosWithoutTotal :: UTxO AlonzoEra -> AddressAny -> IO ()
+-- -- printUtxosWithoutTotal :: UTxO Alonzo -> AddressAny -> IO ()
 -- printUtxosWithoutTotal utxos@(UTxO utxoMap) addrAny atomicPutStrLn = do
 --   atomicPutStrLn $ "\n\nUtxos for addr " <> show (serialiseAddress addrAny) <> " Count: " <> show (Map.size utxoMap)
 --   forM_ (Map.toList utxoMap) $ \(txIn, txOut) -> do
@@ -524,9 +524,9 @@ watchMarketForTxIdDisappear ctx txId index atomicPutStrLn atomicPutStr marketSta
 
 
 
-loopedQueryUtxos :: ChainInfo v => v -> AddressAny -> IO (UTxO BabbageEra)
+loopedQueryUtxos :: ChainInfo v => v -> AddressAny -> IO (UTxO AlonzoEra)
 loopedQueryUtxos ctx addrAny = do
-  result <- try (queryUtxos (getConnectInfo ctx) $ Set.singleton addrAny) :: IO (Either SomeException (Either FrameworkError (UTxO BabbageEra)))
+  result <- try (queryUtxos (getConnectInfo ctx) $ Set.singleton addrAny) :: IO (Either SomeException (Either FrameworkError (UTxO AlonzoEra)))
   case result of
     Left any -> loopedQueryUtxos ctx addrAny
     Right utxosE -> case utxosE of
@@ -550,7 +550,7 @@ pollForTxId' :: DetailedChainInfo
   -> AddressAny 
   -> TxId 
   -> (String -> IO ())
-  -> (AddressAny -> IO (UTxO BabbageEra))
+  -> (AddressAny -> IO (UTxO AlonzoEra))
   -> IO ()
 pollForTxId' ctx addrAny txHash atomicPutStrLn atomicQueryUtxos = do
   threadDelay 1000000
@@ -563,7 +563,7 @@ pollForTxId' ctx addrAny txHash atomicPutStrLn atomicQueryUtxos = do
     then atomicPutStrLn "\nFunds Transferred successfully."
     else pollForTxId' ctx addrAny txHash atomicPutStrLn atomicQueryUtxos
 
-pollForTxIdAtomic :: ChainInfo v => v -> AddressAny -> TxId -> (AddressAny -> IO (UTxO BabbageEra)) -> IO ()
+pollForTxIdAtomic :: ChainInfo v => v -> AddressAny -> TxId -> (AddressAny -> IO (UTxO AlonzoEra)) -> IO ()
 pollForTxIdAtomic ctx addrAny txHash atomicQueryUtxos = do
   threadDelay 1000000
   utxos@(UTxO utxoMap) <- atomicQueryUtxos addrAny
@@ -647,14 +647,14 @@ parseSigningKey sKeyStr = do
     Nothing -> error "Error parsing signing key: "
     Just skey -> return skey
 
-newtype MarketUTxOState = MarketUTxOState (MVar (UTxO BabbageEra))
+newtype MarketUTxOState = MarketUTxOState (MVar (UTxO AlonzoEra))
 
 newMarketState :: IO MarketUTxOState
 newMarketState = do
   m <- newMVar $ UTxO Map.empty
   return (MarketUTxOState m)
 
-updateMarketUTxO :: UTxO BabbageEra -> MarketUTxOState -> IO ()
+updateMarketUTxO :: UTxO AlonzoEra -> MarketUTxOState -> IO ()
 updateMarketUTxO utxo (MarketUTxOState m) = do
   _ <- takeMVar m
   putMVar m utxo
@@ -728,7 +728,7 @@ splitUtxos ctx utxos signKey addrEra addrAny atomicQueryUtxos = do
 
   where
     loopedTxBuilderToTxBodyIo txOperations = do
-      result <- try (txBuilderToTxBodyIO ctx txOperations ) :: IO (Either SomeException (Either FrameworkError (TxBody BabbageEra)))
+      result <- try (txBuilderToTxBodyIO ctx txOperations ) :: IO (Either SomeException (Either FrameworkError (TxBody AlonzoEra)))
       case result of
         Left any -> do
           print any
@@ -736,7 +736,7 @@ splitUtxos ctx utxos signKey addrEra addrAny atomicQueryUtxos = do
         Right tx -> pure tx
 
     loopedSubmitTx txBody = do
-      result <- try (signAndSubmitTxBody (getConnectInfo ctx) txBody [signKey] ) :: IO (Either SomeException (Tx BabbageEra))
+      result <- try (signAndSubmitTxBody (getConnectInfo ctx) txBody [signKey] ) :: IO (Either SomeException (Tx AlonzoEra))
       case result of
         Left any -> do
           print any
@@ -766,10 +766,6 @@ mergeUtxos ctx utxos signKey addrEra addrAny atomicQueryUtxos = do
       txOperations = payOperations
           <> txConsumeUtxos utxos
           <> txWalletAddress addrEra
-
-  -- print noOfSplits
-  -- printTxBuilder txOperations
-
   txBodyE <- loopedTxBuilderToTxBodyIo txOperations
   txBody <- case txBodyE of
     Left fe -> error $ "Error: " ++ show fe
@@ -784,7 +780,7 @@ mergeUtxos ctx utxos signKey addrEra addrAny atomicQueryUtxos = do
 
   where
     loopedTxBuilderToTxBodyIo txOperations = do
-      result <- try (txBuilderToTxBodyIO ctx txOperations ) :: IO (Either SomeException (Either FrameworkError (TxBody BabbageEra)))
+      result <- try (txBuilderToTxBodyIO ctx txOperations ) :: IO (Either SomeException (Either FrameworkError (TxBody AlonzoEra)))
       case result of
         Left any -> do
           print any
@@ -792,7 +788,7 @@ mergeUtxos ctx utxos signKey addrEra addrAny atomicQueryUtxos = do
         Right tx -> pure tx
 
     loopedSubmitTx txBody = do
-      result <- try (signAndSubmitTxBody (getConnectInfo ctx) txBody [signKey] ) :: IO (Either SomeException (Tx BabbageEra))
+      result <- try (signAndSubmitTxBody (getConnectInfo ctx) txBody [signKey] ) :: IO (Either SomeException (Tx AlonzoEra))
       case result of
         Left any -> do
           print any
@@ -821,7 +817,7 @@ mergeUtxos ctx utxos signKey addrEra addrAny atomicQueryUtxos = do
 --         <> txMint [
 --           TxMintData
 --             policyId
---             (SimpleScriptWitness SimpleScriptV2InBabbage SimpleScriptV2 $ simpleMintingScript paymentKeyHash)
+--             (SimpleScriptWitness SimpleScriptV2InAlonzo SimpleScriptV2 $ simpleMintingScript paymentKeyHash)
 --             (valueFromList [(AssetId policyId assetName, Quantity amount)])
 --             ]
 --   txBodyE <- txBuilderToTxBodyIO ctx txBuilder

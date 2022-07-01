@@ -32,7 +32,7 @@ where
 -- import Data.List (intercalate)
 -- import Control.Monad.State (evalState, evalStateT, runState, State, StateT (runStateT))
 -- import qualified Data.Map as Map
--- import Cardano.Api.Shelley (AlonzoEra)
+-- import Cardano.Api.Shelley (Alonzo)
 -- import GHC.Conc (atomically, newTVar, newTVarIO)
 -- import Plutus.Contracts.V1.Marketplace
 -- import Control.Monad.Reader (ReaderT(runReaderT))

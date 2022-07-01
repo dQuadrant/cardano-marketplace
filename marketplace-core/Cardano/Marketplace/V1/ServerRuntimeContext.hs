@@ -38,9 +38,9 @@ data RuntimeContext=RuntimeContext{
   runtimeContextCardanoConn :: DetailedChainInfo,
   runtimeContextMarket :: Market,
   runtimeContextAuctionConfig :: AuctionConfig,
-  runtimeContextOperator :: AddressInEra BabbageEra,
+  runtimeContextOperator :: AddressInEra AlonzoEra,
   runtimeContextOperatorSkey :: SigningKey PaymentKey,
-  runtimeContextTreasury :: AddressInEra BabbageEra
+  runtimeContextTreasury :: AddressInEra AlonzoEra
 }
 
 data ConigFromEnvOrSecretFile a = ConigFromEnvOrSecretFile {
@@ -122,7 +122,7 @@ resolveContext context = do
     fetchConfig= resolveEnv
     readDouble :: String -> Maybe Double
     readDouble = readMaybe
-    addressParser = deserialiseAddress (AsAddressInEra AsBabbageEra) . T.pack
+    addressParser = deserialiseAddress (AsAddressInEra AsAlonzoEra) . T.pack
 
 
 createEnvConfigNoDefault :: (String -> Maybe a)  -> String  -> ConigFromEnvOrSecretFile a

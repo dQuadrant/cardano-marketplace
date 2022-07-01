@@ -22,12 +22,12 @@ import Plutus.V1.Ledger.Value (AssetClass(AssetClass), CurrencySymbol (CurrencyS
 import qualified Plutus.V1.Ledger.Value as PlutusValue
 import qualified Data.ByteString as BS
 import Cardano.Api.Shelley
-    ( PlutusScript(PlutusScriptSerialised), toPlutusData, toShelleyAddr, Lovelace (Lovelace), fromPlutusData, Address (ShelleyAddress), TxBody (ShelleyTxBody), ProtocolParameters (protocolParamMinUTxOValue), toAlonzoData, fromShelleyAddr, fromShelleyTxOut, ReferenceScript (ReferenceScriptNone) )
+    ( PlutusScript(PlutusScriptSerialised), toPlutusData, toShelleyAddr, Lovelace (Lovelace), fromPlutusData, Address (ShelleyAddress), TxBody (ShelleyTxBody), ProtocolParameters (protocolParamMinUTxOValue), toAlonzoData, fromShelleyAddr, fromShelleyTxOut )
 import Codec.Serialise (serialise)
 import Control.Exception (throw, SomeException (SomeException), try, throwIO, Exception (fromException))
 import Plutus.V1.Ledger.Api (fromData, toData, Data (Map), POSIXTime (POSIXTime), lowerBound, upperBound, ToData (toBuiltinData), PubKeyHash (PubKeyHash))
 import qualified Plutus.V1.Ledger.Api (TxOut (txOutValue))
-import Cardano.Kuber.Api
+import Cardano.Kuber.Api hiding (signAndSubmitTxBody)
 import Cardano.Marketplace.V1.RequestModels
 import Data.Text.Conversions (toText, UTF8 (UTF8), FromText (fromText), convertText)
 import Data.Functor ((<&>))
@@ -66,7 +66,7 @@ import qualified PlutusTx.Prelude as PlutusPrelude
 import Cardano.Ledger.Keys (KeyPair(sKey))
 import qualified Debug.Trace as Debug
 import qualified Data.ByteString.Lazy.Char8 as BSChar8
-import Cardano.Kuber.Api
+import Cardano.Kuber.Api hiding (signAndSubmitTxBody)
 import qualified Plutus.V1.Ledger.Api as PlutusTx
 import Plutus.V1.Ledger.Contexts (txSignedBy)
 
@@ -74,7 +74,7 @@ import qualified Data.ByteString.Char8 as BS8
 
 
 signAndSubmitTxBody :: LocalNodeConnectInfo CardanoMode
-  -> TxBody BabbageEra -> [SigningKey PaymentKey] -> IO (Tx BabbageEra)
+  -> TxBody AlonzoEra -> [SigningKey PaymentKey] -> IO (Tx AlonzoEra)
 signAndSubmitTxBody ctx txBody signKeys = do
   let tx = signTxBody txBody signKeys
   res <- submitTx ctx tx
@@ -85,7 +85,7 @@ signAndSubmitTxBody ctx txBody signKeys = do
 putStrLn' :: [Char] -> IO ()
 putStrLn' v =pure ()
 
-queryUtxosOf :: ChainInfo v => v   -> AddressModal -> IO (UTxO BabbageEra)
+queryUtxosOf :: ChainInfo v => v   -> AddressModal -> IO (UTxO AlonzoEra)
 queryUtxosOf  ctx (AddressModal addr)= do
   -- getAddrAnyFromEra
   utxos <- queryUtxos (getConnectInfo  ctx) $ Set.singleton (case addr of { AddressInEra atie ad -> toAddressAny ad } )
@@ -104,7 +104,7 @@ getBalance ctx addrStr = do
     Left err -> throwIO err
     Right utxos' -> pure $ BalanceResponse utxos'
 
-queryMarketUtxos :: ChainInfo v => v -> Market -> IO (UTxO BabbageEra)
+queryMarketUtxos :: ChainInfo v => v -> Market -> IO (UTxO AlonzoEra)
 queryMarketUtxos ctx market = do
   utxos <- queryUtxos (getConnectInfo  ctx) $ Set.singleton (toAddressAny $ marketAddressShelley  market (getNetworkId ctx))
   case utxos of
@@ -134,42 +134,42 @@ marketScriptAddr dcInfo market = makeShelleyAddressInEra
                        NoStakeAddress
 
 
-placeOnMarket :: DetailedChainInfo -> Market -> SellReqBundle   -> IO SaleCreateResponse
-placeOnMarket dcInfo market  (SellReqBundle context sales topLevel) =do
-    tcxa@(TxContextAddresses senderAddr payerAddr  changeAddr receiverAddr addrLookup) <-populateAddresses' context (getNetworkId dcInfo) Nothing
-    Debug.traceM $ "context       : " ++ show context
-    Debug.traceM $ "parsedContext : " ++ show tcxa
-    Debug.traceM $ "changeAddr    : " ++ T.unpack (serialiseAddress changeAddr)
-    sellerPkh <- addrInEraToPkh senderAddr
+-- placeOnMarket :: DetailedChainInfo -> Market -> SellReqBundle   -> IO SaleCreateResponse
+-- placeOnMarket dcInfo market  (SellReqBundle context sales topLevel) =do
+--     tcxa@(TxContextAddresses senderAddr payerAddr  changeAddr receiverAddr addrLookup) <-populateAddresses' context (getNetworkId dcInfo) Nothing
+--     Debug.traceM $ "context       : " ++ show context
+--     Debug.traceM $ "parsedContext : " ++ show tcxa
+--     Debug.traceM $ "changeAddr    : " ++ T.unpack (serialiseAddress changeAddr)
+--     sellerPkh <- addrInEraToPkh senderAddr
 
-    constraints <- mapM (toConstraint sellerPkh ) sales
+--     constraints <- mapM (toConstraint sellerPkh ) sales
 
-    txbody <- txBuilderToTxBodyIO dcInfo $ foldMap fst constraints
-    case txbody of
-      Left fe -> throwIO fe
-      Right tb -> do
-        let TxResponse _tx _ =mkTxResponse'' context tb
-        pure $ SaleCreateResponse _tx (map snd constraints) topLevel
+--     txbody <- txBuilderToTxBodyIO dcInfo $ foldMap fst constraints
+--     case txbody of
+--       Left fe -> throwIO fe
+--       Right tb -> do
+--         let TxResponse _tx _ =mkTxResponse'' context tb
+--         pure $ SaleCreateResponse _tx (map snd constraints) topLevel
 
-  where
-    toConstraint  sellerPkh (SellReqModel (CostModal asset) parties (CostModal (costAsset, Quantity costAmount))  isSecondary) = do
-        partiesData <- mapM toParty parties
-        let lockedValue =valueFromList [asset]
-            txOperation= txPayToScript (marketScriptAddr dcInfo market) lockedValue
-            AssetClass (currency,tokenName) = toPlutusAssetClass costAsset
-            directSale=DirectSale {
-              dsSeller= sellerPkh,
-              dsSplits= partiesData,
-              dsPaymentCurrency=  currency ,
-              dsPaymentTokenName=tokenName,
-              dsCost = costAmount,
-              dsType=if isSecondary then Secondary  else Primary
-            }
-            scriptData = fromPlutusData $ toData directSale
-        pure (txOperation $  hashScriptData scriptData, scriptData)
-    toParty (ShareModal (addr,v))=do
-            _pkh <- addrInEraToPkh  addr
-            pure (_pkh, v)
+--   where
+--     toConstraint  sellerPkh (SellReqModel (CostModal asset) parties (CostModal (costAsset, Quantity costAmount))  isSecondary) = do
+--         partiesData <- mapM toParty parties
+--         let lockedValue =valueFromList [asset]
+--             txOperation= txPayToScript (marketScriptAddr dcInfo market) lockedValue
+--             AssetClass (currency,tokenName) = toPlutusAssetClass costAsset
+--             directSale=DirectSale {
+--               dsSeller= sellerPkh,
+--               dsSplits= partiesData,
+--               dsPaymentCurrency=  currency ,
+--               dsPaymentTokenName=tokenName,
+--               dsCost = costAmount,
+--               dsType=if isSecondary then Secondary  else Primary
+--             }
+--             scriptData = fromPlutusData $ toData directSale
+--         pure (txOperation $  hashScriptData scriptData, scriptData)
+--     toParty (ShareModal (addr,v))=do
+--             _pkh <- addrInEraToPkh  addr
+--             pure (_pkh, v)
 
 -- TODO withdraw not supported currently
 -- withdrawCommand ::RuntimeContext  -> WithdrawReqModel  -> IO TxResponse
@@ -308,7 +308,7 @@ placeOnMarket dcInfo market  (SellReqBundle context sales topLevel) =do
 --       func add v = calculateTxoutMinLovelace
 --   minAdaCalc <-case calculateTxoutMinLovelaceFunc pParam of
 --     Nothing ->  fail "MinUtxo Lovelace calculation failed due to missing protocolParam"
---     Just f -> pure  (\add v -> f (TxOut add (TxOutValue MultiAssetInAlonzoEra v) TxOutDatumNone  ) )
+--     Just f -> pure  (\add v -> f (TxOut add (TxOutValue MultiAssetInAlonzo v) TxOutDatumNone  ) )
 --   TxContextAddresses senderAddr payerAddr changeAddr receiverAddr addressLookup <-populateAddresses' context (networkCtxNetwork networkCtx) Nothing
 
 --   lastBidder  <- unMaybe "Failed to convert datum to DirectSale"  (fromData $ toPlutusData scriptData)
@@ -359,7 +359,7 @@ placeOnMarket dcInfo market  (SellReqBundle context sales topLevel) =do
 --       func add v = calculateTxoutMinLovelace
 --   minAdaCalc <-case calculateTxoutMinLovelaceFunc pParam of
 --     Nothing ->  fail "MinUtxo Lovelace calculation failed due to missing protocolParam"
---     Just f -> pure  (\add v -> f (TxOut add (TxOutValue MultiAssetInAlonzoEra v) TxOutDatumNone  ) )
+--     Just f -> pure  (\add v -> f (TxOut add (TxOutValue MultiAssetInAlonzo v) TxOutDatumNone  ) )
 --   -- currentTime <- ge
 --   let
 --     timeRange=case aDuration auction of
@@ -413,7 +413,7 @@ placeOnMarket dcInfo market  (SellReqBundle context sales topLevel) =do
 --   print body
 --   pure $ _mkTxResponse (maybeToList (txContextAddressesReqSignKey context) ++ maybeToList mSellerDepositSkey ++ ([runtimeContextOperatorSkey ctx | asOperator] )) body []
 --   where
---     _mkTxResponse :: [SigningKey PaymentKey] -> TxBody AlonzoEra -> [Maybe PubKeyHash ] -> TxResponse
+--     _mkTxResponse :: [SigningKey PaymentKey] -> TxBody Alonzo -> [Maybe PubKeyHash ] -> TxResponse
 --     _mkTxResponse=mkTxResponse
 --     ensureMinAda  f  value =
 --       if diff > 0
@@ -516,22 +516,22 @@ placeOnMarket dcInfo market  (SellReqBundle context sales topLevel) =do
 --     toVal (TxOut _ (TxOutAdaOnly _ l) _) = lovelaceToValue l
 
 
-mkTxResponse :: ToData a =>[SigningKey PaymentKey]-> TxBody BabbageEra -> [a] -> TxResponse
+mkTxResponse :: ToData a =>[SigningKey PaymentKey]-> TxBody AlonzoEra -> [a] -> TxResponse
 mkTxResponse skeys txBody datums=do
     TxResponse (makeSignedTransaction (map toWitness skeys) txBody ) $  map (fromPlutusData . toData ) datums
   where
     toWitness sk= makeShelleyKeyWitness txBody (WitnessPaymentKey sk)
 
-mkTxResponse_ :: [SigningKey PaymentKey]-> TxBody BabbageEra  -> TxResponse
+mkTxResponse_ :: [SigningKey PaymentKey]-> TxBody AlonzoEra  -> TxResponse
 mkTxResponse_ skeys txBody =do
     TxResponse (makeSignedTransaction (map toWitness skeys) txBody ) $  []
   where
     toWitness sk= makeShelleyKeyWitness txBody (WitnessPaymentKey sk)
 
-mkTxResponse' ::ToData a =>  TxContextAddressesReq -> TxBody BabbageEra -> [a ] -> TxResponse
+mkTxResponse' ::ToData a =>  TxContextAddressesReq -> TxBody AlonzoEra -> [a ] -> TxResponse
 mkTxResponse' (TxContextAddressesReq mSkey _ _ _ _ _) = mkTxResponse (maybeToList mSkey)
 
-mkTxResponse'' :: TxContextAddressesReq -> TxBody BabbageEra  -> TxResponse
+mkTxResponse'' :: TxContextAddressesReq -> TxBody AlonzoEra  -> TxResponse
 mkTxResponse'' (TxContextAddressesReq mSkey _ _ _ _ _)  txBody = mkTxResponse (case mSkey of
           Nothing -> []
           Just sk -> [sk])
@@ -540,7 +540,7 @@ mkTxResponse'' (TxContextAddressesReq mSkey _ _ _ _ _)  txBody = mkTxResponse (c
       TxResponse (makeSignedTransaction (map toWitness skeys) txBody ) []
     toWitness sk= makeShelleyKeyWitness txBody (WitnessPaymentKey sk)
 
-mkSignedResponse :: SigningKey PaymentKey -> TxBody BabbageEra -> TxResponse
+mkSignedResponse :: SigningKey PaymentKey -> TxBody AlonzoEra -> TxResponse
 mkSignedResponse skey txBody = do
   TxResponse (makeSignedTransaction [makeShelleyKeyWitness txBody (WitnessPaymentKey skey)] txBody) []
 
@@ -554,7 +554,7 @@ unEither (Left a) = error $ "Left occured in unEither "
 
 getAddrAnyFromEra addrEra = fromMaybe (error "unexpected error converting address to another type") (deserialiseAddress AsAddressAny (serialiseAddress addrEra))
 
-buyToken :: DetailedChainInfo ->  Market -> BuyReqModel -> AddressInEra BabbageEra-> (AddressAny -> IO (UTxO BabbageEra))->IO TxResponse
+buyToken :: DetailedChainInfo ->  Market -> BuyReqModel -> AddressInEra AlonzoEra-> (AddressAny -> IO (UTxO AlonzoEra))->IO TxResponse
 buyToken  networkCtx market
     (BuyReqModel context@(TxContextAddressesReq buyerWalletM _ _ _ _ _) mSellerDepositSkey mUtxo mAsset consumedData mCollateral) buyerAddr atomicQueryUtxos =do
   let conn=getConnectInfo  networkCtx
@@ -563,7 +563,7 @@ buyToken  networkCtx market
       func add v = calculateTxoutMinLovelace
   minAdaCalc <-case calculateTxoutMinLovelaceFunc pParam of
     Nothing ->  fail "MinUtxo Lovelace calculation failed due to missing protocolParam"
-    Just f -> pure  (\add v -> f (TxOut add (TxOutValue MultiAssetInBabbageEra v) TxOutDatumNone ReferenceScriptNone) )
+    Just f -> pure  (\add v -> f (TxOut add (TxOutValue MultiAssetInAlonzoEra v) TxOutDatumNone) )
 
   directSale  <- unMaybe "Failed to convert datum to DirectSale"  (fromData $ toPlutusData consumedData)
   TxContextAddresses senderAddress payerAddress changeAddr receiverAddr  paymentAddrMap <-populateAddresses' context network Nothing
@@ -596,7 +596,7 @@ buyToken  networkCtx market
 
   let buyerAddrAny = getAddrAnyFromEra buyerAddr
   UTxO utxoMap <- atomicQueryUtxos buyerAddrAny
-  let firstUtxoHavingGt4AdaOnly@(UTxO filteredUMap) = UTxO $ fst $ Map.splitAt 1 $ Map.filter (\(TxOut _ (TxOutValue _ v) _ _) -> case valueToLovelace v of
+  let firstUtxoHavingGt4AdaOnly@(UTxO filteredUMap) = UTxO $ fst $ Map.splitAt 1 $ Map.filter (\(TxOut _ (TxOutValue _ v) _) -> case valueToLovelace v of
         Just (Lovelace l) -> l > 5
         Nothing -> False) utxoMap
       collateralTxIn = head $ Map.keys filteredUMap
@@ -607,7 +607,7 @@ buyToken  networkCtx market
           coreOperations
         <> extraInputs
         <> mconcat partyPayments
-        <> txRedeemUtxo txin txout (ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV1) (PlutusScript PlutusScriptV1 $ marketScriptSerialised market)) consumedData (fromPlutusData $ PlutusTx.builtinDataToData $ toBuiltinData Buy) Nothing
+        <> txRedeemUtxo txin txout (ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV1) (PlutusScript PlutusScriptV1 $ marketScriptSerialised market)) consumedData (fromPlutusData $ PlutusTx.builtinDataToData $ toBuiltinData Buy)
         <> txAddTxInCollateral collateralTxIn
         <> txWalletUtxos (UTxO otherUtxos)
 
@@ -634,11 +634,11 @@ buyToken  networkCtx market
         minLovelace= case f $ value <> lovelaceToValue (Lovelace 1_000_000)of {Lovelace n -> n}
         currentLovelace =  case selectAsset value AdaAssetId of {Quantity n -> n}
 
-    hasAsset asset (TxOut _ (TxOutValue _ value) _ _) = selectAsset value asset >0
+    hasAsset asset (TxOut _ (TxOutValue _ value) _) = selectAsset value asset >0
     hasAsset _ _ =False
-    matchesDatumhash sDataHash (TxOut _ (TxOutValue _ value) (TxOutDatumHash _ hash) _) = hash == sDataHash
+    matchesDatumhash sDataHash (TxOut _ (TxOutValue _ value) (TxOutDatumHash _ hash)) = hash == sDataHash
     matchesDatumhash _ _ =False
-    txOutValue (TxOut _ v _ _) = case v of
+    txOutValue (TxOut _ v _) = case v of
       TxOutAdaOnly oasie lo -> lovelaceToValue lo
       TxOutValue masie va -> va
 
@@ -686,14 +686,14 @@ marketAddressAny c market= toAddressAny $ marketAddressShelley market  (getNetwo
 -- auctionAddressAny :: ChainInfo v => v-> Auction -> AddressAny
 -- auctionAddressAny c market= toAddressAny $ auctionAddressShelley market  (getNetworkId c)
 
-performQueryScriptUtxo :: ChainInfo v => v ->  AddressAny  ->  ScriptData -> Maybe AssetId -> Maybe UtxoIdModal-> String -> IO  (TxIn ,TxOut CtxUTxO BabbageEra)
+performQueryScriptUtxo :: ChainInfo v => v ->  AddressAny  ->  ScriptData -> Maybe AssetId -> Maybe UtxoIdModal-> String -> IO  (TxIn ,TxOut CtxUTxO AlonzoEra)
 performQueryScriptUtxo  ctx  addr  sData maybeAsset maybeUtxo queryContextPrefix = do
   q <- queryScriptUtxo ctx addr sData maybeAsset (maybeUtxo <&> unUtxoIdModal )
   case q of
     Left s -> fail $ queryContextPrefix ++ " : " ++ s
     Right x0 -> pure x0
 
-queryScriptUtxo :: ChainInfo v => v -> AddressAny  ->  ScriptData -> Maybe AssetId -> Maybe (TxId,TxIx)  -> IO (Either String (TxIn ,TxOut CtxUTxO BabbageEra))
+queryScriptUtxo :: ChainInfo v => v -> AddressAny  ->  ScriptData -> Maybe AssetId -> Maybe (TxId,TxIx)  -> IO (Either String (TxIn ,TxOut CtxUTxO AlonzoEra))
 queryScriptUtxo  ctx  addr  sData maybeAsset maybeUtxo  = do
   UTxO uMap <- queryUtxos (getConnectInfo ctx)  (Set.singleton addr) >>= unEitherIO
   pure $ case maybeUtxo of
@@ -715,25 +715,25 @@ queryScriptUtxo  ctx  addr  sData maybeAsset maybeUtxo  = do
       in case Map.lookup  _in uMap of
         Nothing ->  returnError $  "Utxo not found : " ++ show _id ++ "#" ++ show index
         Just to -> case to of
-          TxOut aie tov (TxOutDatumHash _ hash) _ -> if hash == hashScriptData sData
+          TxOut aie tov (TxOutDatumHash _ hash)  -> if hash == hashScriptData sData
               then pure (_in, to)
               else returnError $  "Utxo DataHash mismatch. expecting : "++ show (hashScriptData sData) ++ "got " ++show hash
           _  ->   returnError "Utxo Is Not Script Utxo or Data Hash is missing in it"
   where
     returnError m = Left m
-    filterWithAsset ::AssetId   ->  TxOut CtxUTxO BabbageEra -> Bool
-    filterWithAsset  aid (TxOut _ (TxOutValue _ val) _ _)= selectAsset val aid > 0
+    filterWithAsset ::AssetId   ->  TxOut CtxUTxO AlonzoEra -> Bool
+    filterWithAsset  aid (TxOut _ (TxOutValue _ val) _ )= selectAsset val aid > 0
     filterWithAsset  _ _ = False
 
-    filterWithSdata ::ScriptData ->  TxOut CtxUTxO BabbageEra -> Bool
-    filterWithSdata  sdata (TxOut _ _ (TxOutDatumHash _ dataHash) _)= hashScriptData sdata == dataHash
+    filterWithSdata ::ScriptData ->  TxOut CtxUTxO AlonzoEra -> Bool
+    filterWithSdata  sdata (TxOut _ _ (TxOutDatumHash _ dataHash) )= hashScriptData sdata == dataHash
     filterWithSdata  _ _ = False
 
 unEitherIO :: Either FrameworkError a -> IO a
 unEitherIO (Left s) = error $ show s
 unEitherIO (Right x) = pure x
 
-queryScriptUtxoByAsset :: ChainInfo v => v  ->  AddressAny  ->  ScriptData -> Maybe (TxId,TxIx) -> String -> IO (TxIn ,TxOut CtxUTxO BabbageEra)
+queryScriptUtxoByAsset :: ChainInfo v => v  ->  AddressAny  ->  ScriptData -> Maybe (TxId,TxIx) -> String -> IO (TxIn ,TxOut CtxUTxO AlonzoEra)
 queryScriptUtxoByAsset  ctx  addr  sData maybeUtxo queryContextPrefix= do
   UTxO uMap <- queryUtxos (getConnectInfo ctx)  (Set.singleton addr) >>= unEitherIO
   case maybeUtxo of
@@ -747,16 +747,16 @@ queryScriptUtxoByAsset  ctx  addr  sData maybeUtxo queryContextPrefix= do
       in case Map.lookup  _in uMap of
         Nothing -> fail $ queryContextPrefix ++ "Utxo not found : " ++ show _id ++ "#" ++ show index
         Just to -> case to of
-          TxOut aie tov (TxOutDatumHash _ hash) _ -> if hash == hashScriptData sData
+          TxOut aie tov (TxOutDatumHash _ hash)  -> if hash == hashScriptData sData
               then pure (_in, to)
               else fail $ queryContextPrefix ++ "Utxo DataHash mismatch expecting : "++ show (hashScriptData sData) ++ "got " ++show hash
           _  ->  fail $ queryContextPrefix ++ "Utxo Is Not Script Utxo or Data Hash is missing in it"
   where
-    filterWithTxId:: TxIn -> TxIn -> TxOut CtxUTxO BabbageEra -> Bool
+    filterWithTxId:: TxIn -> TxIn -> TxOut CtxUTxO AlonzoEra -> Bool
     filterWithTxId base compare _= base == compare
 
-    filterWithSdata ::ScriptData ->  TxOut CtxUTxO BabbageEra -> Bool
-    filterWithSdata  sdata (TxOut _ _ (TxOutDatumHash _ dataHash) _)= hashScriptData sdata == dataHash
+    filterWithSdata ::ScriptData ->  TxOut CtxUTxO AlonzoEra -> Bool
+    filterWithSdata  sdata (TxOut _ _ (TxOutDatumHash _ dataHash) )= hashScriptData sdata == dataHash
     filterWithSdata  _ _ = False
 
 

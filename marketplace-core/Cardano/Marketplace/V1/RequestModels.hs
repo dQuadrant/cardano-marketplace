@@ -85,12 +85,12 @@ newtype AssetModal= AssetModal AssetId deriving Show
 
 
 newtype CostModal=CostModal (AssetId,Quantity)  deriving Show
-newtype AddressModal= AddressModal (AddressInEra BabbageEra) deriving Show
+newtype AddressModal= AddressModal (AddressInEra AlonzoEra) deriving Show
 newtype SignKeyModal= SignKeyModal (SigningKey PaymentKey) deriving Show
 newtype UtxoIdModal =UtxoIdModal (TxId,TxIx) deriving Show
-newtype ShareModal = ShareModal (AddressInEra BabbageEra,Integer) deriving Show
-newtype WitnessModal = WitnessModal (KeyWitness BabbageEra) deriving Show
-newtype TxModal     = TxModal (Tx BabbageEra) deriving Show
+newtype ShareModal = ShareModal (AddressInEra AlonzoEra,Integer) deriving Show
+newtype WitnessModal = WitnessModal (KeyWitness AlonzoEra) deriving Show
+newtype TxModal     = TxModal (Tx AlonzoEra) deriving Show
 
 
 
@@ -138,7 +138,7 @@ data WithdrawReqModel=WithdrawReqModel{
   withdrawDatum:: ScriptData,
   withdrawUtxo :: Maybe UtxoIdModal, -- this is the utxo we want to withdraw, if not present, one of the utxos matching the datahash will be chosen.
   withdrawAsset:: Maybe AssetModal, -- we are withdrawing this asset. if present, make sure that this asset is available in the utxo.
-  withdrawAddress:: Maybe (AddressInEra BabbageEra), -- If present, this is the seller address that wants to withdraw, otherwise it's computed from sellerAddress in the datum.
+  withdrawAddress:: Maybe (AddressInEra AlonzoEra), -- If present, this is the seller address that wants to withdraw, otherwise it's computed from sellerAddress in the datum.
   withdrawCollateral:: Maybe  UtxoIdModal -- use specific address as collateral, if not present, a suitable collateral will be choosen.
 }
 
@@ -158,7 +158,7 @@ data OperatorWithdrawModel=OperatorWithdrawModel{
   opWithdrawUtxo :: Maybe UtxoIdModal, -- this is the utxo we want to withdraw, if not present, one of the utxos matching the datahash will be chosen.
   opWithdrawAsset:: Maybe AssetModal, -- we are withdrawing this asset. if present, make sure that this asset is available in the utxo.
   opWithdrawWalletSignKey:: SigningKey PaymentKey,
-  opWithdrawAddress:: Maybe (AddressInEra BabbageEra) -- If present, this is the seller address that wants to withdraw, otherwise it's computed from skey.
+  opWithdrawAddress:: Maybe (AddressInEra AlonzoEra) -- If present, this is the seller address that wants to withdraw, otherwise it's computed from skey.
 }
 
 
@@ -181,41 +181,41 @@ data SellReqModel = SellReqModel {
 
 } deriving ( Typeable)
 
-instance FromJSON SellReqModel  where
-  parseJSON  = \case
-    Object o-> do
-                SellReqModel
-                  <$> o .: "asset"
-                  <*> (o .:? "parties" .!= [])
-                  <*> o .:  "cost"
-                  <*> (o .:? "isSecondary" .!= False)
-              where
-                unAddress (Just (AddressModal addr))= Just addr
-                unAddress _ = Nothing
-    _        -> fail "Expecting SaleRequest Object"
+-- instance FromJSON SellReqModel  where
+--   parseJSON  = \case
+--     Object o-> do
+--                 SellReqModel
+--                   <$> o .: "asset"
+--                   <*> (o .:? "parties" .!= [])
+--                   <*> o .:  "cost"
+--                   <*> (o .:? "isSecondary" .!= False)
+--               where
+--                 unAddress (Just (AddressModal addr))= Just addr
+--                 unAddress _ = Nothing
+--     _        -> fail "Expecting SaleRequest Object"
 
-data SellReqBundle = SellReqBundle {
-  sReqContext :: TxContextAddressesReq,
-  sReqSales :: [SellReqModel],
-  sReqTopLevel :: Bool
-}
+-- data SellReqBundle = SellReqBundle {
+--   sReqContext :: TxContextAddressesReq,
+--   sReqSales :: [SellReqModel],
+--   sReqTopLevel :: Bool
+-- }
 
-instance FromJSON SellReqBundle where
-  parseJSON v@(Object o) = do
-      sales <- o .:? "sales"
-      context <- addressContextParser o
-      case sales of
-        Nothing -> do
-          sale <- parseJSON v
-          pure $ SellReqBundle context [sale] True
-        Just v ->  pure $ SellReqBundle  context v False
-  parseJSON  _  = fail "Expecting SaleRequest Object"
+-- instance FromJSON SellReqBundle where
+--   parseJSON v@(Object o) = do
+--       sales <- o .:? "sales"
+--       context <- addressContextParser o
+--       case sales of
+--         Nothing -> do
+--           sale <- parseJSON v
+--           pure $ SellReqBundle context [sale] True
+--         Just v ->  pure $ SellReqBundle  context v False
+--   parseJSON  _  = fail "Expecting SaleRequest Object"
 
 
 
 
 data SaleCreateResponse = SaleCreateResponse {
-  saleCreatetxRaw :: Tx BabbageEra,
+  saleCreatetxRaw :: Tx AlonzoEra,
   saleResponses :: [ScriptData ],
   saleCreateTopLevel :: Bool -- return auctionResponse object in the top level
 } deriving(Generic,Show )
@@ -248,11 +248,11 @@ saleRestoJSON txId index datum =  object [
 
 data TxContextAddressesReq = TxContextAddressesReq{
     txContextAddressesReqSignKey :: Maybe (SigningKey PaymentKey),
-    txContextAddressesReqSenderAddr :: Maybe(AddressInEra BabbageEra),
-    txContextAddressesReqPayerAddr :: Maybe(AddressInEra BabbageEra),
-    txContextAddressesReqChangeAddr :: Maybe(AddressInEra BabbageEra),
-    txContextAddressesReqReceiverAddr :: Maybe (AddressInEra BabbageEra),
-    txContextAddressesReqKnownAddresses :: Map PubKeyHash (AddressInEra BabbageEra)
+    txContextAddressesReqSenderAddr :: Maybe(AddressInEra AlonzoEra),
+    txContextAddressesReqPayerAddr :: Maybe(AddressInEra AlonzoEra),
+    txContextAddressesReqChangeAddr :: Maybe(AddressInEra AlonzoEra),
+    txContextAddressesReqReceiverAddr :: Maybe (AddressInEra AlonzoEra),
+    txContextAddressesReqKnownAddresses :: Map PubKeyHash (AddressInEra AlonzoEra)
   }
 
 instance Show TxContextAddressesReq where
@@ -270,11 +270,11 @@ instance Show TxContextAddressesReq where
           Nothing -> "null"
 
 data TxContextAddresses = TxContextAddresses{
-    txContextSenderAddr :: AddressInEra BabbageEra,
-    txContextPayerAddr :: AddressInEra BabbageEra,
-    txContextChangeAddr :: AddressInEra BabbageEra,
-    txContextReceiverAddr :: AddressInEra BabbageEra,
-    txContextKnownAddresses :: Map PubKeyHash (AddressInEra BabbageEra)
+    txContextSenderAddr :: AddressInEra AlonzoEra,
+    txContextPayerAddr :: AddressInEra AlonzoEra,
+    txContextChangeAddr :: AddressInEra AlonzoEra,
+    txContextReceiverAddr :: AddressInEra AlonzoEra,
+    txContextKnownAddresses :: Map PubKeyHash (AddressInEra AlonzoEra)
   }
 instance Show TxContextAddresses where
   show (TxContextAddresses sender payer change receiver knownAddr)=  "TxContextAddresses(sender=" ++ showAddr sender
@@ -299,7 +299,7 @@ addressContextParser o = do
               Just pkh -> pkh
               Nothing -> error $ "Can't convert address" ++ T.unpack (serialiseAddress  x) ++ " to PubKeyHash"
 
-resolveAddressByPkh :: TxContextAddressesReq -> NetworkId-> PubKeyHash -> AddressInEra BabbageEra
+resolveAddressByPkh :: TxContextAddressesReq -> NetworkId-> PubKeyHash -> AddressInEra AlonzoEra
 resolveAddressByPkh addresses  network  pkh = case Map.lookup pkh (txContextAddressesReqKnownAddresses addresses) of
     Nothing -> case pkhToMaybeAddr network pkh of
       Nothing -> error $ "Can't convert Pkh" ++ show pkh ++ " to Shelly Address"
@@ -513,24 +513,24 @@ populateAddresses  (TxContextAddressesReq mSkey mSender mPayer mChange mReceiver
 
 data PaymentUtxoModel = PaymentUtxoModel {
   paymentValue :: Cardano.Api.Shelley.Value,
-  receiverAddress:: AddressInEra BabbageEra,
+  receiverAddress:: AddressInEra AlonzoEra,
   deductFees :: Bool, -- pay this address paymentValue -txFee.
   addChange :: Bool
 }
-instance FromJSON PaymentUtxoModel where
-  parseJSON (Object o) = PaymentUtxoModel
-                          <$> (o .: "values" <&> map unCostModal <&> valueFromList )
-                          <*> (o .: "receiverAddress" <&> unAddressModal)
-                          <*> o .:? "deductFees" .!= False
-                          <*> o .:? "addChange"  .!=False
-  parseJSON _           =   fail "Expecting PaymentUtxo Object"
+-- instance FromJSON PaymentUtxoModel where
+--   parseJSON (Object o) = PaymentUtxoModel
+--                           <$> (o .: "values" <&> map unCostModal <&> valueFromList )
+--                           <*> (o .: "receiverAddress" <&> unAddressModal)
+--                           <*> o .:? "deductFees" .!= False
+--                           <*> o .:? "addChange"  .!=False
+--   parseJSON _           =   fail "Expecting PaymentUtxo Object"
 
 
 data PaymentReqModel = PaymentReqModel {
   preqSkey :: SigningKey PaymentKey,
   preqReceivers::[PaymentUtxoModel],
-  preqPayerAddress:: Maybe (AddressInEra  BabbageEra),
-  preqChangeAddress:: Maybe (AddressInEra BabbageEra),
+  preqPayerAddress:: Maybe (AddressInEra  AlonzoEra),
+  preqChangeAddress:: Maybe (AddressInEra AlonzoEra),
   spendEverything :: Bool,
   ignoreTinySurplus :: Bool, -- if value < minUtxoLovelace remains as change, send it to the receiver.
   ignoreTinyInsufficient:: Bool -- if value < minUtxoLovelace is insufficient in the wallet, don't fail and pay receiver a bit less.
@@ -554,8 +554,8 @@ data MoveFundModel= MoveFundModel{
 }
 
 data SubmitTxModal=SubmitTxModal{
-  rawTx:: Tx BabbageEra,
-  witness:: Maybe (KeyWitness BabbageEra)
+  rawTx:: Tx AlonzoEra,
+  witness:: Maybe (KeyWitness AlonzoEra)
 }
 
 instance FromJSON SubmitTxModal where
@@ -574,7 +574,7 @@ instance FromJSON SubmitTxModal where
 -- } deriving (Show)
 
 -- data AuctionCreateResponse = AuctionCreateResponse {
---   _txRaw :: Tx AlonzoEra,
+--   _txRaw :: Tx Alonzo,
 --   auctionResponses :: [AuctionResponse],
 --   topLevel :: Bool -- return auctionResponse object in the top level
 -- } deriving(Generic,Show )
@@ -609,7 +609,7 @@ instance FromJSON SubmitTxModal where
 
 
 data TxResponse=TxResponse{
-  txRaw :: Tx BabbageEra,
+  txRaw :: Tx AlonzoEra,
   datums :: [ ScriptData ]
 } deriving (Generic,Show)
 
@@ -635,36 +635,36 @@ data TxResponse=TxResponse{
 --         datumHexString _data=
 --           T.decodeUtf8  $ toStrict $ encode $ scriptDataToJson ScriptDataJsonDetailedSchema   _data
 
---         dataToBytes  :: Data AlonzoEra  -> LBS.ByteString
+--         dataToBytes  :: Data Alonzo  -> LBS.ByteString
 --         dataToBytes d = toLazyByteString $  toCBOR d
---         toLedger :: ScriptData  -> Data AlonzoEra
+--         toLedger :: ScriptData  -> Data Alonzo
 --         toLedger=toAlonzoData
 
 -- txResultToResponse (TxResult fee ins body txbody) txId= case ShelleyTxBody _  _  ([Script (ShelleyLedgerEra era)]) (TxBodyScriptData era) (Maybe (AuxiliaryData (ShelleyLedgerEra era))) (TxScriptValidity era) of
 --   TxResponse txId ()
 --   where
---     maptype:: (TxIn, BuildTxWith BuildTx (Witness WitCtxTxIn AlonzoEra)) ->ScriptDataHash
+--     maptype:: (TxIn, BuildTxWith BuildTx (Witness WitCtxTxIn Alonzo)) ->ScriptDataHash
 --     maptype (_, a)= case a of
 
 data BalanceResponse = BalanceResponse{
-  utxos :: UTxO BabbageEra
+  utxos :: UTxO AlonzoEra
 } deriving (Generic, Show,ToJSON)
 
-instance FromJSON AssetModal where
-  parseJSON  v=  case v of
-      Object o  -> do
-        policy <- (o .: "policyId") ::Parser T.Text
-        name   <- (o .: "name") :: Parser T.Text
-        asset <-parseAssetId policy name
-        pure $ AssetModal asset
-      String s  -> if T.null s
-                    then pure $ AssetModal AdaAssetId
-                    else case T.split  (== '.') s of
-                      [policyText,assetText] -> parseAssetId policyText assetText <&> AssetModal
-                      _                      -> formatError
-      _           -> formatError
-      where
-        formatError=fail "Asset id must be object {\"policyId\":\"PolicyHexStr\",\"tokenName\":\"tokenNameStr\"} or of format \"policyHex.assetName\""
+-- instance FromJSON AssetModal where
+--   parseJSON  v=  case v of
+--       Object o  -> do
+--         policy <- (o .: "policyId") ::Parser T.Text
+--         name   <- (o .: "name") :: Parser T.Text
+--         asset <-parseAssetId policy name
+--         pure $ AssetModal asset
+--       String s  -> if T.null s
+--                     then pure $ AssetModal AdaAssetId
+--                     else case T.split  (== '.') s of
+--                       [policyText,assetText] -> parseAssetId policyText assetText <&> AssetModal
+--                       _                      -> formatError
+--       _           -> formatError
+--       where
+--         formatError=fail "Asset id must be object {\"policyId\":\"PolicyHexStr\",\"tokenName\":\"tokenNameStr\"} or of format \"policyHex.assetName\""
 
 instance ToJSON AssetModal where
    toJSON (AssetModal (AssetId policy name)) =object [ "policyId"  .= policy, "name"   .= name]
@@ -672,40 +672,40 @@ instance ToJSON AssetModal where
 
 
 
-instance FromJSON CostModal where
-  parseJSON (Object o ) = do
-      policy <- o .: "policyId"
-      name   <- o .: "name"
-      asset  <- parseAssetId policy name
-      value <- o .: "amount"
-      pure $ CostModal (asset,Quantity value)
-  parseJSON (Number n) = do
-    let v = round n
-    pure $ CostModal (AdaAssetId ,Quantity v)
-  parseJSON _ = fail "Expected CostModal object"
+-- instance FromJSON CostModal where
+--   parseJSON (Object o ) = do
+--       policy <- o .: "policyId"
+--       name   <- o .: "name"
+--       asset  <- parseAssetId policy name
+--       value <- o .: "amount"
+--       pure $ CostModal (asset,Quantity value)
+--   parseJSON (Number n) = do
+--     let v = round n
+--     pure $ CostModal (AdaAssetId ,Quantity v)
+--   parseJSON _ = fail "Expected CostModal object"
 
 
-instance FromJSON UtxoIdModal where
-  parseJSON (Object o ) = do
-    txid <- o.:"hash"
-    index <- o.:"index"
-    pure $ UtxoIdModal (txid,index)
-  parseJSON (String v) =
-    case T.split (== '#') v of
-      [txHash, index] ->
-        case deserialiseFromRawBytesHex AsTxId (TSE.encodeUtf8 txHash) of
-          Right txid -> case readMaybe (T.unpack index) of
-            Just txindex ->  pure $ UtxoIdModal  (txid, TxIx txindex)
-            Nothing -> fail $ "Failed to parse txIndex in " ++ T.unpack v
-          Left any -> fail $ "Failed to parse value as txHash " ++ T.unpack txHash
-      _ -> fail $ "Expected to be of format 'txId#index' got :" ++ T.unpack v
-  parseJSON _ = fail "error"
+-- instance FromJSON UtxoIdModal where
+--   parseJSON (Object o ) = do
+--     txid <- o.:"hash"
+--     index <- o.:"index"
+--     pure $ UtxoIdModal (txid,index)
+--   parseJSON (String v) =
+--     case T.split (== '#') v of
+--       [txHash, index] ->
+--         case deserialiseFromRawBytesHex AsTxId (TSE.encodeUtf8 txHash) of
+--           Right txid -> case readMaybe (T.unpack index) of
+--             Just txindex ->  pure $ UtxoIdModal  (txid, TxIx txindex)
+--             Nothing -> fail $ "Failed to parse txIndex in " ++ T.unpack v
+--           Left any -> fail $ "Failed to parse value as txHash " ++ T.unpack txHash
+--       _ -> fail $ "Expected to be of format 'txId#index' got :" ++ T.unpack v
+--   parseJSON _ = fail "error"
 
 
 
--- newtype AddressModal= AddressModal (AddressInEra AlonzoEra) deriving Show
+-- newtype AddressModal= AddressModal (AddressInEra Alonzo) deriving Show
 instance FromJSON AddressModal where
-  parseJSON (String s)=  case deserialiseAddress (AsAddressInEra AsBabbageEra) s of
+  parseJSON (String s)=  case deserialiseAddress (AsAddressInEra AsAlonzoEra) s of
       Nothing -> fail "Invalid address string. Couldn't be parsed as valid address for alonzo era"
       Just aie -> pure $ AddressModal aie
   parseJSON _ = fail "Expected Address to be String"
@@ -748,7 +748,7 @@ instance FromJSON WitnessModal where
                     Just txt ->  T.concat ["8200",txt]
     case convertText  cborHexText of
       Nothing ->  fail "Witness string is not hex encoded"
-      Just (Base16 bs) -> case  deserialiseFromCBOR (AsKeyWitness AsBabbageEra) bs of
+      Just (Base16 bs) -> case  deserialiseFromCBOR (AsKeyWitness AsAlonzoEra) bs of
         Left e  -> fail $ "Witness string: Invalid CBOR format : " ++ show e
         Right witness -> pure $ WitnessModal witness
 
@@ -756,7 +756,7 @@ instance FromJSON WitnessModal where
 
 tryParseWitness str= case convertText  str of
       Nothing ->  fail "Witness string is not hex encoded"
-      Just (Base16 bs) -> case  deserialiseFromCBOR (AsKeyWitness AsBabbageEra) bs of
+      Just (Base16 bs) -> case  deserialiseFromCBOR (AsKeyWitness AsAlonzoEra) bs of
         Left e  -> fail $ "Witness string: Invalid CBOR format : " ++ show e
         Right witness -> pure $ WitnessModal witness
 
@@ -765,7 +765,7 @@ instance FromJSON TxModal where
   parseJSON (String txStr) = do
     case convertText txStr of
       Nothing -> fail "Tx string is not hex encoded"
-      Just (Base16 bs) -> case deserialiseFromCBOR (AsTx AsBabbageEra ) bs of
+      Just (Base16 bs) -> case deserialiseFromCBOR (AsTx AsAlonzoEra ) bs of
         Left  e -> fail $ "Tx string: Invalid CBOR format : "++ show e
         Right tx -> pure $ TxModal tx
   parseJSON _ = fail "Expected Tx cbor hex string"
@@ -785,7 +785,7 @@ addressParser' v key _def = case H.lookup key v of
   Nothing -> _def
   Just v -> case fromJSON v of
     Error s -> fail $ "expected address string for key \""++T.unpack key ++"\""
-    Success v-> case deserialiseAddress (AsAddressInEra AsBabbageEra) v of
+    Success v-> case deserialiseAddress (AsAddressInEra AsAlonzoEra) v of
       Nothing -> fail "Invalid address string. Couldn't be parsed as valid address for alonzo era"
       Just aie -> pure aie
 
@@ -834,17 +834,17 @@ instance FromCBOR CollateralWrapper where
 --  decodeWord  :: Decoder s Word
 --  decodeBytes :: Decoder s ByteString
 --  -- et cetera
-newtype Witnesses = Witnesses [KeyWitness BabbageEra]
+newtype Witnesses = Witnesses [KeyWitness AlonzoEra]
 
 -- instance FromCBOR Witnesses where
 --   fromCBOR = do
 --     CBOR.CBORGroup  [v] <- fromCBOR
 --     pure $ head v
 
--- parseWitness :: MonadFail m => Text -> m ([KeyWitness AlonzoEra])
+-- parseWitness :: MonadFail m => Text -> m ([KeyWitness Alonzo])
 -- parseWitness txt =  case convertText  txt of
 --     Nothing ->  fail "Witness string is not hex encoded"
---     Just (Base16 bs) -> case deserialiseFromCBOR ([AsWi AsAlonzoEra]) bs of
+--     Just (Base16 bs) -> case deserialiseFromCBOR ([AsWi AsAlonzo]) bs of
 --         Left de -> fail $ show de
 --         Right kw -> pure kw
 

@@ -114,7 +114,8 @@ benchmark bench-parallel
                         , directory
                         , random-shuffle
                         , bytestring
-                        , cardano-ledger-babbage
+                        , cardano-ledger-alonzo
+
 
 
 

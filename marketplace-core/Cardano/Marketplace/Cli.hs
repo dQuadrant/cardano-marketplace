@@ -14,7 +14,7 @@ where
 -- import qualified Data.Text as T
 -- import Cardano.Marketplace.Common.ConsoleWritable
 -- import Data.Functor ((<&>))
--- import Cardano.Api.Shelley (AsType(AsAlonzoEra), Lovelace (Lovelace), Address (ShelleyAddress), fromShelleyStakeReference, toShelleyStakeCredential, toShelleyStakeAddr, fromPlutusData)
+-- import Cardano.Api.Shelley (AsType(AsAlonzo), Lovelace (Lovelace), Address (ShelleyAddress), fromShelleyStakeReference, toShelleyStakeCredential, toShelleyStakeAddr, fromPlutusData)
 -- import qualified Data.Map as Map
 -- import Control.Monad (void)
 -- import Data.Text(Text, strip)
@@ -163,7 +163,7 @@ where
 --     --     then
 --     --     putStrLn  "Usage: addrinfo address"
 --     --     else
---     --       case deserialiseAddress (AsAddressInEra AsAlonzoEra ) (T.pack addr) of
+--     --       case deserialiseAddress (AsAddressInEra AsAlonzo ) (T.pack addr) of
 --     --         Nothing -> fail "Weird address"
 --     --         Just aie -> do
 --     --             putStrLn $ "Address                  : " ++ addr
@@ -261,7 +261,7 @@ where
 --     MoveFunds receiver-> do
 --       fail "Work in progress"
 --       ctx <- chainInfoFromEnv
---       receiverAddress <- case deserialiseAddress (AsAddressInEra AsAlonzoEra) (T.pack  receiver) of
+--       receiverAddress <- case deserialiseAddress (AsAddressInEra AsAlonzo) (T.pack  receiver) of
 --         Just addr -> pure addr
 --         Nothing  ->  fail "Invalid receiver address"
 --       skey <- getCurrentSkey
@@ -270,7 +270,7 @@ where
 --       fail "done"
 --     Pay receiver value changeAddress -> do
 --       ctx <- chainInfoFromEnv >>= withDetails
---       receiverAddress <- case deserialiseAddress (AsAddressInEra AsAlonzoEra) (T.pack  receiver) of
+--       receiverAddress <- case deserialiseAddress (AsAddressInEra AsAlonzo) (T.pack  receiver) of
 --         Just addr -> pure addr
 --         Nothing  ->  fail "Invalid receiver address"
 --       skey <- getCurrentSkey
@@ -306,7 +306,7 @@ where
 --               putStrLn $ "Wallet Name    :  " ++  wallet
 
 --               pure addr
---             else case deserialiseAddress (AsAddressInEra AsAlonzoEra) (T.pack addr) of
+--             else case deserialiseAddress (AsAddressInEra AsAlonzo) (T.pack addr) of
 --                     Nothing -> fail $ "Conversion of address to AlonzoAddress failed: "++addr
 --                     Just aie -> pure aie
 --           utxos <- queryUtxosOf ctx (AddressModal addr )
@@ -321,7 +321,7 @@ where
 --           addr <- getCurrentSkey <&> flip  skeyToAddrInEra (getNetworkId ctx)
 --           putStrLn $ "Wallet Address :  " ++ T.unpack (serialiseAddress addr)
 --           pure addr
---         else case deserialiseAddress (AsAddressInEra AsAlonzoEra) (T.pack addr) of
+--         else case deserialiseAddress (AsAddressInEra AsAlonzo) (T.pack addr) of
 --                 Nothing -> fail $ "Conversion of address to AlonzoAddress failed: "++addr
 --                 Just aie -> pure aie
 --       utxos <- queryUtxosOf ctx (AddressModal addr)

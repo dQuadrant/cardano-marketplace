@@ -18,8 +18,8 @@ import Cardano.Api
     AddressInEra (AddressInEra),
     AsType (AsAddressAny, AsAddressInEra, AsPaymentKey, AsSigningKey),
     AssetId (AdaAssetId, AssetId),
-    BabbageEra,
-    CardanoEra (BabbageEra),
+    AlonzoEra,
+    CardanoEra (AlonzoEra),
     CardanoMode,
     IsCardanoEra,
     Key,
@@ -57,12 +57,12 @@ import Cardano.Api
   )
 import Cardano.Api.Shelley (Address (ShelleyAddress), Lovelace (Lovelace), Quantity (Quantity), fromPlutusData, toShelleyAddr)
 import Cardano.Kuber.Api
-import Cardano.Kuber.Data.Parsers (parseAssetId, parseAssetIdText, parseAssetNQuantity, parseScriptData)
+import Cardano.Kuber.Data.Parsers (parseAssetId, parseAssetNQuantity, parseScriptData)
 import Cardano.Kuber.Util (addrInEraToPkh, getDefaultSignKey, queryUtxos, readSignKey, skeyToAddr, skeyToAddrInEra)
 import qualified Cardano.Ledger.Address as Shelley
 import Cardano.Ledger.Crypto (StandardCrypto)
 import Cardano.Marketplace.Common.ConsoleWritable (ConsoleWritable (toConsoleText))
-import Cardano.Marketplace.V1.Core (buyToken, marketAddressShelley, marketScriptAddr, placeOnMarket, signAndSubmitTxBody)
+import Cardano.Marketplace.V1.Core (buyToken, marketAddressShelley, marketScriptAddr, signAndSubmitTxBody)
 import Cardano.Marketplace.V1.RequestModels
 import Cardano.Marketplace.V1.ServerRuntimeContext (RuntimeContext (RuntimeContext), resolveContext)
 import Control.Concurrent (MVar, forkIO, killThread, newMVar, putMVar, takeMVar, threadDelay, withMVar)
@@ -104,13 +104,13 @@ testTokensStr = "fe0f87df483710134f34045b516763bad1249307dfc543bc56a9e738.testto
 
 defaultNoOfWallets = 1
 
-getVasilChainInfo :: IO DetailedChainInfo
-getVasilChainInfo = do
+getChainInfo :: IO DetailedChainInfo
+getChainInfo = do
   sockEnv <- try $ getEnv "CARDANO_NODE_SOCKET_PATH"
   socketPath <- case sockEnv of
     Left (e::SomeException) -> error "Socket File is Missing: Set environment variable CARDANO_NODE_SOCKET_PATH"
     Right s -> pure s
-  let networkId = Testnet (NetworkMagic 9)
+  let networkId = Testnet (NetworkMagic 1097911063)
       connectInfo = ChainConnectInfo $ localNodeConnInfo networkId socketPath
   withDetails connectInfo
 
@@ -128,7 +128,7 @@ main = do
   let noOfWallets = fromMaybe defaultNoOfWallets maybeNoOfWallets
       requiredWallets = noOfWallets * 3
 
-  dcInfo <- getVasilChainInfo
+  dcInfo <- getChainInfo
 
   let shouldSplit = not (null args) && head args == "split"
   -- Run Market operations if the second argument is run market with head args as split
@@ -146,8 +146,8 @@ main = do
       else if shouldMergeOnly then do
         mergeUtxosOfWallets dcInfo wallets
       else do
-        testAsset <- parseAssetIdText $ T.pack testTokensStr
-        fundedSignKey <- readSignKey "/home/krunx/.cardano/default.skey"
+        testAsset <- parseAssetId $ T.pack testTokensStr
+        fundedSignKey <- readSignKey "/home/krunx/.cardano/default2.skey"
 
         -- printUtxoOfWallet dcInfo fundedSignKey
 
@@ -185,7 +185,7 @@ setupWallets wallets dcInfo testAssetId fundedSignKey = do
   let utxoList = Map.toList utxoMap
       addrValueMap =
         foldl
-          ( \newMap utxo@(_, TxOut aie (TxOutValue _ newValue) _ _) ->
+          ( \newMap utxo@(_, TxOut aie (TxOutValue _ newValue) _) ->
               let addr = toShelleyAddr aie
                in case Map.lookup addr newMap of
                     Nothing -> Map.insert addr newValue newMap
@@ -218,7 +218,7 @@ setupWallets wallets dcInfo testAssetId fundedSignKey = do
 
   pure wallets
   where
-    fundWallets :: ChainInfo v => v -> [AddressInEra BabbageEra] -> SigningKey PaymentKey -> IO ()
+    fundWallets :: ChainInfo v => v -> [AddressInEra AlonzoEra] -> SigningKey PaymentKey -> IO ()
     fundWallets dcInfo walletAddrs fundedSignKey = do
       let fundAddr = getAddrEraFromSignKey dcInfo fundedSignKey
           utxoValue = valueFromList [(AdaAssetId, Quantity 100_000_000), (testAssetId, Quantity 1000)]
@@ -237,7 +237,7 @@ setupWallets wallets dcInfo testAssetId fundedSignKey = do
       putStrLn "Wait for funds to appear on wallet."
       pollForTxId dcInfo firstAddrAny txHash
 
-    fundWalletsWithAdaOnly :: ChainInfo v => v -> [AddressInEra BabbageEra] -> SigningKey PaymentKey -> IO ()
+    fundWalletsWithAdaOnly :: ChainInfo v => v -> [AddressInEra AlonzoEra] -> SigningKey PaymentKey -> IO ()
     fundWalletsWithAdaOnly dcInfo walletAddrs fundedSignKey = do
       let fundAddr = getAddrEraFromSignKey dcInfo fundedSignKey
           utxoValue = valueFromList [(AdaAssetId, Quantity 100_000_000)]
@@ -361,7 +361,7 @@ performMarketBench dcInfo noOfWallets wallets testAsset fundedSignKey = do
       printAlreadyCalculatedDiffInSecAtomic "\n Average Time taken by each wallet set on performing whole market cycle " averageTime atomicPutStrLn
 
   where
-    -- loopedPerformMarketOpetaion :: DetailedChainInfo -> AssetId -> Int -> Market -> ([Wallet],[Wallet],[Wallet]) -> (String -> IO ()) -> (String -> IO ()) -> Wallet -> MarketUTxOState -> AddressAny -> (AddressAny -> IO (UTxO BabbageEra)) -> IO Int64
+    -- loopedPerformMarketOpetaion :: DetailedChainInfo -> AssetId -> Int -> Market -> ([Wallet],[Wallet],[Wallet]) -> (String -> IO ()) -> (String -> IO ()) -> Wallet -> MarketUTxOState -> AddressAny -> (AddressAny -> IO (UTxO AlonzoEra)) -> IO Int64
     -- loopedPerformMarketOpetaion dcInfo testAsset index market walletsTuples atomicPutStrLn atomicPutStr fundedSignKey marketState marketAddrAny atomicQueryUtxos = do
     --   result <- try (performMarketOperation dcInfo testAsset index market walletsTuples atomicPutStrLn atomicPutStr fundedSignKey marketState marketAddrAny atomicQueryUtxos) :: IO (Either SomeException Int64)
     --   case result of
@@ -387,7 +387,7 @@ performMarketOperation ::
   SigningKey PaymentKey ->
   MarketUTxOState ->
   AddressAny ->
-  (AddressAny -> IO (UTxO BabbageEra)) ->
+  (AddressAny -> IO (UTxO AlonzoEra)) ->
   IO (Int64,(Integer,String),(Integer,String),(Integer,String),(Integer,String),Int,Int,Int,Int)
 performMarketOperation dcInfo testAsset index market walletTuples atomicPutStrLn atomicPutStr fundedSignKey marketState marketAddrAny atomicQueryUtxos = do
   let (priSeller, priBuyer, secBuyer) = getSingleWallets index walletTuples
@@ -521,7 +521,7 @@ performSingleSale ::
   (AssetId, Quantity) ->
   Int ->
   ([Char] -> IO a3) ->
-  (AddressAny -> IO (UTxO BabbageEra)) ->
+  (AddressAny -> IO (UTxO AlonzoEra)) ->
   IO (TxResponse, TxId, ScriptData)
 performSingleSale dcInfo testAsset isSecondary market sellerWallet sReqParties cost index atomicPutStrLn atomicQueryUtxos = do
   let model =
@@ -537,7 +537,7 @@ performSingleSale dcInfo testAsset isSecondary market sellerWallet sReqParties c
   directSaleDatum <- constructDirectSaleDatum sellerPkh model
 
   UTxO utxoMap <- atomicQueryUtxos sellerAddrAny
-  let firstUtxoHavingGt4AdaOnly@(UTxO filteredUMap) = UTxO $ fst $ Map.splitAt 1 $ Map.filter (\(TxOut _ (TxOutValue _ v) _ _) -> case valueToLovelace v of
+  let firstUtxoHavingGt4AdaOnly@(UTxO filteredUMap) = UTxO $ fst $ Map.splitAt 1 $ Map.filter (\(TxOut _ (TxOutValue _ v) _) -> case valueToLovelace v of
         Just (Lovelace l) -> l > 5
         Nothing -> False) utxoMap
       collateralTxIn = head $ Map.keys filteredUMap
@@ -590,7 +590,7 @@ placeOnMarket' dcInfo txOperations wallet = do
 --   (String -> IO ()) ->
 --   (String -> IO ()) ->
 --   String ->
---   (AddressAny -> IO (UTxO AlonzoEra)) ->
+--   (AddressAny -> IO (UTxO Alonzo)) ->
 --   (v -> IO DetailedChainInfo) ->
 --   IO (SigningKey PaymentKey, AddressAny, TxId)
 performBuy dcInfo testAsset market (_, sellTxId, datum) buyerWallet prevSellerWallet index atomicPutStrLn atomicPutStr buyType atomicQueryUtxos marketState marketAddrAny = do
@@ -630,7 +630,7 @@ performSingleBuy ::
   TxId ->
   ScriptData ->
   Market ->
-  (AddressAny -> IO (UTxO BabbageEra)) ->
+  (AddressAny -> IO (UTxO AlonzoEra)) ->
   IO (SigningKey PaymentKey, AddressAny, TxResponse)
 performSingleBuy dcInfo buyerWallet tokenAsset sellTxId datum market atomicQueryUtxos= do
   let buyerAddr = getAddrEraFromSignKey dcInfo buyerWallet
