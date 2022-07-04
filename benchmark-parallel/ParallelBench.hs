@@ -100,7 +100,7 @@ import System.Random (newStdGen)
 import System.Random.Shuffle (shuffle')
 import Text.Read (readMaybe)
 
-testTokensStr = "fe0f87df483710134f34045b516763bad1249307dfc543bc56a9e738.testtoken"
+testTokensStr = "d81081613c3d56c732f9364a55eeaf55ae3eedd7bd5d338e64f5a115.testtoken"
 
 defaultNoOfWallets = 1
 
@@ -110,7 +110,7 @@ getVasilChainInfo = do
   socketPath <- case sockEnv of
     Left (e::SomeException) -> error "Socket File is Missing: Set environment variable CARDANO_NODE_SOCKET_PATH"
     Right s -> pure s
-  let networkId = Testnet (NetworkMagic 9)
+  let networkId = Testnet (NetworkMagic 1097911063)
       connectInfo = ChainConnectInfo $ localNodeConnInfo networkId socketPath
   withDetails connectInfo
 

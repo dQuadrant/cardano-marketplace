@@ -761,14 +761,13 @@ mergeUtxosOfWallets ctx wallets = do
     mergeUtxos ctx utxos wallet addrEra addrAny atomicQueryUtxos
 
 mergeUtxos ctx utxos signKey addrEra addrAny atomicQueryUtxos = do
-  let balance = utxoSum utxos <> negateValue (lovelaceToValue $ Lovelace 6_000_000)
-      payOperations = txPayTo addrEra balance
+  let payOperations = txPayTo addrEra (lovelaceToValue $ Lovelace 6_000_000)
+              <> txPayTo addrEra (lovelaceToValue $ Lovelace 6_000_000)
+              <> txPayTo addrEra (lovelaceToValue $ Lovelace 6_000_000)
+      
       txOperations = payOperations
           <> txConsumeUtxos utxos
           <> txWalletAddress addrEra
-
-  -- print noOfSplits
-  -- printTxBuilder txOperations
 
   txBodyE <- loopedTxBuilderToTxBodyIo txOperations
   txBody <- case txBodyE of
