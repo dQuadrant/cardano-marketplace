@@ -13,7 +13,7 @@ import Cardano.Api.Shelley
 import Cardano.Api
 import Cardano.Kuber.Api
 import Cardano.Kuber.Data.Parsers
-  ( parseAssetIdText,
+  ( 
     parseAssetNQuantity,
     parseScriptData,
     parseValueText, scriptDataParser, parseSignKey
