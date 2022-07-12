@@ -38,15 +38,16 @@ import qualified Data.Text.IO as T
 
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TL
-import Plutus.Contracts.V1.SimpleMarketplace (SimpleSale (..), simpleMarketplacePlutus)
-import qualified Plutus.Contracts.V1.SimpleMarketplace as SMP
-import Plutus.V1.Ledger.Api (ToData (toBuiltinData))
+import Plutus.Contracts.V2.SimpleMarketplace (SimpleSale (..), simpleMarketplacePlutusV2)
+import qualified Plutus.Contracts.V2.SimpleMarketplace as SMP
+import Plutus.V1.Ledger.Api (ToData (toBuiltinData), dataToBuiltinData)
 import qualified Plutus.V1.Ledger.Api as Plutus
 import System.Console.CmdArgs
 import System.Directory (doesFileExist, getCurrentDirectory, getDirectoryContents)
 import Cardano.Kuber.Console.ConsoleWritable
 import Data.Text.Encoding (encodeUtf8)
 import System.Directory.Internal.Prelude (getEnv)
+import Plutus.V2.Ledger.Api (fromData, FromData (fromBuiltinData))
 
 data Modes
   = Cat -- Cat script binary
@@ -57,13 +58,13 @@ data Modes
       }
   | Buy -- Buy item from marketplace
       { txin :: Text, -- txin to buy from marketplace
-        datum :: String, -- datum to buy from marketplace
+        datum :: Maybe String, -- datum to buy from marketplace
         signingKeyFile :: String
 
       }
   | Withdraw -- Withdraw by the seller placed item from the marketplace
       { txin :: Text,
-        datum :: String,
+        datum :: Maybe String,
         signingKeyFile :: String
       }
   | Ls -- List utxos for market
@@ -97,13 +98,13 @@ runCli = do
             &= help "Place an asset on sale Eg. sell 8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94.Token \"2000000\"",
           Buy
             { txin = "" &= typ "TxIn" &= argPos 0,
-              datum = "" &= typ "Datum" &= argPos 1,
+              datum = Nothing &= typ "Datum",
               signingKeyFile = def &= typ "FilePath'" &= name "signing-key-file"
             }
             &= help "Buy an asset on sale after finiding out txIn from market-cli ls.  Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'",
           Withdraw
             { txin = "" &= typ "TxIn'" &= argPos 0,
-              datum = "" &= typ "Datum'" &= argPos 1,
+              datum = Nothing &= typ "Datum'" &= argPos 1,
               signingKeyFile = def &= typ "'FilePath'" &= name "signing-key-file"
             }
             &= help "Withdraw an asset by seller after finiding out txIn from market-cli ls. Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'",
@@ -133,12 +134,23 @@ runCli = do
   let marketAddr = marketAddressShelley (getNetworkId chainInfo)
   case op of
     Ls -> do
-      utxos <- queryMarketUtxos chainInfo marketAddr
-      putStrLn $ "Market Address : " ++ T.unpack (serialiseAddress marketAddr)
-      putStrLn $ toConsoleText "  " utxos
-    Cat -> do
+      (UTxO uMap) <- queryMarketUtxos chainInfo marketAddr
+      let vals = mapMaybe (\(txin,TxOut addr (TxOutValue _ val) datum _) -> case datum of
+            TxOutDatumNone -> Nothing
+            TxOutDatumHash sdsie ha -> Nothing
+            TxOutDatumInline rtisidsie sd -> case fromBuiltinData $ dataToBuiltinData  $ toPlutusData sd of
+              Nothing -> Nothing
+              Just (SimpleSale artist cost) -> pure (txin,cost,val)  ) (Map.toList uMap)
 
-      let scriptInCbor = serialiseToCBOR simpleMarketplacePlutus
+      putStrLn $ "Market Address : " ++ T.unpack (serialiseAddress marketAddr)
+      putStrLn "Market UTXOs:"
+      putStrLn $ intercalate "\n  "  (map (\(txin,cost,val)-> T.unpack (renderTxIn txin)  ++ "\t [Cost " ++ show (fromInteger cost/1e6) ++ "Ada] " ++  showVal val) vals)
+      where
+        showVal val= intercalate " +" $ map (\(AssetId pol (AssetName a),Quantity v) -> (if v>1 then show v ++ " " else "") ++ T.unpack (serialiseToRawBytesHexText pol) ++ "." ++ BS8.unpack a ) filtered
+          where
+            filtered= filter (\(a,v)-> a /= AdaAssetId )  $ valueToList val
+    Cat -> do
+      let scriptInCbor = serialiseToCBOR simpleMarketplacePlutusV2
       putStrLn $ toHexString scriptInCbor
     Sell itemStr cost sKeyFile-> do
       sKey <- getSignKey sKeyFile
@@ -158,24 +170,16 @@ runCli = do
     CreateCollateral sKeyFile-> do
       skey <- getSignKey sKeyFile
       let addrInEra = getAddrEraFromSignKey chainInfo skey
-          txOperations = txPayTo addrInEra (lovelaceToValue $ Lovelace 5_000_000) <> txWalletAddress addrInEra
+      utxosE <- queryAddressInEraUtxos (getConnectInfo chainInfo) [addrInEra]
+      utxos <- case utxosE of
+        Left fe -> error $ "Error querying utxos: " <> show fe
+        Right utxos -> pure utxos
+      let txOperations = txPayTo addrInEra (lovelaceToValue $ Lovelace 60_000_000) <> txWalletAddress addrInEra <> txConsumeUtxos utxos
       submitTransaction chainInfo txOperations skey
     Balance sKeyFile-> do
       skey <- getSignKey sKeyFile
       let addrInEra = getAddrEraFromSignKey chainInfo skey
       utxosE <- queryAddressInEraUtxos (getConnectInfo chainInfo) [addrInEra]
-      case utxosE of 
+      case utxosE of
         Left fe -> throwIO $ FrameworkError ParserError (show fe)
-        Right utxos -> putStrLn $ toConsoleText " " utxos
-
-
-getSignKey :: [Char] -> IO (SigningKey PaymentKey)
-getSignKey skeyfile =
-  getPath >>=  T.readFile  >>= parseSignKey
-  where
-  getPath = if not (null skeyfile) && head skeyfile == '~'
-                          then (do
-                            home <- getEnv "HOME"
-                            pure  $ home ++  drop 1 skeyfile
-                            )
-                          else pure skeyfile
+        Right utxos -> putStrLn $ jsonEncodeUtxos utxos
