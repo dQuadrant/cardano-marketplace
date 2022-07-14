@@ -143,7 +143,7 @@ runCli = do
               Just (SimpleSale artist cost) -> pure (txin,cost,val)  ) (Map.toList uMap)
 
       putStrLn $ "Market Address : " ++ T.unpack (serialiseAddress marketAddr)
-      putStrLn "Market UTXOs:"
+      putStr "Market UTXOs:\n  "
       putStrLn $ intercalate "\n  "  (map (\(txin,cost,val)-> T.unpack (renderTxIn txin)  ++ "\t [Cost " ++ show (fromInteger cost/1e6) ++ "Ada] " ++  showVal val) vals)
       where
         showVal val= intercalate " +" $ map (\(AssetId pol (AssetName a),Quantity v) -> (if v>1 then show v ++ " " else "") ++ T.unpack (serialiseToRawBytesHexText pol) ++ "." ++ BS8.unpack a ) filtered

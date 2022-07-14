@@ -1,14 +1,15 @@
 Running the cli
 =================
+
 1. Clone this repositroy. And build the project.
 
-```bash
-git clone git@github.com:dquadrant/cardano-marketplace.git
-cd cardano-marketplace
-cabal update
-cabal build
-```
-3. Now you can run the cli commands
+    ```bash
+    git clone git@github.com:dquadrant/cardano-marketplace.git
+    cd cardano-marketplace
+    cabal update
+    cabal build
+    ```
+2. Now you can run the cli commands
 
 **Note** before using market-cli, You should be failiar with  `cardano-cli`  and be able to at last  following : 
 - generate signing key
@@ -54,16 +55,17 @@ cabal run market-cli ls
 Example output:
 
 ```
-Market Address : addr_test1wzd8ssap4l5rge4aq59fh92gh7ey2zghxa6mzrpju38tw6g4p8ym9
-  eba7d070d45a90402b8f289ba5324bc425fe87c25d98c7bfaccac2802e1da7fa#0	:	2 Ada +1 fe0f87df483710134f34045b516763bad1249307dfc543bc56a9e738.testtoken
+Market Address : addr_test1wqsewsqrurhxer8wx598p7naf9mmcwhr2jchkq6srtf78hctj0p2r
+Market UTXOs:
+  5e1f2e5a8844040a892b30135c667fa9ea74df41dc278bd9195c4efdf6ea19c3#0       [Cost 10.0Ada] f75cdb5143473e94ef9d11221909c0d69187e4ac97039474fa526091.token1
+  65bc523e93c22ffe8f104707505f48633a26f8efcd1f5c99febfbadf67a829f3#0     [Cost 20.0Ada] f75cdb5143473e94ef9d11221909c0d69187e4ac97039474fa526091.token2
 ```
 
 Note the string containig #0 in format txId#txIndex copy that as txIn
 
-Copy the datum printed from the sell output and execute the following command.
 
 ```bash
-cabal run market-cli buy '<txIn>' '<datum>'
+cabal run market-cli buy '<txIn>' 
 ```
 
 Example
