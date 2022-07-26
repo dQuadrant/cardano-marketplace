@@ -68,7 +68,3 @@ RUN ghcup config set downloader Wget \
   &&  ghcup install cabal ${CABAL_VERSION} \
   && ghcup set ghc
 RUN ghcup install hls ${HLS_VERSION}
-
-
-
-

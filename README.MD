@@ -1,7 +1,7 @@
 Cardano Simple Marketplace
 ==========================
 
-Webapp and cli for marketplace in cardano testnet.
+Webapp and cli for marketplace in cardano testnet using Kuber libarary.
 
 #### marketplace-cli
 This  component is command line tool for interacting with the marketplace. Cli used kuber library, which handles transaction creation and submission to node 
@@ -18,8 +18,6 @@ Frontend vue project is located [here](./frontend).
 
 
 
-
-
 ### Project structure
 
 - **marketplace-plutus/** - contains plutus contract code for simple marketplace
@@ -27,6 +25,10 @@ Frontend vue project is located [here](./frontend).
 - **marketplace-core/** - contains marketplace core functions and  interaction with kuber library
 - **frontend/** - contains client side for marketplace
 
+
+### IDE Setup
+ 
+VS code  with devcontainer enabled is the fastest way to get started with the project. To Use the cli, cardano-node should also be installed and running.
 
 ## Usage:
 - [Using frontend](./frontend) : (Preferred Way) Its easier to get started.

@@ -1,10 +1,10 @@
 {
   "name": "Cardano & Plutus",
-
+  "image": "dquadrant/cardano-devcontainer:1.35.0",
   // Update the 'dockerfile' property if you aren't using the standard 'Dockerfile' filename.
-  "build": {
-          "dockerfile": "Dockerfile"
-  },
+  // "build": {
+  //         "dockerfile": "Dockerfile"
+  // },
 
 	// Configure tool-specific properties.
 	"customizations": {
@@ -18,7 +18,7 @@
         "haskell.manageHLS": "GHCup"
       }
 		}
-	},
+	}
 
   // Use 'forwardPorts' to make a list of ports inside the container available locally.
   // "forwardPorts": [],
