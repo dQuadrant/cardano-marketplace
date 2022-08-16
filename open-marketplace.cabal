@@ -23,7 +23,7 @@ maintainer:         Sireto
 
 library marketplace-plutus
   exposed-modules:
-    Plutus.Contracts.V1.Marketplace
+    Plutus.Contracts.V2.Marketplace
     Plutus.Contracts.V1.Auction
   hs-source-dirs: marketplace-plutus
   build-depends:
@@ -78,12 +78,16 @@ library marketplace-core
     , mtl
     , kuber
 
-executable  marketplace-app
+executable  market-app
   main-is:  Main.hs
   hs-source-dirs: marketplace-app
   build-depends:
       base -any
     , marketplace-core
+    , kuber
+    , cardano-api
+    , serialise
+    , marketplace-plutus
 
 benchmark bench-parallel
   type:                 exitcode-stdio-1.0

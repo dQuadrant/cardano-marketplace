@@ -32,7 +32,7 @@ import PlutusTx.Prelude
 -- import Prelude (Show)
 -- import qualified Data.ByteString.Short as SBS
 -- import qualified Data.ByteString.Lazy  as LBS
--- import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV1)
+-- import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV2)
 -- import Codec.Serialise
 
 
@@ -383,6 +383,6 @@ type Percent = Integer
 -- auctionScriptSBS :: Auction -> SBS.ShortByteString
 -- auctionScriptSBS auction =  SBS.toShort . LBS.toStrict $ serialise $ auctionScript auction
 
--- auctionScriptSerialised :: Auction -> PlutusScript PlutusScriptV1
+-- auctionScriptSerialised :: Auction -> PlutusScript PlutusScriptV2
 -- auctionScriptSerialised auction = PlutusScriptSerialised $ auctionScriptSBS auction
 

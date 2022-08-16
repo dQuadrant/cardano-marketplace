@@ -26,8 +26,8 @@ where
 -- import Data.Char (toLower)
 -- import Cardano.Api.Byron (Address(ByronAddress))
 -- import qualified Cardano.Ledger.BaseTypes as Shelley (Network(..))
--- import Plutus.Contracts.V1.Marketplace (marketScript, DirectSale (..))
--- import qualified Plutus.Contracts.V1.Marketplace as DirectSale
+-- import Plutus.Contracts.V2.Marketplace (marketScript, DirectSale (..))
+-- import qualified Plutus.Contracts.V2.Marketplace as DirectSale
 -- import qualified Plutus.Contracts.V1.Auction as Auction
 -- import Codec.Serialise (serialise)
 -- import Cardano.Ledger.Alonzo.Tx (TxBody(txfee))

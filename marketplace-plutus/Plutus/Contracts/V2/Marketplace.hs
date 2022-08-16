@@ -16,7 +16,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
-module Plutus.Contracts.V1.Marketplace
+module Plutus.Contracts.V2.Marketplace
 where
 
 import GHC.Generics (Generic)
@@ -27,15 +27,17 @@ import  PlutusTx hiding( txOutDatum)
 import Data.Aeson (FromJSON, ToJSON)
 import qualified PlutusTx.AssocMap as AssocMap
 import qualified Data.Bifunctor
-import Plutus.V1.Ledger.Api
-import Plutus.V1.Ledger.Value ( assetClassValue, geq, AssetClass(..),CurrencySymbol(..),TokenName(..), assetClassValueOf )
-import Plutus.V1.Ledger.Contexts (valuePaidTo, ownHash, valueLockedBy, findOwnInput, findDatum,txSignedBy)
-import Plutus.V1.Ledger.Address (toPubKeyHash, scriptHashAddress, toValidatorHash)
-import Plutus.V1.Ledger.Scripts (getScriptHash, ScriptHash (ScriptHash))
+
 import qualified Data.ByteString.Short as SBS
 import qualified Data.ByteString.Lazy  as LBS
-import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV1)
-import Codec.Serialise
+import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV2, PlutusScriptV2)
+import Codec.Serialise ( serialise )
+
+import Plutus.V2.Ledger.Api hiding (txOutDatum)
+import Plutus.V2.Ledger.Contexts (valueLockedBy, ownHash, findOwnInput, valuePaidTo, txSignedBy, findDatum)
+import Plutus.V1.Ledger.Value (AssetClass (AssetClass), geq, assetClassValue, assetClassValueOf)
+import Plutus.V1.Ledger.Address (toValidatorHash, scriptHashAddress)
+import qualified Plutus.V2.Ledger.Api as PlutusV2
 
 ---------------------------------------------------------------------------------------------
 ----- Foreign functions 
@@ -129,8 +131,11 @@ ownInputDatum ctx = do
 {-# INLINABLE txOutDatum #-}
 txOutDatum::  FromData a =>  ScriptContext ->TxOut -> Maybe a
 txOutDatum ctx txOut =do
-            dHash<-txOutDatumHash txOut
-            datum<-findDatum dHash (scriptContextTxInfo ctx)
+            let datumOrDHash = PlutusV2.txOutDatum txOut
+            datum <- case datumOrDHash of
+              NoOutputDatum -> traceError "No output datum attached to this output."
+              OutputDatumHash dh -> findDatum dh (scriptContextTxInfo ctx)
+              OutputDatum da -> pure da
             PlutusTx.fromBuiltinData $ getDatum datum
 
 -- given txOut get resolve it to our type and return it with the txout
@@ -157,7 +162,7 @@ allowSingleScript:: ScriptContext  -> Bool
 allowSingleScript ctx@ScriptContext{scriptContextTxInfo=TxInfo{txInfoInputs}} =
     all checkScript txInfoInputs
   where
-    checkScript (TxInInfo _ (TxOut address _ _))=
+    checkScript (TxInInfo _ (TxOut address _ _ _))=
       case addressCredential  address of
         ScriptCredential vhash ->  traceIfFalse  "Reeming other Script utxo is Not allowed" (thisScriptHash == vhash)
         _ -> True
@@ -168,7 +173,7 @@ allScriptInputsCount:: ScriptContext ->Integer
 allScriptInputsCount ctx@(ScriptContext info purpose)=
     foldl (\c txOutTx-> c + countTxOut txOutTx) 0 (txInfoInputs  info)
   where
-  countTxOut (TxInInfo _ (TxOut addr _ _)) = if isJust (toValidatorHash addr) then 1 else 0
+  countTxOut (TxInInfo _ (TxOut addr _ _ _)) = if isJust (toValidatorHash addr) then 1 else 0
 
 
 ----------------------------------------------------------------------------------------------
@@ -299,5 +304,5 @@ marketScript market =  unValidatorScript  (marketValidator market)
 marketScriptSBS :: Market -> SBS.ShortByteString
 marketScriptSBS market =  SBS.toShort . LBS.toStrict $ serialise $ marketScript market
 
-marketScriptSerialised :: Market -> PlutusScript PlutusScriptV1
+marketScriptSerialised :: Market -> PlutusScript PlutusScriptV2
 marketScriptSerialised market = PlutusScriptSerialised $ marketScriptSBS market

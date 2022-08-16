@@ -181,18 +181,18 @@ data SellReqModel = SellReqModel {
 
 } deriving ( Typeable)
 
-instance FromJSON SellReqModel  where
-  parseJSON  = \case
-    Object o-> do
-                SellReqModel
-                  <$> o .: "asset"
-                  <*> (o .:? "parties" .!= [])
-                  <*> o .:  "cost"
-                  <*> (o .:? "isSecondary" .!= False)
-              where
-                unAddress (Just (AddressModal addr))= Just addr
-                unAddress _ = Nothing
-    _        -> fail "Expecting SaleRequest Object"
+-- instance FromJSON SellReqModel  where
+--   parseJSON  = \case
+--     Object o-> do
+--                 SellReqModel
+--                   <$> o .: "asset"
+--                   <*> (o .:? "parties" .!= [])
+--                   <*> o .:  "cost"
+--                   <*> (o .:? "isSecondary" .!= False)
+--               where
+--                 unAddress (Just (AddressModal addr))= Just addr
+--                 unAddress _ = Nothing
+--     _        -> fail "Expecting SaleRequest Object"
 
 data SellReqBundle = SellReqBundle {
   sReqContext :: TxContextAddressesReq,
@@ -200,16 +200,16 @@ data SellReqBundle = SellReqBundle {
   sReqTopLevel :: Bool
 }
 
-instance FromJSON SellReqBundle where
-  parseJSON v@(Object o) = do
-      sales <- o .:? "sales"
-      context <- addressContextParser o
-      case sales of
-        Nothing -> do
-          sale <- parseJSON v
-          pure $ SellReqBundle context [sale] True
-        Just v ->  pure $ SellReqBundle  context v False
-  parseJSON  _  = fail "Expecting SaleRequest Object"
+-- instance FromJSON SellReqBundle where
+--   parseJSON v@(Object o) = do
+--       sales <- o .:? "sales"
+--       context <- addressContextParser o
+--       case sales of
+--         Nothing -> do
+--           sale <- parseJSON v
+--           pure $ SellReqBundle context [sale] True
+--         Just v ->  pure $ SellReqBundle  context v False
+--   parseJSON  _  = fail "Expecting SaleRequest Object"
 
 
 
@@ -517,13 +517,13 @@ data PaymentUtxoModel = PaymentUtxoModel {
   deductFees :: Bool, -- pay this address paymentValue -txFee.
   addChange :: Bool
 }
-instance FromJSON PaymentUtxoModel where
-  parseJSON (Object o) = PaymentUtxoModel
-                          <$> (o .: "values" <&> map unCostModal <&> valueFromList )
-                          <*> (o .: "receiverAddress" <&> unAddressModal)
-                          <*> o .:? "deductFees" .!= False
-                          <*> o .:? "addChange"  .!=False
-  parseJSON _           =   fail "Expecting PaymentUtxo Object"
+-- instance FromJSON PaymentUtxoModel where
+--   parseJSON (Object o) = PaymentUtxoModel
+--                           <$> (o .: "values" <&> map unCostModal <&> valueFromList )
+--                           <*> (o .: "receiverAddress" <&> unAddressModal)
+--                           <*> o .:? "deductFees" .!= False
+--                           <*> o .:? "addChange"  .!=False
+--   parseJSON _           =   fail "Expecting PaymentUtxo Object"
 
 
 data PaymentReqModel = PaymentReqModel {
@@ -567,7 +567,7 @@ instance FromJSON SubmitTxModal where
 
 
 -- data AuctionResponse = AuctionResponse {
---   auctionResScript :: Cardano.Api.Shelley.PlutusScript PlutusScriptV1,
+--   auctionResScript :: Cardano.Api.Shelley.PlutusScript PlutusScriptV2,
 --   auctionResDatum :: ScriptData,
 --   auctionResAddress ::Cardano.Api.Shelley.Address ShelleyAddr ,
 --   auctionResParameter :: Auction
@@ -650,21 +650,21 @@ data BalanceResponse = BalanceResponse{
   utxos :: UTxO BabbageEra
 } deriving (Generic, Show,ToJSON)
 
-instance FromJSON AssetModal where
-  parseJSON  v=  case v of
-      Object o  -> do
-        policy <- (o .: "policyId") ::Parser T.Text
-        name   <- (o .: "name") :: Parser T.Text
-        asset <-parseAssetId policy name
-        pure $ AssetModal asset
-      String s  -> if T.null s
-                    then pure $ AssetModal AdaAssetId
-                    else case T.split  (== '.') s of
-                      [policyText,assetText] -> parseAssetId policyText assetText <&> AssetModal
-                      _                      -> formatError
-      _           -> formatError
-      where
-        formatError=fail "Asset id must be object {\"policyId\":\"PolicyHexStr\",\"tokenName\":\"tokenNameStr\"} or of format \"policyHex.assetName\""
+-- instance FromJSON AssetModal where
+--   parseJSON  v=  case v of
+--       Object o  -> do
+--         policy <- (o .: "policyId") ::Parser T.Text
+--         name   <- (o .: "name") :: Parser T.Text
+--         asset <-parseAssetId policy name
+--         pure $ AssetModal asset
+--       String s  -> if T.null s
+--                     then pure $ AssetModal AdaAssetId
+--                     else case T.split  (== '.') s of
+--                       [policyText,assetText] -> parseAssetId policyText assetText <&> AssetModal
+--                       _                      -> formatError
+--       _           -> formatError
+--       where
+--         formatError=fail "Asset id must be object {\"policyId\":\"PolicyHexStr\",\"tokenName\":\"tokenNameStr\"} or of format \"policyHex.assetName\""
 
 instance ToJSON AssetModal where
    toJSON (AssetModal (AssetId policy name)) =object [ "policyId"  .= policy, "name"   .= name]
@@ -672,17 +672,17 @@ instance ToJSON AssetModal where
 
 
 
-instance FromJSON CostModal where
-  parseJSON (Object o ) = do
-      policy <- o .: "policyId"
-      name   <- o .: "name"
-      asset  <- parseAssetId policy name
-      value <- o .: "amount"
-      pure $ CostModal (asset,Quantity value)
-  parseJSON (Number n) = do
-    let v = round n
-    pure $ CostModal (AdaAssetId ,Quantity v)
-  parseJSON _ = fail "Expected CostModal object"
+-- instance FromJSON CostModal where
+--   parseJSON (Object o ) = do
+--       policy <- o .: "policyId"
+--       name   <- o .: "name"
+--       asset  <- parseAssetId policy name
+--       value <- o .: "amount"
+--       pure $ CostModal (asset,Quantity value)
+--   parseJSON (Number n) = do
+--     let v = round n
+--     pure $ CostModal (AdaAssetId ,Quantity v)
+--   parseJSON _ = fail "Expected CostModal object"
 
 
 instance FromJSON UtxoIdModal where

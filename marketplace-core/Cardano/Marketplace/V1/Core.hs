@@ -57,7 +57,7 @@ import qualified Data.Set as Set
 import qualified Data.Foldable as Foldable
 import qualified Cardano.Ledger.Alonzo.TxBody as AlonzoBody
 import Plutus.V1.Ledger.Scripts (unValidatorScript)
-import Plutus.Contracts.V1.Marketplace
+import Plutus.Contracts.V2.Marketplace
 -- import Plutus.Contracts.V1.Auction ( auctionValidator, Auction (..),auctionScript, AuctionRedeemer (Bid,ClaimBid), auctionHundredPercent, aPaymentReceiversValue)
 import qualified Plutus.Contracts.V1.Auction  as Auction
 import Plutus.V1.Ledger.Interval
@@ -128,9 +128,10 @@ payToAddress dcInfo (PaymentReqModel sKey preqReceivers mPayer mChangeAddr sendE
 --   executeSubmitTx (getConnectInfo ctx) tx'
 --   pure $ TxResponse tx' []
 
+marketScriptAddr :: ChainInfo v => v -> Market -> AddressInEra BabbageEra
 marketScriptAddr dcInfo market = makeShelleyAddressInEra
                        (getNetworkId dcInfo)
-                       (PaymentCredentialByScript $ hashScript $ PlutusScript PlutusScriptV1 $ marketScriptSerialised market)
+                       (PaymentCredentialByScript $ hashScript $ PlutusScript PlutusScriptV2 $ marketScriptSerialised market)
                        NoStakeAddress
 
 
@@ -554,9 +555,9 @@ unEither (Left a) = error $ "Left occured in unEither "
 
 getAddrAnyFromEra addrEra = fromMaybe (error "unexpected error converting address to another type") (deserialiseAddress AsAddressAny (serialiseAddress addrEra))
 
-buyToken :: DetailedChainInfo ->  Market -> BuyReqModel -> AddressInEra BabbageEra-> (AddressAny -> IO (UTxO BabbageEra))->IO TxResponse
+buyToken :: DetailedChainInfo ->  Market -> BuyReqModel -> AddressInEra BabbageEra-> (AddressAny -> IO (UTxO BabbageEra))->TxIn -> IO TxResponse
 buyToken  networkCtx market
-    (BuyReqModel context@(TxContextAddressesReq buyerWalletM _ _ _ _ _) mSellerDepositSkey mUtxo mAsset consumedData mCollateral) buyerAddr atomicQueryUtxos =do
+    (BuyReqModel context@(TxContextAddressesReq buyerWalletM _ _ _ _ _) mSellerDepositSkey mUtxo mAsset consumedData mCollateral) buyerAddr atomicQueryUtxos refScriptTxIn =do
   let conn=getConnectInfo  networkCtx
   let network=getNetworkId networkCtx
   let pParam= case networkCtx of { DetailedChainInfo _ _ param _ _ -> param }
@@ -597,7 +598,7 @@ buyToken  networkCtx market
   let buyerAddrAny = getAddrAnyFromEra buyerAddr
   UTxO utxoMap <- atomicQueryUtxos buyerAddrAny
   let firstUtxoHavingGt4AdaOnly@(UTxO filteredUMap) = UTxO $ fst $ Map.splitAt 1 $ Map.filter (\(TxOut _ (TxOutValue _ v) _ _) -> case valueToLovelace v of
-        Just (Lovelace l) -> l > 5
+        Just (Lovelace l) -> l > 4
         Nothing -> False) utxoMap
       collateralTxIn = head $ Map.keys filteredUMap
 
@@ -607,7 +608,7 @@ buyToken  networkCtx market
           coreOperations
         <> extraInputs
         <> mconcat partyPayments
-        <> txRedeemUtxo txin txout (ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV1) (PlutusScript PlutusScriptV1 $ marketScriptSerialised market)) consumedData (fromPlutusData $ PlutusTx.builtinDataToData $ toBuiltinData Buy) Nothing
+        <> txRedeemUtxoWithInlineDatumWithReferenceScript refScriptTxIn txin txout (fromPlutusData $ PlutusTx.builtinDataToData $ toBuiltinData Buy) Nothing
         <> txAddTxInCollateral collateralTxIn
         <> txWalletUtxos (UTxO otherUtxos)
 
@@ -660,10 +661,10 @@ marketAddressShelley :: Market -> NetworkId -> Address ShelleyAddr
 marketAddressShelley market network = makeShelleyAddress network scriptCredential NoStakeAddress
   where
     scriptCredential=PaymentCredentialByScript marketHash
-    marketScript= PlutusScript PlutusScriptV1  $ marketScriptPlutus market
+    marketScript= PlutusScript PlutusScriptV2  $ marketScriptPlutus market
     marketHash= hashScript   marketScript
 
-marketScriptPlutus :: Market -> PlutusScript PlutusScriptV1
+marketScriptPlutus :: Market -> PlutusScript PlutusScriptV2
 marketScriptPlutus market =PlutusScriptSerialised $ marketScriptBS market
   where
     marketScriptBS market = SBS.toShort . LBS.toStrict $ serialise $ marketScript market
@@ -675,10 +676,10 @@ marketAddressAny c market= toAddressAny $ marketAddressShelley market  (getNetwo
 -- auctionAddressShelley market network = makeShelleyAddress network scriptCredential NoStakeAddress
 --   where
 --     scriptCredential=PaymentCredentialByScript marketHash
---     marketScript= PlutusScript PlutusScriptV1  $ auctionScriptPlutus market
+--     marketScript= PlutusScript PlutusScriptV2  $ auctionScriptPlutus market
 --     marketHash= hashScript   marketScript
 
--- auctionScriptPlutus :: Auction -> PlutusScript PlutusScriptV1
+-- auctionScriptPlutus :: Auction -> PlutusScript PlutusScriptV2
 -- auctionScriptPlutus market =PlutusScriptSerialised $ auctionScriptBS market
 --   where
 --     auctionScriptBS market = SBS.toShort . LBS.toStrict $ serialise $ auctionScript market
@@ -714,11 +715,12 @@ queryScriptUtxo  ctx  addr  sData maybeAsset maybeUtxo  = do
       let _in=TxIn _id index
       in case Map.lookup  _in uMap of
         Nothing ->  returnError $  "Utxo not found : " ++ show _id ++ "#" ++ show index
-        Just to -> case to of
-          TxOut aie tov (TxOutDatumHash _ hash) _ -> if hash == hashScriptData sData
-              then pure (_in, to)
-              else returnError $  "Utxo DataHash mismatch. expecting : "++ show (hashScriptData sData) ++ "got " ++show hash
-          _  ->   returnError "Utxo Is Not Script Utxo or Data Hash is missing in it"
+        Just to -> pure (_in, to)
+          -- case to of
+          -- TxOut aie tov (TxOutDatumHash _ hash) _ -> if hash == hashScriptData sData
+          --     then pure (_in, to)
+          --     else returnError $  "Utxo DataHash mismatch. expecting : "++ show (hashScriptData sData) ++ "got " ++show hash
+          -- _  ->   returnError "Utxo Is Not Script Utxo or Data Hash is missing in it"
   where
     returnError m = Left m
     filterWithAsset ::AssetId   ->  TxOut CtxUTxO BabbageEra -> Bool

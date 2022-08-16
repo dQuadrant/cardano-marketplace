@@ -5,7 +5,7 @@ where
 import Data.Typeable
 import Data.Maybe
 import Data.Either
-import Plutus.Contracts.V1.Marketplace (Market(Market, mTreasury, mPrimarySaleFee, mSecondarySaleFee, mOperator, mVersion), marketValidator, marketHundredPercent)
+import Plutus.Contracts.V2.Marketplace (Market(Market, mTreasury, mPrimarySaleFee, mSecondarySaleFee, mOperator, mVersion), marketValidator, marketHundredPercent)
 --import Plutus.Contracts.V1.Auction (auctionValidator, auctionHundredPercent)
 import Cardano.Api
 import Cardano.Kuber.Util
@@ -93,7 +93,7 @@ resolveContext context = do
                   ,   mOperator         = operatorpkh
                   ,   mPrimarySaleFee   = primarySaleFee
                   ,   mSecondarySaleFee = 2_500_000
-                  ,   mVersion          = 30
+                  ,   mVersion          = 1
                   }
       pure $ Right $ RuntimeContext{
                           runtimeContextCardanoConn = context,
@@ -112,7 +112,7 @@ resolveContext context = do
     marketAddressShelley market network = makeShelleyAddress network scriptCredential NoStakeAddress
       where
         scriptCredential=PaymentCredentialByScript marketHash
-        marketScript= PlutusScript PlutusScriptV1  $ marketScriptPlutus market
+        marketScript= PlutusScript PlutusScriptV2  $ marketScriptPlutus market
         marketHash= hashScript   marketScript
         marketScriptPlutus market =PlutusScriptSerialised $ marketScriptBS market
         marketScriptBS market = SBS.toShort . LBS.toStrict $ serialise script

@@ -34,7 +34,7 @@ where
 -- import qualified Data.Map as Map
 -- import Cardano.Api.Shelley (AlonzoEra)
 -- import GHC.Conc (atomically, newTVar, newTVarIO)
--- import Plutus.Contracts.V1.Marketplace
+-- import Plutus.Contracts.V2.Marketplace
 -- import Control.Monad.Reader (ReaderT(runReaderT))
 -- import qualified Data.Text as T
 -- import qualified Data.ByteString as ByteString

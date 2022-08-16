@@ -82,7 +82,7 @@ import qualified Data.Text.IO as TIO
 import GHC.Conc (atomically, newTVar)
 import GHC.IO.Handle.FD (stdout)
 import GHC.Int (Int64)
-import Plutus.Contracts.V1.Marketplace
+import Plutus.Contracts.V2.Marketplace
 import Plutus.V1.Ledger.Value (AssetClass (AssetClass))
 import PlutusTx (toData)
 import PlutusTx.Prelude (divide)
@@ -744,7 +744,7 @@ splitUtxos ctx utxos signKey addrEra addrAny atomicQueryUtxos = do
         Right tx -> pure tx
 
 
-mergeUtxosOfWallets ctx wallets = do
+transferBackToFund ctx wallets changeAddr = do
   queryLock'' <- newMVar ()
   let atomicQueryUtxos addrAny =
         withMVar
@@ -758,15 +758,68 @@ mergeUtxosOfWallets ctx wallets = do
     let addrEra = getAddrEraFromSignKey ctx wallet
         addrAny = getAddrAnyFromEra addrEra
     utxos@(UTxO utxoMap) <- atomicQueryUtxos addrAny
-    mergeUtxos ctx utxos wallet addrEra addrAny atomicQueryUtxos
+    transferBack ctx utxos wallet addrEra addrAny atomicQueryUtxos changeAddr
 
-mergeUtxos ctx utxos signKey addrEra addrAny atomicQueryUtxos = do
-  let payOperations = txPayTo addrEra (lovelaceToValue $ Lovelace 6_000_000)
-              <> txPayTo addrEra (lovelaceToValue $ Lovelace 6_000_000)
-              <> txPayTo addrEra (lovelaceToValue $ Lovelace 6_000_000)
+transferBack ctx utxos signKey addrEra addrAny atomicQueryUtxos changeAddr = do
+      
+  let txOperations = txPayTo changeAddr (lovelaceToValue $ Lovelace 50_000_000)
+              <> txConsumeUtxos utxos
+              <> txChangeAddr changeAddr
+              <> txWalletAddress addrEra
+
+  let fundAddrAny = getAddrAnyFromEra changeAddr
+
+  txBodyE <- loopedTxBuilderToTxBodyIo txOperations
+  txBody <- case txBodyE of
+    Left fe -> error $ "Error: " ++ show fe
+    Right txBody -> pure txBody
+
+  tx <- loopedSubmitTx txBody
+  let txId = getTxId txBody
+  putStrLn $ "Wait merge utxos to appear on wallet TxId: " ++ show txId
+  pollForTxIdAtomic ctx fundAddrAny txId atomicQueryUtxos
+  putStrLn "Wallet utxo merge completed."
+
+  where
+    loopedTxBuilderToTxBodyIo txOperations = do
+      result <- try (txBuilderToTxBodyIO ctx txOperations ) :: IO (Either SomeException (Either FrameworkError (TxBody BabbageEra)))
+      case result of
+        Left any -> do
+          print any
+          loopedTxBuilderToTxBodyIo txOperations
+        Right tx -> pure tx
+
+    loopedSubmitTx txBody = do
+      result <- try (signAndSubmitTxBody (getConnectInfo ctx) txBody [signKey] ) :: IO (Either SomeException (Tx BabbageEra))
+      case result of
+        Left any -> do
+          print any
+          loopedSubmitTx txBody
+        Right tx -> pure tx
+
+
+mergeUtxosOfWallets ctx wallets changeAddr = do
+  queryLock'' <- newMVar ()
+  let atomicQueryUtxos addrAny =
+        withMVar
+          queryLock''
+          ( \_ -> do
+              utxosE <- queryUtxos (getConnectInfo ctx) $ Set.singleton addrAny
+              case utxosE of
+                Left err -> error $ "Error getting utxos: " ++ show err
+                Right utxos -> return utxos)
+  forConcurrently_ wallets $ \wallet -> do
+    let addrEra = getAddrEraFromSignKey ctx wallet
+        addrAny = getAddrAnyFromEra addrEra
+    utxos@(UTxO utxoMap) <- atomicQueryUtxos addrAny
+    mergeUtxos ctx utxos wallet addrEra addrAny atomicQueryUtxos changeAddr
+
+mergeUtxos ctx utxos signKey addrEra addrAny atomicQueryUtxos changeAddr = do
+  let payOperations = txPayTo addrEra (lovelaceToValue $ Lovelace 50_000_000)
       
       txOperations = payOperations
           <> txConsumeUtxos utxos
+          -- <> txChangeAddr changeAddr
           <> txWalletAddress addrEra
 
   txBodyE <- loopedTxBuilderToTxBodyIo txOperations
