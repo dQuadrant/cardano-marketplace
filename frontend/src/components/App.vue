@@ -31,7 +31,7 @@ const open = ref(true)
             ">
       <div class="collapse navbar-collapse flex-grow items-center" id="navbarSupportedContent">
         <!-- Left links -->
-        <ul class=" inline navbar-nav flex flex-column pl-0 list-style-none mr-auto">
+        <ul class=" navbar-nav flex flex-column pl-0 list-style-none mr-auto">
 
           <li class="nav-item px-2">
             <a class="nav-link active" aria-current="page" href="/">Marketplace</a>

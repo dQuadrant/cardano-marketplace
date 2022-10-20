@@ -263,9 +263,13 @@ export function transformNftImageUrl(url) {
     if(!url){
         return null
     }
-    const result = parser.exec(url)
-    if (result[1] && (result [1] == 'ipfs' || result[1] == 'ipns')) {
-        return 'https://ipfs.io/' + result[1] + "/" + result[2]
+    const result = parser.exec(url);
+    if(result){
+        if (result[1] && (result [1] == 'ipfs' || result[1] == 'ipns')) {
+            return 'https://ipfs.io/' + result[1] + "/" + result[2]
+        }
+    }else if(url.indexOf('/')== -1 ){
+        return 'https://ipfs.io/ipfs/'+url
     }
     return url
 }

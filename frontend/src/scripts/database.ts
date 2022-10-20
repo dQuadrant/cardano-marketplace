@@ -18,13 +18,10 @@ export function openDB():Promise<IDBDatabase> {
                 console.log("Upgrading db",event)
                 var db: IDBDatabase = event.target.result;
 
-                // Create an objectStore to hold information about our customers. We're
-                // going to use "ssn" as our key path because it's guaranteed to be
-                // unique - or at least that's what I was told during the kickoff meeting.
+                // create objectstore for holding utxo content
                 var objectStore = db.createObjectStore("utxoContent", { keyPath: "utxo" });
 
-                // Create an index to search customers by name. We may have duplicates
-                // so we can't use a unique index.
+                // create utxo as the index.
                 objectStore.createIndex("utxo", "utxo", { unique: true });
 
                 // Use transaction oncomplete to make sure the objectStore creation is

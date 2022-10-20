@@ -1,13 +1,13 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE TypeApplications #-}
 
-module Cardano.Marketplace.V1.Core where
+module Cardano.Marketplace.V2.Core where
 
 import Cardano.Api
 import Cardano.Api.Shelley (ProtocolParameters, ReferenceScript (ReferenceScriptNone), fromPlutusData, scriptDataToJsonDetailedSchema, toPlutusData)
@@ -39,40 +39,42 @@ mint ctx signKey addrEra assetName amount = do
   let script = RequireSignature (verificationKeyHash $ getVerificationKey signKey)
       txBuilder =
         txWalletAddress addrEra
-          <> txMintSimpleScript script [(assetName, amount)]
-  submitTransaction ctx txBuilder signKey
+          <> txWalletSignKey signKey
+          <> txMintSimpleScript @(SimpleScript SimpleScriptV2) script [(assetName, Quantity amount)]
+  submitTransaction ctx txBuilder 
 
 
 createReferenceScript :: ChainInfo v => v -> SigningKey PaymentKey -> IO ()
 createReferenceScript ctx sKey = do
   let walletAddrInEra = getAddrEraFromSignKey ctx sKey
-      txOperations = txPayToWithReference simpleMarketScript walletAddrInEra (lovelaceToValue $ Lovelace 20_000_000) 
+      txOperations = txPayToWithReference  walletAddrInEra (lovelaceToValue $ Lovelace 20_000_000) simpleMarketplaceScript
               <> txWalletAddress walletAddrInEra
-  submitTransaction ctx txOperations sKey
+              <> txWalletSignKey sKey
+  submitTransaction ctx txOperations 
 
 
-sellToken :: ChainInfo v => v -> String -> Integer -> SigningKey PaymentKey -> Address ShelleyAddr -> IO ()
-sellToken ctx itemStr cost sKey marketAddr = do
+sellToken :: ChainInfo v => v -> String -> Integer -> SigningKey PaymentKey -> Maybe (AddressInEra  BabbageEra ) -> Address ShelleyAddr -> IO ()
+sellToken ctx itemStr cost sKey mSellerAddr marketAddr = do
   let addrShelley = skeyToAddr sKey (getNetworkId ctx)
-      sellerAddrInEra = getAddrEraFromSignKey ctx sKey
+      sellerAddr =case mSellerAddr of
+        Nothing -> skeyToAddrInEra  sKey (getNetworkId ctx)
+        Just ad -> ad 
   item <- parseAssetNQuantity $ T.pack itemStr
-  let lockedValue = valueFromList [item, (AdaAssetId, 2_500_000)]
-      saleDatum = constructDatum addrShelley cost
+  let saleDatum = constructDatum sellerAddr cost
       marketAddrInEra =  marketAddressInEra (getNetworkId ctx)
       txOperations =
-        txPayToScriptWithData marketAddrInEra lockedValue saleDatum
-          <> txWalletAddress sellerAddrInEra
-  submitTransaction ctx txOperations sKey
-  putStrLn $ encodeScriptData saleDatum
-  putStrLn $ "\nMarket Address : " ++ T.unpack (serialiseAddress marketAddr)
+        txPayToScriptWithData marketAddrInEra (valueFromList [item]) saleDatum
+          <> txWalletSignKey sKey
+  putStrLn $  "InlineDatum : " ++ encodeScriptData saleDatum
+  submitTransaction ctx txOperations 
 
 data UtxoWithData = UtxoWithData
   {
-   txIn :: TxIn,
-   txOut :: TxOut CtxUTxO BabbageEra,
-   scriptData :: ScriptData,
-   simpleSale :: SimpleSale,
-   sellerAddr :: AddressInEra BabbageEra
+   uwdTxIn :: TxIn,
+   uwdTxOut :: TxOut CtxUTxO BabbageEra,
+   uwdScriptData :: ScriptData,
+   uwdSimpleSale :: SimpleSale,
+   uwdSellerAddr :: AddressInEra BabbageEra
   }
 
 buyToken :: ChainInfo v => v -> Text -> Maybe String -> SigningKey PaymentKey -> Address ShelleyAddr -> IO ()
@@ -90,7 +92,7 @@ withdrawToken ctx txInText datumStrM sKey marketAddr = do
   redeemMarketUtxo dcInfo txIn txOut sKey sellerSignOperation scriptData SMP.Withdraw
 
 getUtxoWithData :: ChainInfo v => v -> Text -> Maybe String -> Address ShelleyAddr -> IO UtxoWithData
-getUtxoWithData ctx txInText datumStrM marketAddr= do 
+getUtxoWithData ctx txInText datumStrM marketAddr= do
   txIn <- parseTxIn txInText
   UTxO uMap <- queryMarketUtxos ctx marketAddr
   let txOut = unMaybe "Error couldn't find the given txin in market utxos." $ Map.lookup txIn uMap
@@ -102,7 +104,6 @@ getUtxoWithData ctx txInText datumStrM marketAddr= do
 getSimpleSaleTuple :: Maybe String -> TxOut CtxUTxO BabbageEra -> IO (ScriptData, SimpleSale)
 getSimpleSaleTuple datumStrM txOut = case datumStrM of
     Nothing -> do
-      putStrLn "No datum provided. Using the one from the txout inline datum."
       let inlineDatum = findInlineDatumFromTxOut txOut
           simpleSale = unMaybe "Failed to convert datum to SimpleSale" $ Plutus.fromBuiltinData $ dataToBuiltinData $ toPlutusData inlineDatum
       pure $ Debug.trace  (show simpleSale) (inlineDatum, simpleSale)
@@ -115,19 +116,16 @@ getSimpleSaleTuple datumStrM txOut = case datumStrM of
 
 redeemMarketUtxo :: DetailedChainInfo -> TxIn -> TxOut CtxUTxO BabbageEra -> SigningKey PaymentKey -> TxBuilder -> ScriptData -> SMP.MarketRedeemer -> IO ()
 redeemMarketUtxo dcInfo txIn txOut sKey extraOperations scriptData redeemer = do
-  let txOperations =
-            txRedeemUtxoWithInlineDatum txIn txOut marketScriptToScriptInAnyLang (fromPlutusData $ toData redeemer) Nothing
-        <>  txWalletSignKey sKey
-        <>  extraOperations
-  putStrLn $ " Before this"  ++ show txOperations
-  tx<- txBuilderToTxIO dcInfo txOperations >>= throwLeft
-  putStrLn $ " after this"  ++ show tx
-
-  submitTx (getConnectInfo  dcInfo) tx >>= throwLeft
+  let walletAddr = getAddrEraFromSignKey dcInfo sKey
+      redeemUtxoOperation = txRedeemUtxo txIn txOut  simpleMarketplacePlutusV2   (fromPlutusData $ toData redeemer) Nothing
+      txOperations =
+        redeemUtxoOperation
+          <> txWalletAddress walletAddr
+          <> txWalletSignKey sKey
+          <> extraOperations
+  submitTransaction dcInfo txOperations 
   putStrLn "Done"
 
-marketScriptToScriptInAnyLang :: ScriptInAnyLang
-marketScriptToScriptInAnyLang = ScriptInAnyLang (PlutusScriptLanguage PlutusScriptV2) (PlutusScript PlutusScriptV2 simpleMarketplacePlutusV2)
 
 ensureMinAda :: AddressInEra BabbageEra -> Value -> ProtocolParameters -> Value
 ensureMinAda addr value pParams =
@@ -147,6 +145,9 @@ matchesDatumhash :: Hash ScriptData -> TxOut ctx era -> Bool
 matchesDatumhash datumHash (TxOut _ (TxOutValue _ value) (TxOutDatumHash _ hash) _) = hash == datumHash
 matchesDatumhash _ _ = False
 
-throwLeft e = case e of 
+throwLeft e = case e of
   Left e -> throw e
   Right v ->  pure  v
+
+
+txSimpleSaleScript = PlutusScript PlutusScriptV2 simpleMarketplacePlutusV2

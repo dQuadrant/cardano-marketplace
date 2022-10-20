@@ -11,19 +11,20 @@ import Cardano.Api.Byron (Address (ByronAddress))
 import Cardano.Api.Shelley (Address (ShelleyAddress), AsType (AsAlonzoEra), Lovelace (Lovelace), ProtocolParameters, fromPlutusData, fromShelleyStakeReference, scriptDataToJsonDetailedSchema, shelleyPayAddrToPlutusPubKHash, toPlutusData, toShelleyStakeAddr, toShelleyStakeCredential)
 import qualified Cardano.Api.Shelley as Shelley
 import Cardano.Kuber.Api
-import Cardano.Kuber.Data.Parsers ( parseAssetNQuantity, parseScriptData, parseTxIn, parseValueText, scriptDataParser, parseAssetId, parseSignKey)
+import Cardano.Kuber.Data.Parsers ( parseAssetNQuantity, parseScriptData, parseTxIn, parseValueText, scriptDataParser, parseAssetId, parseSignKey, parseAddressBench32, parseAddress)
 import Cardano.Kuber.Util hiding (toHexString)
 import Cardano.Ledger.Alonzo.Tx (TxBody (txfee))
 import qualified Cardano.Ledger.BaseTypes as Shelley (Network (..))
 import Cardano.Marketplace.Common.TextUtils
 import Cardano.Marketplace.Common.TransactionUtils
-import Cardano.Marketplace.V1.Core
+import Cardano.Marketplace.V2.Core
 import Codec.Serialise (serialise)
 import Control.Exception (throwIO)
 import Control.Monad (void)
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Builder as Text
 import qualified Data.ByteString.Char8 as BS8
+import qualified Data.ByteString as BS
 import Data.ByteString.Lazy.Char8 (toStrict)
 import Data.Char (toLower)
 import Data.Data (Data, Typeable)
@@ -48,12 +49,19 @@ import Cardano.Kuber.Console.ConsoleWritable
 import Data.Text.Encoding (encodeUtf8)
 import System.Directory.Internal.Prelude (getEnv)
 import Plutus.V2.Ledger.Api (fromData, FromData (fromBuiltinData))
+import qualified Data.Aeson as A
+import qualified Data.Text.Lazy.IO as TL
+import qualified Data.Text.Encoding as T
+import Cardano.Api.SerialiseTextEnvelope (TextEnvelopeDescr(TextEnvelopeDescr))
+import qualified Debug.Trace as Debug
+import qualified Data.ByteString.Lazy.Char8 as BSL8
 
 data Modes
   = Cat -- Cat script binary
   | Sell -- Sell item with cost on the market
       { item :: String, -- Asset to be placed on market <policyId.AssetName>
         cost :: Integer, -- cost in Lovelace
+        addressSeller  :: Maybe Text, -- adddress OfSeller
         signingKeyFile :: String
       }
   | Buy -- Buy item from marketplace
@@ -93,6 +101,7 @@ runCli = do
           Sell
             { item = def &= typ "Asset" &= argPos 0,
               cost = def &= typ "Price" &= argPos 1,
+              addressSeller = def &= typ "PaymentReceivingAddress", 
               signingKeyFile = def &= typ "FilePath" &= name "signing-key-file"
             }
             &= help "Place an asset on sale Eg. sell 8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94.Token \"2000000\"",
@@ -104,7 +113,7 @@ runCli = do
             &= help "Buy an asset on sale after finiding out txIn from market-cli ls.  Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'",
           Withdraw
             { txin = "" &= typ "TxIn'" &= argPos 0,
-              datum = Nothing &= typ "Datum'" &= argPos 1,
+              datum = Nothing &= typ "Datum'",
               signingKeyFile = def &= typ "'FilePath'" &= name "signing-key-file"
             }
             &= help "Withdraw an asset by seller after finiding out txIn from market-cli ls. Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'",
@@ -143,18 +152,25 @@ runCli = do
               Just (SimpleSale artist cost) -> pure (txin,cost,val)  ) (Map.toList uMap)
 
       putStrLn $ "Market Address : " ++ T.unpack (serialiseAddress marketAddr)
-      putStr "Market UTXOs:\n  "
-      putStrLn $ intercalate "\n  "  (map (\(txin,cost,val)-> T.unpack (renderTxIn txin)  ++ "\t [Cost " ++ show (fromInteger cost/1e6) ++ "Ada] " ++  showVal val) vals)
+      
+      if null vals
+        then putStrLn "Marketplace is Empty <> "
+        else putStrLn $ "Market utxos:\n - " ++  intercalate "\n - "  (map (\(txin,cost,val)-> T.unpack (renderTxIn txin)  ++ "\t [Cost " ++ show (fromInteger cost/1e6) ++ "Ada] " ++  showVal val) vals)
       where
         showVal val= intercalate " +" $ map (\(AssetId pol (AssetName a),Quantity v) -> (if v>1 then show v ++ " " else "") ++ T.unpack (serialiseToRawBytesHexText pol) ++ "." ++ BS8.unpack a ) filtered
           where
             filtered= filter (\(a,v)-> a /= AdaAssetId )  $ valueToList val
     Cat -> do
-      let scriptInCbor = serialiseToCBOR simpleMarketplacePlutusV2
-      putStrLn $ toHexString scriptInCbor
-    Sell itemStr cost sKeyFile-> do
+      let envelope = serialiseToTextEnvelope (Just $  TextEnvelopeDescr "SimpleMarketplaceV2")  simpleMarketplacePlutusV2
+      T.putStrLn $ T.decodeUtf8 $ prettyPrintJSON  envelope
+    Sell itemStr cost saddressMaybe sKeyFile-> do
       sKey <- getSignKey sKeyFile
-      sellToken chainInfo itemStr cost sKey marketAddr
+      sellerAddress <-case saddressMaybe of
+        Nothing -> pure Nothing
+        Just txt -> do 
+          addr<- parseAddress txt
+          pure $ pure addr
+      sellToken chainInfo itemStr cost sKey sellerAddress marketAddr
     Buy txInText datumStr sKeyFile-> do
       sKey <- getSignKey sKeyFile
       buyToken chainInfo txInText datumStr sKey marketAddr
@@ -174,11 +190,18 @@ runCli = do
       utxos <- case utxosE of
         Left fe -> error $ "Error querying utxos: " <> show fe
         Right utxos -> pure utxos
-      let txOperations = txPayTo addrInEra (lovelaceToValue $ Lovelace 60_000_000) <> txWalletAddress addrInEra <> txConsumeUtxos utxos
-      submitTransaction chainInfo txOperations skey
+      let txOperations = txPayTo addrInEra (lovelaceToValue $ Lovelace 60_000_000) 
+            <> txWalletAddress addrInEra 
+            <> txConsumeUtxos utxos
+            <> txWalletSignKey skey
+      submitTransaction chainInfo txOperations 
     Balance sKeyFile-> do
+      if null sKeyFile
+        then fail "Missing filename"
+        else pure ()
       skey <- getSignKey sKeyFile
       let addrInEra = getAddrEraFromSignKey chainInfo skey
+      putStrLn $ "Wallet Address: " ++ T.unpack (serialiseAddress addrInEra)
       utxosE <- queryAddressInEraUtxos (getConnectInfo chainInfo) [addrInEra]
       case utxosE of
         Left fe -> throwIO $ FrameworkError ParserError (show fe)

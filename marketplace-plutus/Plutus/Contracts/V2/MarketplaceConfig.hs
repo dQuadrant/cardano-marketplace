@@ -65,12 +65,12 @@ mkMarketConfig  MarketConfig{marketOwner}  ctx =
 
 {-# INLINABLE mkWrappedMarketConfig #-}
 mkWrappedMarketConfig ::  BuiltinData -> BuiltinData -> BuiltinData -> ()
-mkWrappedMarketConfig  d r c = traceError "ok"
-  -- check $ mkMarketConfig (parseData d "Invalid data") (unsafeFromBuiltinData c)
-  -- where
-  --   parseData md s = case fromBuiltinData  d of 
-  --     Just d -> d
-  --     _      -> traceError s
+mkWrappedMarketConfig  d r c = 
+  check $ mkMarketConfig (parseData d "Invalid data") (unsafeFromBuiltinData c)
+  where
+    parseData md s = case fromBuiltinData  d of 
+      Just d -> d
+      _      -> traceError s
 
 
 marketConfigValidator ::   Validator

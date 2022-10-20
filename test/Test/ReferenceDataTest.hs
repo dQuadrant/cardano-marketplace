@@ -13,7 +13,7 @@ import Cardano.Kuber.Api
 import Cardano.Api
 import Cardano.Kuber.Util (getDefaultConnection, queryAddressInEraUtxos, skeyToAddr, queryUtxos, sKeyToPkh, queryTxins, toPlutusAddress, dataToScriptData, toPlutusScriptHash, skeyToAddrInEra)
 import Control.Exception (throwIO, throw)
-import Cardano.Marketplace.V1.Core (sellToken, createReferenceScript, UtxoWithData (..), ensureMinAda, marketScriptToScriptInAnyLang, getUtxoWithData)
+import Cardano.Marketplace.V2.Core (sellToken, createReferenceScript, UtxoWithData (..), ensureMinAda, marketScriptToScriptInAnyLang, getUtxoWithData)
 import Data.Text (Text, pack)
 import Cardano.Api.Shelley ( fromPlutusData, TxBody (ShelleyTxBody), fromShelleyScriptHash, toShelleyScriptHash, fromShelleyAddr )
 import Plutus.V2.Ledger.Api ( toData )

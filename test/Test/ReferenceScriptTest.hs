@@ -12,9 +12,9 @@ import Cardano.Kuber.Api
 import Cardano.Api
 import Cardano.Kuber.Util (getDefaultConnection, queryAddressInEraUtxos, skeyToAddr, queryUtxos, sKeyToPkh, queryTxins, skeyToAddrInEra)
 import Control.Exception (throwIO, throw)
-import Cardano.Marketplace.V1.Core (sellToken, createReferenceScript, UtxoWithData (..), ensureMinAda, marketScriptToScriptInAnyLang, getUtxoWithData)
+import Cardano.Marketplace.V2.Core (sellToken, createReferenceScript, UtxoWithData (..), ensureMinAda, getUtxoWithData)
 import Plutus.Contracts.V2.SimpleMarketplace
-    ( SimpleSale(SimpleSale), simpleMarketplacePlutusV2, simpleMarketScript )
+    ( SimpleSale(SimpleSale), simpleMarketplacePlutusV2, simpleMarketplaceScript )
 import Data.Text (Text, pack)
 import qualified Plutus.Contracts.V2.SimpleMarketplace as SMP
 import Cardano.Api.Shelley ( fromPlutusData, TxBody (ShelleyTxBody) )
@@ -135,7 +135,7 @@ marketFlowWithInlineDatumAndReferenceScript chainInfo skey = do
 
   let marketAddrInEra =  marketAddressInEra (getNetworkId chainInfo)
       sellOp        =  txPayToScriptWithDataAndReference
-                              simpleMarketScript
+                              simpleMarketplaceScript
                               (valueFromList [(assetId, 1), (AdaAssetId, 18_000_000)])
                               (fromPlutusData $ toData $  SimpleSale (Plutus.Address (Plutus.PubKeyCredential $ sKeyToPkh skey) Nothing ) 100_000_000)
                     <> txWalletSignKey  skey
@@ -173,7 +173,7 @@ marketFlowWithInlineDatumAndReferenceScriptUnConsumed chainInfo skey = do
                               marketAddrInEra
                               (valueFromList [(assetId, 1), (AdaAssetId, 3_000_000)])
                               (fromPlutusData $ toData $  SimpleSale (Plutus.Address (Plutus.PubKeyCredential $ sKeyToPkh skey) Nothing ) 100_000_000)
-                    <> txPayToWithReference simpleMarketScript (skeyToAddrInEra randomSkey $ getNetworkId chainInfo) (valueFromList [(AdaAssetId, 18_000_000)])
+                    <> txPayToWithReference simpleMarketplaceScript (skeyToAddrInEra randomSkey $ getNetworkId chainInfo) (valueFromList [(AdaAssetId, 18_000_000)])
                     <> txMintSimpleScript mintingScript [(assetName, 1)]
                     <> txWalletSignKey  skey
   sellTx <- txBuilderToTxIO chainInfo sellOp >>= orThrow >>= andSubmitOrThrow

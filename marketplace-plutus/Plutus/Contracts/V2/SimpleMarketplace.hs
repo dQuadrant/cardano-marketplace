@@ -18,8 +18,7 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 module Plutus.Contracts.V2.SimpleMarketplace(
   simpleMarketplacePlutusV2,
-  simpleMarketValidator,
-  simpleMarketScript,
+  simpleMarketplaceScript,
   MarketRedeemer(..),
   SimpleSale(..)
 )
@@ -62,7 +61,6 @@ data SimpleSale=SimpleSale{
     priceOfAsset:: Integer  -- cost of the value in it
   } deriving(Show,Generic)
 
-
 PlutusTx.makeIsDataIndexed ''SimpleSale [('SimpleSale, 0)]    
 
 {-# INLINABLE mkMarket #-}
@@ -84,7 +82,7 @@ mkMarket  ds@SimpleSale{sellerAddress,priceOfAsset}  action ctx =
 
 {-# INLINABLE mkWrappedMarket #-}
 mkWrappedMarket ::  BuiltinData -> BuiltinData -> BuiltinData -> ()
-mkWrappedMarket  d r c = check $ mkMarket (parseData d "Invalid data") (parseData r "Invalid redeemer") (unsafeFromBuiltinData c)
+mkWrappedMarket  d r c = check $ mkMarket (parseData d "Invalid data") (parseData r "Invalid redeemer") (parseData c "Invalid context")
   where
     parseData md s = case fromBuiltinData  md of 
       Just datum -> datum
@@ -95,11 +93,11 @@ simpleMarketValidator ::   Validator
 simpleMarketValidator = mkValidatorScript  $
             $$(PlutusTx.compile [|| mkWrappedMarket ||])
 
-simpleMarketScript ::   Script
-simpleMarketScript  =  unValidatorScript  simpleMarketValidator
+simpleMarketplaceScript ::   Script
+simpleMarketplaceScript  =  unValidatorScript  simpleMarketValidator
 
 marketScriptSBS :: SBS.ShortByteString
-marketScriptSBS  =  SBS.toShort . LBS.toStrict $ serialise $ simpleMarketScript 
+marketScriptSBS  =  SBS.toShort . LBS.toStrict $ serialise $ simpleMarketplaceScript 
 
 simpleMarketplacePlutusV2 ::  PlutusScript PlutusScriptV2
 simpleMarketplacePlutusV2  = PlutusScriptSerialised $ marketScriptSBS

@@ -10,14 +10,12 @@
   },
   "dependencies": {
     "@dafcoe/vue-notification": "^0.1.6",
-    "@emurgo/cardano-serialization-lib-asmjs": "11.0.0-beta.1",
+    "@emurgo/cardano-serialization-lib-asmjs": "11.1.0",
     "@headlessui/vue": "^1.6.4",
-    "ace-builds": "1.4.14",
     "bootstrap-vue": "^2.22.0",
     "buffer": "^6.0.3",
     "vue": "^3.2.37",
-    "vue-router": "^4.0.14",
-    "vue3-ace-editor": "^2.2.2"
+    "vue-router": "^4.0.14"
   },
   "devDependencies": {
     "@tailwindcss/forms": "^0.5.2",

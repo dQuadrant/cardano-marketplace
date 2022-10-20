@@ -85,13 +85,15 @@ import {
                             src="/clipboard.svg"
                           />
                         </div>
-                        <div class="align-bottom text-blue-900" >
+                        <div class="align-bottom text-blue-900">
                           <div>{{ renderLovelace(balance.lovelace) }} Ada</div>
-                            <button @click="showMint=!showMint" class="float-right text-blue-500 underline">
-                              Mint NFT
-                            </button>
+                          <button
+                            @click="showMint = !showMint"
+                            class="float-right text-blue-500 underline"
+                          >
+                            Mint NFT
+                          </button>
                         </div>
-                     
                       </span>
                       <button
                         type="button"
@@ -105,49 +107,50 @@ import {
                       {{ prompt }}
                     </DialogTitle>
                   </div>
-                  <div v-if="showMint" class="align-bottom text-blue-900 border-b-2  border-blue-700 pb-5 mb-5 px-4" >
-                          <div>
-
-                            <form id="mint-form" class="fade ani">
-                              <input
-                                name="tokenName"
-                                class="w-full mb-2 rounded text-gray-800 py-2 px-3 border-2 border-gray-200 focus:outline-2 focus:outline-indigo-500"
-                                placeholder="Unique Token Name"
-                                maxlength="64"
-                              />
-                              <input
-                                name="artist"
-                                class="w-full mb-2 rounded text-gray-800 py-2 px-3 border-2 border-gray-200 focus:outline-2 focus:outline-indigo-500"
-                                placeholder="Artist"
-                                maxlength="64"
-                              />
-                              <input
-                                name="imageUrl"
-                                class="w-full mb-2 rounded text-gray-800 py-2 px-3 border-2 border-gray-200 focus:outline-2 focus:outline-indigo-500"
-                                placeholder="Image url"
-                                maxlength="64"
-                              />
-                            </form>
-                            <div class="flex w-full justify-between gap-4">
-                              <button
-                                type="button"
-                                @click="mintToken"
-                                class="w-full border-2 border-indigo-500 cursor-pointer hover:bg-indigo-500 hover:text-white hover:border-indigo-600 active:ring-indigo-700 active:ring-offset-2 active:ring-2 rounded-xl p-2 text-center text-indigo-500"
-                              >
-                                Mint
-                              </button>
-                              <button
-                                type="button"
-                                @click="cancelMint"
-                                class="w-full border-2 border-red-500 cursor-pointer hover:bg-red-500 hover:text-white hover:border-red-600 active:ring-red-700 active:ring-offset-2 active:ring-2 rounded-xl p-2 text-center text-red-500"
-                              >
-                                Cancel
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                  <div  class="relative   sm:px-6">
-                       
+                  <div
+                    v-if="showMint"
+                    class="align-bottom text-blue-900 border-b-2 border-blue-700 pb-5 mb-5 px-4"
+                  >
+                    <div>
+                      <form id="mint-form" class="fade ani">
+                        <input
+                          name="tokenName"
+                          class="w-full mb-2 rounded text-gray-800 py-2 px-3 border-2 border-gray-200 focus:outline-2 focus:outline-indigo-500"
+                          placeholder="Unique Token Name"
+                          maxlength="64"
+                        />
+                        <input
+                          name="artist"
+                          class="w-full mb-2 rounded text-gray-800 py-2 px-3 border-2 border-gray-200 focus:outline-2 focus:outline-indigo-500"
+                          placeholder="Artist"
+                          maxlength="64"
+                        />
+                        <input
+                          name="imageUrl"
+                          class="w-full mb-2 rounded text-gray-800 py-2 px-3 border-2 border-gray-200 focus:outline-2 focus:outline-indigo-500"
+                          placeholder="Image url"
+                          maxlength="64"
+                        />
+                      </form>
+                      <div class="flex w-full justify-between gap-4">
+                        <button
+                          type="button"
+                          @click="mintToken"
+                          class="w-full border-2 border-indigo-500 cursor-pointer hover:bg-indigo-500 hover:text-white hover:border-indigo-600 active:ring-indigo-700 active:ring-offset-2 active:ring-2 rounded-xl p-2 text-center text-indigo-500"
+                        >
+                          Mint
+                        </button>
+                        <button
+                          type="button"
+                          @click="cancelMint"
+                          class="w-full border-2 border-red-500 cursor-pointer hover:bg-red-500 hover:text-white hover:border-red-600 active:ring-red-700 active:ring-offset-2 active:ring-2 rounded-xl p-2 text-center text-red-500"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="relative sm:px-6">
                     <div v-if="walletAction.enable || !curProvider">
                       <div v-if="providers?.length == 0">
                         <div class="text-gray-600 font-semibold my-10 text-center">
@@ -314,15 +317,14 @@ export default {
                 amount: {},
               },
             ],
-           
           };
           request.mint[0].amount[tokenName] = 1;
 
-          if(data.imageUrl || data.artist){
-            request.metadata= {
+          if (data.imageUrl || data.artist) {
+            (request.metadata = {
               721: {},
-            },
-            request.metadata[721][policyId] = {};
+            }),
+              (request.metadata[721][policyId] = {});
             request.metadata[721][policyId][data.tokenName] = {
               name: data.tokenName,
               image: data.imageUrl,
@@ -339,7 +341,7 @@ export default {
     },
     // wip
     cancelMint() {
-      this.showMint=false
+      this.showMint = false;
     },
     closeOverlay() {
       if (walletAction.enable) {
@@ -374,13 +376,23 @@ export default {
         outputs: [
           {
             address: market.address,
-            value: `2A + 1 ${asset.policy}.${asset.tokenName}`,
+            value: `${asset.policy}.${asset.tokenName}`,
             datum: {
               fields: [
                 {
                   fields: [
-                    { fields: [{ bytes: `${sellerPkh}` }], constructor: 0 },
-                    { fields: [{ bytes: `${sellerStakeKey}` }], constructor: 1 },
+                    { fields: [{ bytes: `${sellerPkh}` }], constructor: 0 }, // pubkeyhash
+                    {
+                      fields: [
+                        {
+                          fields: [
+                            { fields: [{ bytes: `${sellerStakeKey}` }], constructor: 0 },
+                          ],
+                          constructor: 0,
+                        },
+                      ],
+                      constructor: 0,
+                    }, // stakekeyHash
                   ],
                   constructor: 0,
                 },
@@ -425,7 +437,7 @@ export default {
         this.curInstance = instance;
         this.walletPkh = await this.renderPubKeyHash(instance);
         return walletValue(instance).then((val) => {
-          console.log("Wallet balance",val)
+          console.log("Wallet balance", val);
           let assetList: Array<any> = [];
           for (let policy in val.multiassets) {
             const tokens = val.multiassets[policy];
@@ -460,7 +472,7 @@ export default {
       this.balance.multiAssets = [];
       this.curProvider = null;
       this.curInstance = null;
-      this.showMint=false
+      this.showMint = false;
     },
   },
 };

@@ -14,12 +14,13 @@ import Cardano.Api
 import Cardano.Kuber.Api
 import Cardano.Kuber.Data.Parsers
   ( parseAssetId,
+
     parseAssetNQuantity,
     parseScriptData,
     parseValueText, scriptDataParser, parseSignKey
   )
 import Cardano.Kuber.Util
-    ( pkhToMaybeAddr, skeyToAddrInEra, queryUtxos )
+    ( pkhToMaybeAddr, skeyToAddrInEra, queryUtxos, toPlutusAddress )
 import qualified Data.Text as T
 import qualified Data.ByteString.Char8 as BS8
 import qualified Plutus.V1.Ledger.Address as Plutus
@@ -41,6 +42,7 @@ import System.Environment (getEnv)
 import qualified Data.Aeson as A
 import qualified Data.Aeson.Text as A
 import Plutus.V2.Ledger.Api (dataToBuiltinData)
+import Cardano.Api.Byron (Address(ByronAddress))
 
 
 
@@ -74,12 +76,13 @@ queryMarketUtxos ctx addr = do
     Left err -> error $ "Error while querying utxos " ++ show err
     Right utxos' -> pure utxos'
 
-constructDatum :: Shelley.Address ShelleyAddr -> Integer -> ScriptData
+constructDatum :: AddressInEra BabbageEra -> Integer -> ScriptData
 constructDatum sellerAddr costOfAsset =
-
   -- Convert AddressInEra to Plutus.Address
-  let plutusPkh = unMaybe "Error seller address must not be script address" $ shelleyPayAddrToPlutusPubKHash sellerAddr
-      plutusAddr = Plutus.Address (Plutus.PubKeyCredential plutusPkh) Nothing
+  let plutusAddr =  toPlutusAddress sellerAddrShelley
+      sellerAddrShelley = case sellerAddr of { AddressInEra atie ad -> case ad of
+                                                 ByronAddress ad' -> error "Byron era address Not supported"
+                                                 addr@(ShelleyAddress net cre sr )-> addr  }
       datum = SimpleSale plutusAddr costOfAsset
 
    in fromPlutusData $ toData datum
@@ -105,13 +108,12 @@ parseSimpleSale datumStr = do
   let simpleSale = unMaybe "Failed to convert datum to SimpleSale" $ Plutus.fromBuiltinData $ dataToBuiltinData $ toPlutusData scriptData
   return (scriptData, simpleSale)
 
-submitTransaction :: ChainInfo v => v -> TxBuilder -> SigningKey PaymentKey -> IO ()
-submitTransaction dcInfo txOperations sKey = do
-  txBodyE <- txBuilderToTxBodyIO dcInfo txOperations
-  txBody <- case txBodyE of
+submitTransaction :: ChainInfo v => v -> TxBuilder -> IO ()
+submitTransaction dcInfo txOperations  = do
+  txE <- txBuilderToTxIO dcInfo txOperations
+  tx <- case txE of
     Left fe -> throwIO fe
     Right txBody -> pure txBody
-  let tx = signTxBody txBody [sKey]
   result <- submitTx (getConnectInfo dcInfo) tx
   case result of
     Left err -> throwIO err
@@ -126,11 +128,10 @@ jsonEncodeUtxos (UTxO utxoMap) =  intercalate " \n" (map toStrings $ Map.toList 
   where
     toStrings (TxIn txId (TxIx index),TxOut addr value datum refScript  )=
       let txInStr = showStr txId ++ "#" ++ show index
-          utxoObject = A.object [ "txIn" A..= txInStr,
-                                  "value" A..= renderTxOutValue value,
-                                  "datum" A..= renderDatum datum,
-                                  "refScript" A..= renderRefScript refScript
-                                ]
+          utxoObject = A.object $  [ "txIn" A..= txInStr,
+                                  "value" A..= renderTxOutValue value]
+                                   ++ renderDatum datum  
+                                   ++ renderRefScript refScript
       in   BS8.unpack $ prettyPrintJSON utxoObject
       -- showStr txId ++ 
       -- "#" ++  show index ++"\t:\t" ++ 
@@ -147,15 +148,15 @@ jsonEncodeUtxos (UTxO utxoMap) =  intercalate " \n" (map toStrings $ Map.toList 
     renderTxOutValue txOutValue = case txOutValue of
       TxOutAdaOnly oasie (Lovelace v) -> show v
       TxOutValue masie va ->  intercalate " +" (map vToString $ valueToList va )
-    renderDatum datum = case datum of
-      TxOutDatumNone -> "TxOutDatumNone"
-      TxOutDatumHash s h -> show h
-      TxOutDatumInline _ sd -> encodeScriptData sd
-      _ -> ""
+    renderDatum datum = case datum  of
+            TxOutDatumNone -> []
+            TxOutDatumHash sdsie ha -> [ "datumHash" A..= show ha]
+            TxOutDatumInline rtisidsie sd -> [ "inlineDatum" A..= encodeScriptData sd  ]
+            _  -> [ ]
 
     renderRefScript refScript = case refScript of
-      ReferenceScriptNone -> "ReferenceScriptNone"
-      ReferenceScript _ _ -> "ReferenceScriptPresent" :: String
+      ReferenceScriptNone -> []
+      ReferenceScript _ sc ->  [ "refrenceScript" A..= ("present" ::String ) ]
         -- TLE.unpack $ A.encodeToLazyText refScript
 
     vToString (AssetId policy asset,Quantity v)=show v ++ " " ++ showStr  policy ++ "." ++ showStr  asset

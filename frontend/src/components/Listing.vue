@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import {VAceEditor} from "vue3-ace-editor";
-import ace from "ace-builds";
-import workerJsonUrl from "ace-builds/src-noconflict/mode-json";
+
 import type {CIP30Instace, CIP30Provider} from "@/types";
 import {Buffer} from "buffer";
 import {listMarket, getAssetDetail, getDatum} from "@/scripts/blockfrost";
@@ -10,7 +8,6 @@ import * as database from "@/scripts/database"
 import {market} from "@/config";
 import {Address, BaseAddress, Ed25519KeyHash, StakeCredential} from "@emurgo/cardano-serialization-lib-asmjs";
 import {walletAction} from "@/scripts/sotre"
-ace.config.setModuleUrl("ace/mode/json_worker", workerJsonUrl);
 </script>
 
 <template>
@@ -175,12 +172,13 @@ export default {
       const datum = utxo.detail.datum
       const cost = datum.fields[1].int;
       const sellerPubKeyHashHex =datum.fields[0].fields[0].fields[0].bytes
-      const sellerStakeKeyHashHex = datum.fields[0].fields[1].fields[0].bytes
+      const sellerStakeKeyHashHex = datum.fields[0].fields[1].fields[0].fields[0].fields[0].bytes
       const vkey = StakeCredential.from_keyhash(Ed25519KeyHash.from_bytes(Buffer.from(sellerPubKeyHashHex, "hex")))
       const stakeKey = StakeCredential.from_keyhash(Ed25519KeyHash.from_bytes(Buffer.from(sellerStakeKeyHashHex, "hex")))
       const sellerAddr= BaseAddress.new(0,vkey,stakeKey)
       console.log("SellerAddr",sellerAddr.to_address().to_bech32())
 
+      // Create constraints for buying
       walletAction.callback=async (provider : CIP30Instace)=>{
           const request = {
         selections: await provider.getUtxos(),
@@ -192,15 +190,14 @@ export default {
               "index": utxo.tx_index
             },
             script: market.script,
-            // value: `2A + ${nft.policy}.${nft.asset_name}`,
-            datum: datum,
             redeemer: { fields: [], constructor: 0 },
           },
         ],
         outputs: [
           {
-            address: sellerAddr.to_address().to_bech32("addr_test"),
-            value: cost
+            address: sellerAddr.to_address().to_bech32(market.address.startsWith('addr_test')?"addr_test":"addr"),
+            value: cost,
+            insuffientUtxoAda: "increase"
           }
         ],
       };
@@ -211,10 +208,7 @@ export default {
     save(v: string) {
       localStorage.setItem("editor.content", v);
     },
-  },
-  components: {
-    VAceEditor,
-  },
+  }
 };
 </script>
 <style>
