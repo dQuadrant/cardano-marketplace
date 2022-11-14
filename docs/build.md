@@ -37,7 +37,7 @@ cabal configure --with-compiler=ghc-8.10.7
 
 #### Running the project
 ```
-  cabal build
-  cabal run market-cli help
+  cabal install market-cli
+  market-cli --help
 ```
 For detaied options [Cli-docs](./cli.md)
