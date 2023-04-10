@@ -2,7 +2,7 @@
   "name": "frontend",
   "version": "0.0.0",
   "scripts": {
-    "start": "vite",
+    "start": "vite --host 0.0.0.0",
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "preview": "vite preview --port 5050",
@@ -12,8 +12,10 @@
     "@dafcoe/vue-notification": "^0.1.6",
     "@emurgo/cardano-serialization-lib-asmjs": "11.1.0",
     "@headlessui/vue": "^1.6.4",
+    "@types/vue": "^2.0.0",
     "bootstrap-vue": "^2.22.0",
     "buffer": "^6.0.3",
+    "kuber-client": "^1.4.14",
     "vue": "^3.2.37",
     "vue-router": "^4.0.14"
   },

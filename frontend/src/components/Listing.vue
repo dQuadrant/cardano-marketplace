@@ -1,12 +1,13 @@
 <script setup lang="ts">
 
-import type {CIP30Instace, CIP30Provider} from "@/types";
+import {mergeTxAndWitness, type CIP30Wallet} from "kuber-client";
+import type { CIP30Provider} from "kuber-client/types"
 import {Buffer} from "buffer";
 import {listMarket, getAssetDetail, getDatum} from "@/scripts/blockfrost";
-import {decodeAssetName, listProviders, callKuberAndSubmit, transformNftImageUrl, renderLovelace} from "@/scripts/wallet";
+import {decodeAssetName,  transformNftImageUrl, renderLovelace,kuber} from "@/scripts/wallet";
 import * as database from "@/scripts/database"
-import {market} from "@/config";
-import {Address, BaseAddress, Ed25519KeyHash, StakeCredential} from "@emurgo/cardano-serialization-lib-asmjs";
+import {explorerUrl, market} from "@/config";
+import { BaseAddress, Ed25519KeyHash, StakeCredential, Transaction, TransactionWitnessSet, Vkeywitnesses} from "@emurgo/cardano-serialization-lib-asmjs";
 import {walletAction} from "@/scripts/sotre"
 </script>
 
@@ -18,9 +19,8 @@ import {walletAction} from "@/scripts/sotre"
         <img :alt="utxo.assetName +'_img'" class="inline-block h-32 w-32  mr-4 border-red-300 border-2" :src="utxo.detail._imageUrl"/>
         <div class="flex flex-col justify-between pb-2">
           <div>
-
             <div v-if="utxo.detail._name">
-              <a :href="'https://testnet.cardanoscan.io/token/'+utxo.nft"> &#x29c9; </a>
+              <a :href="explorerUrl+ '/token/'+utxo.nft"> &#x29c9; </a>
 
               <span class="text-blue-900 text-xl font-extrabol"> {{ utxo.detail._name }}  </span>
               <span v-if="utxo.detail?.onchain_metadata?.artist"> <span
@@ -179,9 +179,8 @@ export default {
       console.log("SellerAddr",sellerAddr.to_address().to_bech32())
 
       // Create constraints for buying
-      walletAction.callback=async (provider : CIP30Instace)=>{
+      walletAction.callback=async (provider:CIP30Wallet)=>{
           const request = {
-        selections: await provider.getUtxos(),
         inputs: [
           {
             address: market.address,
@@ -200,13 +199,40 @@ export default {
             insuffientUtxoAda: "increase"
           }
         ],
+        };
+        return kuber.buildWithProvider(provider,request).then(async tx=>{
+          console.log("SigningTx",tx.to_hex())
+          const witness = await provider.signTx(tx);
+          console.log("sell1",{
+                  "rawTx":tx.to_hex(),
+                  witness:witness.to_hex(),
+               })
+               const finalTx = this.mergeTxAndWitness(tx,witness)
+               console.log("sell2",{
+                  "rawTx":tx.to_hex(),
+                  witness:witness.to_hex(),
+                  finalTx: finalTx.to_hex()
+               })
+               return provider.submitTx(finalTx)
+        })
       };
-      return callKuberAndSubmit(provider,JSON.stringify(request))
-      }
-      walletAction.enable=true
+      walletAction.enable = true;
     },
-    save(v: string) {
-      localStorage.setItem("editor.content", v);
+    mergeTxAndWitness(tx:Transaction,walletWitnesses: TransactionWitnessSet):Transaction{
+      function addVkeyWitnesses(target:Vkeywitnesses, source: Vkeywitnesses ){
+        for (let i=0;i<source.len();i++) {
+          target.add(source.get(i))
+        }
+        return target
+      }
+      const txWitnessesSet = tx.witness_set()
+      if(txWitnessesSet.vkeys()){
+
+      }else{
+        txWitnessesSet.set_vkeys(walletWitnesses.vkeys())
+      }
+      
+      return Transaction.new(tx.body(), txWitnessesSet, tx.auxiliary_data());
     },
   }
 };

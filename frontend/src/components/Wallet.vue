@@ -7,22 +7,24 @@ import {
   TransitionChild,
   TransitionRoot,
 } from "@headlessui/vue";
-import {
-  calculatePolicyHash,
-  decodeAssetName,
-  listProviders,
-  walletValue,
-} from "@/scripts/wallet";
-import type { CIP30Provider } from "@/types";
+import { transformNftImageUrl, kuber, decodeAssetName } from "@/scripts/wallet";
 import { getAssetDetail } from "@/scripts/blockfrost";
 import { walletState, walletAction } from "@/scripts/sotre";
-import { callKuberAndSubmit, transformNftImageUrl } from "@/scripts/wallet";
 import { market } from "@/config";
 import {
   Address,
   BaseAddress,
-  ScriptPubkey,
+Transaction,
+TransactionWitnessSet,
+Vkeywitnesses,
 } from "@emurgo/cardano-serialization-lib-asmjs";
+import {
+  CIP30ProviderProxy,
+  CIP30Wallet,
+  mergeTxAndWitness,
+  signAndSubmit,
+  WalletBalance,
+} from "kuber-client";
 </script>
 
 <template>
@@ -241,13 +243,14 @@ import {
 <script lang="ts">
 export default {
   data() {
+    const noInstance: CIP30Wallet | null = null;
     return {
       showMint: false,
       prompt: "Connect Wallet",
       providers: null,
       curProvider: null,
       walletPkh: null,
-      curInstance: null,
+      curInstance: noInstance,
       sellAmount: "",
       showToast: false,
       lastSalePrompt: 0,
@@ -266,7 +269,7 @@ export default {
     let unWatch;
     let handler = (newVal, oldVal) => {
       if (newVal !== oldVal) {
-        const providers = listProviders();
+        const providers = CIP30Wallet.listProviders();
         this.providers = providers;
         unWatch();
       }
@@ -280,59 +283,65 @@ export default {
       Array.from(document.forms["mint-form"].elements).forEach((v: HTMLInputElement) => {
         if (v.tagName == "INPUT") data[v.name] = v.value;
       });
-      const tokenName = Buffer.from(data.tokenName, "utf-8").toString("hex");
-      const addresses = await this.curInstance.getUnusedAddresses().then((v) => {
+      const tokenNameHex = Buffer.from(data.tokenName, "utf-8").toString("hex");
+      const addresses = await this.curInstance.unusedAddresses().then((v) => {
         if (v.length == 0) {
-          return this.curInstance.getUsedAddresses();
+          return this.curInstance.usedAddresses();
         } else {
           return v;
         }
       });
-      console.log("addresses", addresses);
-      const userAddr = BaseAddress.from_address(
-        Address.from_bytes(Uint8Array.from(Buffer.from(addresses[0], "hex")))
-      );
       const userPkh = Buffer.from(
-        userAddr.payment_cred().to_keyhash().to_bytes()
+        BaseAddress.from_address(addresses[0])
+          .payment_cred()
+          .to_keyhash()
+          .to_bytes()
       ).toString("hex");
-      const walletUtxos = await this.curInstance.getUtxos();
-      console.log({
-        userPkh: userPkh,
-        userAddr: userAddr,
-      });
-      return calculatePolicyHash({
-        type: "sig",
-        keyHash: userPkh,
-      })
+      return kuber
+        .getScriptPolicy({
+          type: "sig",
+          keyHash: userPkh,
+        })
         .then((policyId: string) => {
           console.log("policy", policyId);
           const request: any = {
-            selections: walletUtxos,
             mint: [
               {
                 script: {
                   type: "sig",
                   keyHash: userPkh,
                 },
-                amount: {},
+                amount: {
+                  [tokenNameHex]: 1,
+                },
               },
             ],
+            metadata: {
+              721: {
+                [policyId]: {
+                  [data.tokenName]: {
+                    name: data.tokenName,
+                    image: data.imageUrl,
+                    artist: data.artist,
+                    mediaType: "image/jpeg",
+                  },
+                },
+              },
+            },
           };
-          request.mint[0].amount[tokenName] = 1;
+          return kuber
+            .buildWithProvider(this.curInstance.instance, request)
+            .then(async (tx) => {
 
-          if (data.imageUrl || data.artist) {
-            (request.metadata = {
-              721: {},
-            }),
-              (request.metadata[721][policyId] = {});
-            request.metadata[721][policyId][data.tokenName] = {
-              name: data.tokenName,
-              image: data.imageUrl,
-              artist: data.artist,
-              mediaType: "image/jpeg",
-            };
-          }
-          return callKuberAndSubmit(this.curInstance, JSON.stringify(request));
+               const witness = await this.curInstance.signTx(tx);
+               const finalTx = mergeTxAndWitness(tx,witness)
+               console.log("mint",{
+                  "rawTx":tx.to_hex(),
+                  witness:witness.to_hex(),
+                  finalTx: finalTx.to_hex()
+               })
+               return this.curInstance.submitTx(finalTx)
+            });
         })
         .catch((e) => {
           console.error(e);
@@ -359,11 +368,9 @@ export default {
     copyToClipboard() {
       navigator.clipboard.writeText(this.walletPkh);
     },
-    async sellNft(providerInstance, asset) {
-      const addresses = await providerInstance.getUsedAddresses();
-      const sellerAddr = BaseAddress.from_address(
-        Address.from_bytes(Uint8Array.from(Buffer.from(addresses[0], "hex")))
-      );
+    async sellNft(providerInstance: CIP30Wallet, asset) {
+      const addresses = await providerInstance.usedAddresses();
+      const sellerAddr = BaseAddress.from_address(addresses[0])
       console.log("sellerAddr", sellerAddr);
       const sellerPkh = Buffer.from(
         sellerAddr.payment_cred().to_keyhash().to_bytes()
@@ -372,7 +379,6 @@ export default {
         sellerAddr.stake_cred().to_keyhash().to_bytes()
       ).toString("hex");
       const body: any = {
-        selections: await providerInstance.getUtxos(),
         outputs: [
           {
             address: market.address,
@@ -403,16 +409,15 @@ export default {
           },
         ],
       };
-      callKuberAndSubmit(providerInstance, JSON.stringify(body));
+      return kuber.buildWithProvider(providerInstance,body).then(async (tx) => {
+        providerInstance.signAndSubmit(tx)
+      });
     },
-    async renderPubKeyHash(providerInstance) {
-      const addresses = await providerInstance.getUsedAddresses();
-      const sellerAddr = BaseAddress.from_address(
-        Address.from_bytes(Uint8Array.from(Buffer.from(addresses[0], "hex")))
-      );
-      const sellerPkh = Buffer.from(
-        sellerAddr.payment_cred().to_keyhash().to_bytes()
-      ).toString("hex");
+    async renderPubKeyHash(providerInstance: CIP30Wallet) {
+      const addresses = await providerInstance.instance.getChangeAddress();
+      console.log("Change address",addresses)
+      const sellerAddr = BaseAddress.from_address(Address.from_hex(addresses))
+      const sellerPkh = sellerAddr.payment_cred().to_keyhash().to_hex()
       console.log("seller public key hash", typeof sellerPkh);
       return sellerPkh;
     },
@@ -422,13 +427,14 @@ export default {
     renderLovelace(l: bigint): number {
       return parseFloat((l / BigInt(10000)).toString()) / 100;
     },
-    async activate(provider: CIP30Provider) {
+    async activate(provider: CIP30ProviderProxy) {
       console.log("clicked");
       if (walletAction.enable) {
         walletAction.enable = false;
         console.log("calling", walletAction.callback);
         return walletAction.callback(await provider.enable())?.catch?.((e) => {
-          alert("Error" + e.message);
+          console.error(e)
+          alert("Error " + (e && e.message) || "Something went wrong ");
         });
       }
       const vm = this;
@@ -436,14 +442,14 @@ export default {
       return provider.enable().then(async (instance) => {
         this.curInstance = instance;
         this.walletPkh = await this.renderPubKeyHash(instance);
-        return walletValue(instance).then((val) => {
+        return instance.calculateBalance().then((val) => {
           console.log("Wallet balance", val);
           let assetList: Array<any> = [];
           for (let policy in val.multiassets) {
             const tokens = val.multiassets[policy];
             for (let token in tokens) {
               console.log(policy, token, tokens[token]);
-              if (tokens[token] == 1) {
+              if (tokens[token] == BigInt(1)) {
                 assetList.push({
                   tokenName: decodeAssetName(token),
                   policy: policy,
@@ -467,6 +473,7 @@ export default {
         });
       });
     },
+   
     disconnectProvider() {
       this.balance.lovelace = BigInt(0);
       this.balance.multiAssets = [];
