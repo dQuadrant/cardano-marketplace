@@ -16,11 +16,8 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE ViewPatterns #-}
 module Plutus.Contracts.V2.ConfigurableMarketplace(
-  configurableMarketScriptCredential,
-  configurableMarketAddress,
-  configurableMarketAddressShelly,
-  configurableMarketPlutusScript,
   configurableMarketValidator,
   configurableMarketScript,
   MarketRedeemer(..),
@@ -37,18 +34,20 @@ import  PlutusTx hiding( txOutDatum)
 import Data.Aeson (FromJSON, ToJSON)
 import qualified PlutusTx.AssocMap as AssocMap
 import qualified Data.Bifunctor
-import Plutus.V2.Ledger.Api
-import Plutus.V2.Ledger.Contexts (valuePaidTo, ownHash, valueLockedBy, findOwnInput, findDatum,txSignedBy)
 import qualified Data.ByteString.Short as SBS
 import qualified Data.ByteString.Lazy  as LBS
 import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV2)
 import Codec.Serialise ( serialise )
-import Plutus.V1.Ledger.Value (assetClassValueOf, AssetClass (AssetClass))
 import Plutus.Contracts.V2.MarketplaceConfig (MarketConfig(..))
 import Cardano.Api (IsCardanoEra,BabbageEra,NetworkId, AddressInEra, ShelleyAddr, BabbageEra, Script (PlutusScript), PlutusScriptVersion (PlutusScriptV2), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress)
 import qualified Cardano.Api.Shelley
 import PlutusTx.Builtins.Class (stringToBuiltinByteString)
 import PlutusTx.Builtins (decodeUtf8)
+import PlutusLedgerApi.V2
+import PlutusCore.Version (plcVersion100)
+import PlutusLedgerApi.V1.Value
+import PlutusLedgerApi.V2.Contexts
+import Cardano.Api (ShelleyBasedEra(ShelleyBasedEraBabbage))
 
 
 
@@ -60,7 +59,7 @@ allScriptInputsCount ctx@(ScriptContext info purpose)=
   countTxOut (TxInInfo _ (TxOut addr _ _ _)) = case addr of { Address cre m_sc -> case cre of
                                                               PubKeyCredential pkh -> 0
                                                               ScriptCredential vh -> 1  }
-getConfigFromInfo :: ValidatorHash -> TxInfo  -> MarketConfig
+getConfigFromInfo :: ScriptHash -> TxInfo  -> MarketConfig
 getConfigFromInfo configScriptValHash info = findRightDatum (txInfoReferenceInputs info)
   where
     findRightDatum [] =traceError "ConfigurableMarket: Missing referenceInput data"
@@ -83,7 +82,7 @@ data MarketRedeemer =  Buy | Withdraw
 PlutusTx.makeIsDataIndexed ''MarketRedeemer [('Buy, 0), ('Withdraw,1)]
 
 data MarketConstructor =MarketConstructor {
-  configValidatorytHash :: ValidatorHash
+  configValidatorytHash :: ScriptHash
 }
 PlutusTx.makeLift  ''MarketConstructor
 
@@ -123,29 +122,26 @@ mkWrappedConfigurableMarket constructor   d r c = check $ mkConfigurableMarket c
       _      -> traceError s
 
 
-configurableMarketValidator ::  MarketConstructor -> Validator
-configurableMarketValidator constructor = mkValidatorScript  $
-            $$(PlutusTx.compile [|| mkWrappedConfigurableMarket ||])
-            `applyCode` PlutusTx.liftCode constructor
+configurableMarketValidator constructor = 
+    $$(PlutusTx.compile [|| mkWrappedConfigurableMarket ||])
+            `unsafeApplyCode` PlutusTx.liftCode plcVersion100 constructor
 
 
-configurableMarketScript ::  MarketConstructor ->  Plutus.V2.Ledger.Api.Script
-configurableMarketScript constructor  =  unValidatorScript   $ configurableMarketValidator constructor
+configurableMarketScript constructor  =  serialiseCompiledCode   $ configurableMarketValidator constructor
 
 
 
 configurableMarketPlutusScript :: MarketConstructor -> Cardano.Api.Shelley.Script PlutusScriptV2
 configurableMarketPlutusScript  constructor = PlutusScript PlutusScriptV2  $ Cardano.Api.Shelley.PlutusScriptSerialised $ configurableMarketScriptBS
   where
-  configurableMarketScriptBS :: SBS.ShortByteString
-  configurableMarketScriptBS  =  SBS.toShort . LBS.toStrict $ serialise $ configurableMarketScript  constructor
+  configurableMarketScriptBS  =   configurableMarketScript  constructor
 
 configurableMarketAddressShelly :: MarketConstructor ->  NetworkId -> Cardano.Api.Shelley.Address ShelleyAddr
 configurableMarketAddressShelly constructor network = makeShelleyAddress network (configurableMarketScriptCredential constructor) NoStakeAddress
 
 
 configurableMarketAddress ::  MarketConstructor ->  NetworkId -> AddressInEra BabbageEra 
-configurableMarketAddress constructor network = makeShelleyAddressInEra network (configurableMarketScriptCredential constructor) NoStakeAddress
+configurableMarketAddress constructor network = makeShelleyAddressInEra ShelleyBasedEraBabbage network (configurableMarketScriptCredential constructor) NoStakeAddress
 
 
 configurableMarketScriptCredential :: MarketConstructor ->  Cardano.Api.Shelley.PaymentCredential

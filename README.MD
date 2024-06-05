@@ -20,8 +20,8 @@ Frontend vue project is located [here](./frontend).
 
 ### Project structure
 
-- **marketplace-plutus/** - contains plutus contract code for simple marketplace
-- **marketplace-cli/** - contains entry point for cli and cli commands and their parsing 
+- **marketplace-plutus/** - contains plutus contract codes for  marketplace
+- **marketplace-cli/** - Cli to perform marketplace operations with cardano-node connection.
 - **marketplace-core/** - contains marketplace core functions and  interaction with kuber library
 - **frontend/** - contains client side for marketplace
 

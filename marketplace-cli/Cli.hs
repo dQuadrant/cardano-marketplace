@@ -8,12 +8,11 @@ module Cli where
 
 import Cardano.Api
 import Cardano.Api.Byron (Address (ByronAddress))
-import Cardano.Api.Shelley (Address (ShelleyAddress), AsType (AsAlonzoEra), Lovelace (Lovelace), ProtocolParameters, fromPlutusData, fromShelleyStakeReference, scriptDataToJsonDetailedSchema, shelleyPayAddrToPlutusPubKHash, toPlutusData, toShelleyStakeAddr, toShelleyStakeCredential)
+import Cardano.Api.Shelley (Address (ShelleyAddress), AsType (AsAlonzoEra), ProtocolParameters, fromPlutusData, fromShelleyStakeReference, scriptDataToJsonDetailedSchema, shelleyPayAddrToPlutusPubKHash, toPlutusData, toShelleyStakeAddr, toShelleyStakeCredential)
 import qualified Cardano.Api.Shelley as Shelley
 import Cardano.Kuber.Api
-import Cardano.Kuber.Data.Parsers ( parseAssetNQuantity, parseScriptData, parseTxIn, parseValueText, scriptDataParser, parseAssetId, parseSignKey, parseAddressBench32, parseAddress)
+import Cardano.Kuber.Data.Parsers ( parseAssetNQuantity, parseScriptData, parseTxIn, parseValueText, scriptDataParser, parseAssetId, parseSignKey, parseAddress)
 import Cardano.Kuber.Util hiding (toHexString)
-import Cardano.Ledger.Alonzo.Tx (TxBody (txfee))
 import qualified Cardano.Ledger.BaseTypes as Shelley (Network (..))
 import Cardano.Marketplace.Common.TextUtils
 import Cardano.Marketplace.Common.TransactionUtils
@@ -41,20 +40,17 @@ import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TL
 import Plutus.Contracts.V2.SimpleMarketplace (SimpleSale (..), simpleMarketplacePlutusV2)
 import qualified Plutus.Contracts.V2.SimpleMarketplace as SMP
-import Plutus.V1.Ledger.Api (ToData (toBuiltinData), dataToBuiltinData)
-import qualified Plutus.V1.Ledger.Api as Plutus
+
 import System.Console.CmdArgs
 import System.Directory (doesFileExist, getCurrentDirectory, getDirectoryContents)
 import Cardano.Kuber.Console.ConsoleWritable
 import Data.Text.Encoding (encodeUtf8)
-import System.Directory.Internal.Prelude (getEnv)
-import Plutus.V2.Ledger.Api (fromData, FromData (fromBuiltinData))
 import qualified Data.Aeson as A
 import qualified Data.Text.Lazy.IO as TL
 import qualified Data.Text.Encoding as T
-import Cardano.Api.SerialiseTextEnvelope (TextEnvelopeDescr(TextEnvelopeDescr))
 import qualified Debug.Trace as Debug
 import qualified Data.ByteString.Lazy.Char8 as BSL8
+import PlutusLedgerApi.V2 (dataToBuiltinData, FromData (fromBuiltinData))
 
 data Modes
   = Cat -- Cat script binary
@@ -144,10 +140,10 @@ runCli = do
   case op of
     Ls -> do
       (UTxO uMap) <- queryMarketUtxos chainInfo marketAddr
-      let vals = mapMaybe (\(txin,TxOut addr (TxOutValue _ val) datum _) -> case datum of
+      let vals = mapMaybe (\(txin,TxOut addr val datum _) -> case datum of
             TxOutDatumNone -> Nothing
             TxOutDatumHash sdsie ha -> Nothing
-            TxOutDatumInline rtisidsie sd -> case fromBuiltinData $ dataToBuiltinData  $ toPlutusData sd of
+            TxOutDatumInline rtisidsie sd -> case fromBuiltinData $  dataToBuiltinData $  toPlutusData $ getScriptData  sd of
               Nothing -> Nothing
               Just (SimpleSale artist cost) -> pure (txin,cost,val)  ) (Map.toList uMap)
 
@@ -161,48 +157,49 @@ runCli = do
           where
             filtered= filter (\(a,v)-> a /= AdaAssetId )  $ valueToList val
     Cat -> do
-      let envelope = serialiseToTextEnvelope (Just $  TextEnvelopeDescr "SimpleMarketplaceV2")  simpleMarketplacePlutusV2
+      let envelope = serialiseToTextEnvelope (Just $   "SimpleMarketplaceV2")  simpleMarketplacePlutusV2
       T.putStrLn $ T.decodeUtf8 $ prettyPrintJSON  envelope
-    Sell itemStr cost saddressMaybe sKeyFile-> do
-      sKey <- getSignKey sKeyFile
-      sellerAddress <-case saddressMaybe of
-        Nothing -> pure Nothing
-        Just txt -> do 
-          addr<- parseAddress txt
-          pure $ pure addr
-      sellToken chainInfo itemStr cost sKey sellerAddress marketAddr
-    Buy txInText datumStr sKeyFile-> do
-      sKey <- getSignKey sKeyFile
-      buyToken chainInfo txInText datumStr sKey marketAddr
-    Withdraw txInText datumStr sKeyFile-> do
-      sKey <- getSignKey sKeyFile
-      withdrawToken chainInfo txInText datumStr sKey marketAddr
-    Mint sKeyFile tokenNameStr qty-> do
-      asset <- case deserialiseFromRawBytes AsAssetName $ encodeUtf8 tokenNameStr of
-          Nothing -> throwIO $ FrameworkError ParserError ("Invalid assetName string : "++ T.unpack  tokenNameStr)
-          Just an -> pure an
-      skey <- getSignKey sKeyFile
-      mint chainInfo skey (skeyToAddrInEra skey (getNetworkId chainInfo)) asset qty
-    CreateCollateral sKeyFile-> do
-      skey <- getSignKey sKeyFile
-      let addrInEra = getAddrEraFromSignKey chainInfo skey
-      utxosE <- queryAddressInEraUtxos (getConnectInfo chainInfo) [addrInEra]
-      utxos <- case utxosE of
-        Left fe -> error $ "Error querying utxos: " <> show fe
-        Right utxos -> pure utxos
-      let txOperations = txPayTo addrInEra (lovelaceToValue $ Lovelace 60_000_000) 
-            <> txWalletAddress addrInEra 
-            <> txConsumeUtxos utxos
-            <> txWalletSignKey skey
-      submitTransaction chainInfo txOperations 
-    Balance sKeyFile-> do
-      if null sKeyFile
-        then fail "Missing filename"
-        else pure ()
-      skey <- getSignKey sKeyFile
-      let addrInEra = getAddrEraFromSignKey chainInfo skey
-      putStrLn $ "Wallet Address: " ++ T.unpack (serialiseAddress addrInEra)
-      utxosE <- queryAddressInEraUtxos (getConnectInfo chainInfo) [addrInEra]
-      case utxosE of
-        Left fe -> throwIO $ FrameworkError ParserError (show fe)
-        Right utxos -> putStrLn $ jsonEncodeUtxos utxos
+    _ -> error " Unsupported"
+    -- Sell itemStr cost saddressMaybe sKeyFile-> do
+    --   sKey <- getSignKey sKeyFile
+    --   sellerAddress <-case saddressMaybe of
+    --     Nothing -> pure Nothing
+    --     Just txt -> do 
+    --       addr<- parseAddress txt
+    --       pure $ pure addr
+    --   sellToken chainInfo itemStr cost sKey sellerAddress marketAddr
+    -- Buy txInText datumStr sKeyFile-> do
+    --   sKey <- getSignKey sKeyFile
+    --   buyToken chainInfo txInText datumStr sKey marketAddr
+    -- Withdraw txInText datumStr sKeyFile-> do
+    --   sKey <- getSignKey sKeyFile
+    --   withdrawToken chainInfo txInText datumStr sKey marketAddr
+    -- Mint sKeyFile tokenNameStr qty-> do
+    --   asset <- case deserialiseFromRawBytes AsAssetName $ encodeUtf8 tokenNameStr of
+    --       Nothing -> throwIO $ FrameworkError ParserError ("Invalid assetName string : "++ T.unpack  tokenNameStr)
+    --       Just an -> pure an
+    --   skey <- getSignKey sKeyFile
+    --   mint chainInfo skey (skeyToAddrInEra skey (getNetworkId chainInfo)) asset qty
+    -- CreateCollateral sKeyFile-> do
+    --   skey <- getSignKey sKeyFile
+    --   let addrInEra = getAddrEraFromSignKey chainInfo skey
+    --   utxosE <- queryAddressInEraUtxos (getConnectInfo chainInfo) [addrInEra]
+    --   utxos <- case utxosE of
+    --     Left fe -> error $ "Error querying utxos: " <> show fe
+    --     Right utxos -> pure utxos
+    --   let txOperations = txPayTo addrInEra (lovelaceToValue $ Lovelace 60_000_000) 
+    --         <> txWalletAddress addrInEra 
+    --         <> txConsumeUtxos utxos
+    --         <> txWalletSignKey skey
+    --   submitTransaction chainInfo txOperations 
+    -- Balance sKeyFile-> do
+    --   if null sKeyFile
+    --     then fail "Missing filename"
+    --     else pure ()
+    --   skey <- getSignKey sKeyFile
+    --   let addrInEra = getAddrEraFromSignKey chainInfo skey
+    --   putStrLn $ "Wallet Address: " ++ T.unpack (serialiseAddress addrInEra)
+    --   utxosE <- queryAddressInEraUtxos (getConnectInfo chainInfo) [addrInEra]
+    --   case utxosE of
+    --     Left fe -> throwIO $ FrameworkError ParserError (show fe)
+    --     Right utxos -> putStrLn $ jsonEncodeUtxos utxos

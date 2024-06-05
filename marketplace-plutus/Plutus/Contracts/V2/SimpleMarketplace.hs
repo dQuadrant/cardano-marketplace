@@ -16,6 +16,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE ViewPatterns #-}
 module Plutus.Contracts.V2.SimpleMarketplace(
   simpleMarketplacePlutusV2,
   simpleMarketplaceScript,
@@ -32,13 +33,13 @@ import  PlutusTx hiding( txOutDatum)
 import Data.Aeson (FromJSON, ToJSON)
 import qualified PlutusTx.AssocMap as AssocMap
 import qualified Data.Bifunctor
-import Plutus.V2.Ledger.Api
-import Plutus.V2.Ledger.Contexts (valuePaidTo, ownHash, valueLockedBy, findOwnInput, findDatum,txSignedBy)
 import qualified Data.ByteString.Short as SBS
 import qualified Data.ByteString.Lazy  as LBS
 import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV2)
 import Codec.Serialise ( serialise )
-import Plutus.V1.Ledger.Value (assetClassValueOf, AssetClass (AssetClass))
+import PlutusLedgerApi.V2
+import PlutusLedgerApi.V1.Value
+import PlutusLedgerApi.V2.Contexts
 
 
 {-# INLINABLE allScriptInputsCount #-}
@@ -89,15 +90,11 @@ mkWrappedMarket  d r c = check $ mkMarket (parseData d "Invalid data") (parseDat
       _      -> traceError s
 
 
-simpleMarketValidator ::   Validator
-simpleMarketValidator = mkValidatorScript  $
+simpleMarketValidator = 
             $$(PlutusTx.compile [|| mkWrappedMarket ||])
 
-simpleMarketplaceScript ::   Script
-simpleMarketplaceScript  =  unValidatorScript  simpleMarketValidator
+simpleMarketplaceScript  =  serialiseCompiledCode  simpleMarketValidator
 
-marketScriptSBS :: SBS.ShortByteString
-marketScriptSBS  =  SBS.toShort . LBS.toStrict $ serialise $ simpleMarketplaceScript 
 
 simpleMarketplacePlutusV2 ::  PlutusScript PlutusScriptV2
-simpleMarketplacePlutusV2  = PlutusScriptSerialised $ marketScriptSBS
+simpleMarketplacePlutusV2  = PlutusScriptSerialised $ simpleMarketplaceScript

@@ -33,6 +33,7 @@ library marketplace-plutus
     , cardano-ledger-alonzo
     , plutus-ledger-api
     , plutus-tx-plugin
+    , plutus-core
     , aeson
     , bytestring
     , cardano-api
@@ -55,17 +56,11 @@ library marketplace-core
     , serialise
     , http-types
     , marketplace-plutus
+    , cardano-api
+    , plutus-ledger-api
     , text 
     , text-conversions
-    , cardano-api
-    , cardano-ledger-shelley
-    , cardano-ledger-core
-    , cardano-ledger-shelley-ma
-    , cardano-ledger-alonzo
-    , plutus-ledger-api
     , plutus-tx
-    , cborg
-    , cardano-binary
     , mtl
     , kuber
 
@@ -77,7 +72,7 @@ executable  market-cli
   build-depends:
       base -any
     , directory
-    , cmdargs >= 0.10.18
+    , cmdargs
     , plutus-ledger-api
     , text
     , containers
@@ -86,7 +81,6 @@ executable  market-cli
     , serialise
     , cardano-ledger-shelley
     , cardano-ledger-core
-    , cardano-ledger-shelley-ma
     , cardano-ledger-alonzo
     , cardano-api
     , kuber

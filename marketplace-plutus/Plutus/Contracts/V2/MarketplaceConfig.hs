@@ -16,6 +16,7 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE ViewPatterns #-}
 module Plutus.Contracts.V2.MarketplaceConfig(
   marketConfigPlutusScript,
   marketConfigValidator,
@@ -35,14 +36,13 @@ import  PlutusTx hiding( txOutDatum)
 import Data.Aeson (FromJSON, ToJSON)
 import qualified PlutusTx.AssocMap as AssocMap
 import qualified Data.Bifunctor
-import Plutus.V2.Ledger.Api
-import Plutus.V2.Ledger.Contexts (valuePaidTo, ownHash, valueLockedBy, findOwnInput, findDatum,txSignedBy)
 import qualified Data.ByteString.Short as SBS
 import qualified Data.ByteString.Lazy  as LBS
 import Codec.Serialise ( serialise )
-import Plutus.V1.Ledger.Value (assetClassValueOf, AssetClass (AssetClass))
 import Cardano.Api (IsCardanoEra,BabbageEra,NetworkId, AddressInEra, ShelleyAddr, BabbageEra, Script (PlutusScript), PlutusScriptVersion (PlutusScriptV2), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress)
 import qualified Cardano.Api.Shelley
+import PlutusLedgerApi.V2
+import PlutusLedgerApi.V2.Contexts
 
 
 data MarketConfig=MarketConfig{
@@ -73,13 +73,10 @@ mkWrappedMarketConfig  d r c =
       _      -> traceError s
 
 
-marketConfigValidator ::   Validator
-marketConfigValidator = mkValidatorScript  
+marketConfigValidator =  
             $$(PlutusTx.compile [|| mkWrappedMarketConfig ||])
 
-marketConfigScript ::   Plutus.V2.Ledger.Api.Script
-marketConfigScript  =  unValidatorScript  marketConfigValidator
-
+marketConfigScript  =  serialiseCompiledCode  marketConfigValidator
 
 
 marketConfigPlutusScript  = PlutusScript PlutusScriptV2  $ Cardano.Api.Shelley.PlutusScriptSerialised $ marketConfigScriptBS
@@ -91,8 +88,8 @@ marketConfigAddressShelly :: NetworkId -> Cardano.Api.Shelley.Address ShelleyAdd
 marketConfigAddressShelly network = makeShelleyAddress network marketConfigScriptCredential NoStakeAddress
 
 
-marketConfigAddress :: IsCardanoEra  BabbageEra  => NetworkId -> AddressInEra BabbageEra 
-marketConfigAddress network = makeShelleyAddressInEra network marketConfigScriptCredential NoStakeAddress
+marketConfigAddress ::  NetworkId -> AddressInEra BabbageEra 
+marketConfigAddress network = makeShelleyAddressInEra Cardano.Api.Shelley.ShelleyBasedEraBabbage network marketConfigScriptCredential NoStakeAddress
 
 
 marketConfigScriptCredential :: Cardano.Api.Shelley.PaymentCredential
