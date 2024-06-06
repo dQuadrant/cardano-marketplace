@@ -10,7 +10,6 @@
 module Cardano.Marketplace.Common.TransactionUtils where
 
 
-import Cardano.Kuber.Api
 import Cardano.Kuber.Data.Parsers
   ( parseAssetId,
 
@@ -45,12 +44,11 @@ import Cardano.Kuber.Util (fromPlutusData, fromPlutusAddress)
 
 
 
-
 marketAddressShelley :: NetworkId -> Address ShelleyAddr
 marketAddressShelley network = makeShelleyAddress network scriptCredential NoStakeAddress
 
-marketAddressInEra :: NetworkId -> AddressInEra BabbageEra
-marketAddressInEra network = makeShelleyAddressInEra ShelleyBasedEraBabbage network scriptCredential NoStakeAddress
+marketAddressInEra :: NetworkId -> AddressInEra ConwayEra
+marketAddressInEra network = makeShelleyAddressInEra ShelleyBasedEraConway network scriptCredential NoStakeAddress
 
 scriptCredential :: PaymentCredential
 scriptCredential = PaymentCredentialByScript marketHash
@@ -58,38 +56,24 @@ scriptCredential = PaymentCredentialByScript marketHash
     marketHash = hashScript marketScript
     marketScript = PlutusScript PlutusScriptV2 simpleMarketplacePlutusV2
 
-queryMarketUtxos :: HasChainQueryAPI a =>  Address ShelleyAddr -> Kontract a s FrameworkError (UTxO BabbageEra)
-queryMarketUtxos  addr = 
-  kQueryUtxoByAddress  $ Set.singleton  (toAddressAny addr)
 
 
-constructDatum :: AddressInEra BabbageEra -> Integer -> ScriptData
-constructDatum sellerAddr costOfAsset =
+createSaleDatum :: AddressInEra ConwayEra -> Integer -> HashableScriptData
+createSaleDatum sellerAddr costOfAsset =
   -- Convert AddressInEra to Plutus.Address
   let plutusAddr =  toPlutusAddress sellerAddrShelley
-      sellerAddrShelley = case sellerAddr of { AddressInEra atie ad -> case ad of
-                                                 addr@(ShelleyAddress net cre sr )-> addr  
-                                                 _  -> error "Byron era address Not supported"
+      sellerAddrShelley = case sellerAddr of {
+         AddressInEra atie ad -> case ad of
+          addr@(ShelleyAddress net cre sr )-> addr  
+          _  -> error "Byron era address Not supported"
 
-                                                 }
+          }
       datum = SimpleSale plutusAddr costOfAsset
 
-   in fromPlutusData $ Plutus.toData datum
+   in unsafeHashableScriptData $  fromPlutusData $ Plutus.toData datum
 
-getTxIdFromTx :: Tx BabbageEra -> String
+getTxIdFromTx :: Tx ConwayEra -> String
 getTxIdFromTx tx = T.unpack $ serialiseToRawBytesHexText $ getTxId $ getTxBody tx
-
-unMaybe :: String -> Maybe a -> a
-unMaybe errStr m = case m of
-  Nothing -> error errStr
-  Just x -> x
-
-
-printTxBuilder :: TxBuilder -> IO ()
-printTxBuilder txBuilder = do
-  putStrLn $ BS8.unpack $ prettyPrintJSON txBuilder
-
-
 
 
 getSignKey :: [Char] -> IO (SigningKey PaymentKey)

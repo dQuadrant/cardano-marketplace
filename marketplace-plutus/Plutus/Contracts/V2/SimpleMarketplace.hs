@@ -17,6 +17,7 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE ViewPatterns #-}
+{-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:target-version=1.0.0 #-}
 module Plutus.Contracts.V2.SimpleMarketplace(
   simpleMarketplacePlutusV2,
   simpleMarketplaceScript,
@@ -35,6 +36,7 @@ import qualified PlutusTx.AssocMap as AssocMap
 import qualified Data.Bifunctor
 import qualified Data.ByteString.Short as SBS
 import qualified Data.ByteString.Lazy  as LBS
+
 import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV2)
 import Codec.Serialise ( serialise )
 import PlutusLedgerApi.V2

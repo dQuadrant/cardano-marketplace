@@ -30,6 +30,9 @@ import qualified Plutus.Contracts.V2.SimpleMarketplace as SMP
 import qualified Debug.Trace as Debug
 import Data.Functor ((<&>))
 import Control.Exception (throw)
+import qualified Data.Set as Set
+import qualified Plutus.Contracts.V2.SimpleMarketplace as Marketplace
+import PlutusLedgerApi.V2 (toData, dataToBuiltinData, FromData (fromBuiltinData))
 
 
 mint ::  VerificationKey PaymentKey -> AssetName -> Integer -> TxBuilder
@@ -43,91 +46,61 @@ createReferenceScript  receiverAddr = do
     txPayToWithReferenceScript  receiverAddr mempty ( TxScriptPlutus $ toTxPlutusScript $   simpleMarketplacePlutusV2)
 
 
--- sellToken :: String -> Integer -> SigningKey PaymentKey -> Maybe (AddressInEra  BabbageEra ) -> Address ShelleyAddr -> IO ()
--- sellToken  itemStr cost sKey mSellerAddr marketAddr = do
---   let addrShelley = skeyToAddr sKey (getNetworkId ctx)
---       sellerAddr =case mSellerAddr of
---         Nothing -> skeyToAddrInEra  sKey (getNetworkId ctx)
---         Just ad -> ad 
---   item <- parseAssetNQuantity $ T.pack itemStr
---   let saleDatum = constructDatum sellerAddr cost
---       marketAddrInEra =  marketAddressInEra (getNetworkId ctx)
---       txOperations =
---         txPayToScriptWithData marketAddrInEra (valueFromList [item]) saleDatum
---           <> txWalletSignKey sKey
---   putStrLn $  "InlineDatum : " ++ encodeScriptData saleDatum
---   submitTransaction ctx txOperations 
-
--- data UtxoWithData = UtxoWithData
---   {
---    uwdTxIn :: TxIn,
---    uwdTxOut :: TxOut CtxUTxO BabbageEra,
---    uwdScriptData :: ScriptData,
---    uwdSimpleSale :: SimpleSale,
---    uwdSellerAddr :: AddressInEra BabbageEra
---   }
-
--- buyToken ::  Text -> Maybe String -> SigningKey PaymentKey -> Address ShelleyAddr -> Kontract api w FrameworkError ()
--- buyToken ctx txInText datumStrM sKey marketAddr = do
---   dcInfo <- withDetails ctx
---   UtxoWithData txIn txOut scriptData sSale@(SimpleSale _ priceOfAsset) sellerAddrInEra <- getUtxoWithData ctx txInText datumStrM marketAddr
---   let sellerPayOperation = txPayTo sellerAddrInEra (ensureMinAda sellerAddrInEra (lovelaceToValue $ Lovelace priceOfAsset) (dciProtocolParams dcInfo))
---   redeemMarketUtxo dcInfo txIn txOut sKey sellerPayOperation scriptData SMP.Buy
-
--- withdrawToken ::  Text -> Maybe String -> SigningKey PaymentKey -> Address ShelleyAddr -> Kontract api w FrameworkError ()
--- withdrawToken ctx txInText datumStrM sKey marketAddr = do
---   dcInfo <- withDetails ctx
---   UtxoWithData txIn txOut scriptData _ sellerAddrInEra <- getUtxoWithData ctx txInText datumStrM marketAddr
---   let sellerSignOperation = txSignBy sellerAddrInEra
---   redeemMarketUtxo dcInfo txIn txOut sKey sellerSignOperation scriptData SMP.Withdraw
-
--- getUtxoWithData ::  Text -> Maybe String -> Address ShelleyAddr -> IO UtxoWithData
--- getUtxoWithData ctx txInText datumStrM marketAddr= do
---   txIn <- parseTxIn txInText
---   UTxO uMap <- queryMarketUtxos ctx marketAddr
---   let txOut = unMaybe "Error couldn't find the given txin in market utxos." $ Map.lookup txIn uMap
---   (scriptData, simpleSale) <- getSimpleSaleTuple datumStrM txOut
---   let nwId = getNetworkId ctx
---       sellerAddrInEra = plutusAddressToAddressInEra nwId (sellerAddress simpleSale)
---   pure $ UtxoWithData txIn txOut scriptData simpleSale sellerAddrInEra
-
--- getSimpleSaleTuple :: Maybe String -> TxOut CtxUTxO BabbageEra -> IO (ScriptData, SimpleSale)
--- getSimpleSaleTuple datumStrM txOut = case datumStrM of
---     Nothing -> do
---       let inlineDatum = findInlineDatumFromTxOut txOut
---           simpleSale = unMaybe "Failed to convert datum to SimpleSale" $ Plutus.fromBuiltinData $ dataToBuiltinData $ toPlutusData inlineDatum
---       pure $ Debug.trace  (show simpleSale) (inlineDatum, simpleSale)
---     Just datumStr -> do
---       simpleSaleTuple@(scriptData, _) <- parseSimpleSale datumStr
---       let datumHashMatches = matchesDatumhash (hashScriptData scriptData) txOut
---       if not datumHashMatches
---         then error "Error : The given txin doesn't match the datumhash of the datum."
---         else pure $ Debug.trace (show simpleSaleTuple) simpleSaleTuple
-
--- redeemMarketUtxo ::  TxIn -> TxOut CtxUTxO BabbageEra -> 
---   SigningKey PaymentKey -> TxBuilder -> ScriptData -> SMP.MarketRedeemer -> Kontract api w FrameworkError ()
--- redeemMarketUtxo  txIn txOut sKey extraOperations scriptData redeemer = do
---   let walletAddr = getAddrEraFromSignKey dcInfo sKey
---       redeemUtxoOperation = txRedeemUtxo txIn txOut  simpleMarketplacePlutusV2   (fromPlutusData $ toData redeemer) Nothing
---       txOperations =
---         redeemUtxoOperation
---           <> txWalletAddress walletAddr
---           <> txWalletSignKey sKey
---           <> extraOperations
---   submitTransaction dcInfo txOperations 
---   putStrLn "Done"
+sellBuilder :: AddressInEra ConwayEra ->  Value -> Integer -> AddressInEra  ConwayEra  -> TxBuilder
+sellBuilder contractAddr saleItem cost  sellerAddr 
+  = txPayToScriptWithData contractAddr saleItem (createSaleDatum sellerAddr cost)
 
 
-
--- findInlineDatumFromTxOut :: TxOut CtxUTxO BabbageEra -> ScriptData
--- findInlineDatumFromTxOut (TxOut _ _ (TxOutDatumInline _ sd) _) = Debug.trace (show sd) sd
--- findInlineDatumFromTxOut _ = error "Error : The given txin doesn't have an inline datum. Please provide a datum using --datum '<datum string>'."
+withdrawRedeemer = ( unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Withdraw)
+buyRedeemer = ( unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Buy)
 
 
+getSimpleSaleInfo ::NetworkId -> TxOut CtxUTxO ConwayEra -> Either String  (AddressInEra ConwayEra,Integer)
+getSimpleSaleInfo netId tout@(TxOut addr val datum refscript) = do 
+    (SimpleSale seller price) <-  case datum of 
+          TxOutDatumInline  eon sd -> case fromBuiltinData $ dataToBuiltinData$  toPlutusData $ getScriptData sd of
+              Nothing -> fail "Invalid datum in the Utxo to be bought"
+              Just val -> pure val
+          _  ->  fail "Inline datum is not present in given utxo"
 
--- throwLeft e = case e of
---   Left e -> throw e
---   Right v ->  pure  v
+    sellerAddr <- case fromPlutusAddress netId seller of
+                    Just addr -> pure addr
+                    Nothing -> fail "Invalid address present in datum of the Utxo to be bought"
+
+    pure (AddressInEra (ShelleyAddressInEra ShelleyBasedEraConway) sellerAddr, price)
+
+buyTokenBuilder' :: NetworkId -> TxIn -> TxOut CtxUTxO ConwayEra -> Either String  TxBuilder
+buyTokenBuilder' netId txIn tout = do 
+    (sellerAddr , price) <- getSimpleSaleInfo netId tout
+    pure $ 
+      txRedeemUtxo txIn tout (simpleMarketplacePlutusV2) buyRedeemer  Nothing
+        <> txPayTo   (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
+
+buyTokenBuilder ::  HasChainQueryAPI api => TxIn  ->  Kontract api w FrameworkError TxBuilder
+buyTokenBuilder txin  = do
+  netid<- kGetNetworkId
+  (tin, tout) <- resolveTxIn txin
+  kWrapParser $ buyTokenBuilder' netid txin tout
 
 
--- txSimpleSaleScript = PlutusScript PlutusScriptV2 simpleMarketplacePlutusV2
+withdrawTokenBuilder' :: NetworkId -> TxIn -> TxOut CtxUTxO ConwayEra -> Either String  TxBuilder
+withdrawTokenBuilder' netId txIn tout = do 
+    (sellerAddr , price) <- getSimpleSaleInfo netId tout
+    pure $ 
+      txRedeemUtxo txIn tout (simpleMarketplacePlutusV2) withdrawRedeemer  Nothing
+        <> txSignBy (sellerAddr)
+
+
+withdrawTokenBuilder ::  HasChainQueryAPI api => TxIn  ->  Kontract api w FrameworkError TxBuilder
+withdrawTokenBuilder txin = do
+  netid<- kGetNetworkId
+  (tin, tout) <- resolveTxIn txin
+  kWrapParser $ withdrawTokenBuilder' netid txin tout
+
+
+resolveTxIn:: HasChainQueryAPI api => TxIn -> Kontract api w FrameworkError (TxIn, TxOut CtxUTxO ConwayEra)
+resolveTxIn txin = do 
+  (UTxO uMap) :: UTxO ConwayEra <- kQueryUtxoByTxin  $ Set.singleton txin
+  case Map.toList uMap  of 
+    [] -> kError NodeQueryError $ "Provided Utxo not found " ++  T.unpack (renderTxIn txin )
+    [(_,tout)]-> pure (txin,tout)

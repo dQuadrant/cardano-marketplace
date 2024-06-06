@@ -44,7 +44,7 @@ import qualified Cardano.Api.Shelley
 import PlutusTx.Builtins.Class (stringToBuiltinByteString)
 import PlutusTx.Builtins (decodeUtf8)
 import PlutusLedgerApi.V2
-import PlutusCore.Version (plcVersion100)
+import PlutusCore.Version (plcVersion100,plcVersion110)
 import PlutusLedgerApi.V1.Value
 import PlutusLedgerApi.V2.Contexts
 import Cardano.Api (ShelleyBasedEra(ShelleyBasedEraBabbage))
@@ -124,7 +124,7 @@ mkWrappedConfigurableMarket constructor   d r c = check $ mkConfigurableMarket c
 
 configurableMarketValidator constructor = 
     $$(PlutusTx.compile [|| mkWrappedConfigurableMarket ||])
-            `unsafeApplyCode` PlutusTx.liftCode plcVersion100 constructor
+            `unsafeApplyCode` PlutusTx.liftCode plcVersion110 constructor
 
 
 configurableMarketScript constructor  =  serialiseCompiledCode   $ configurableMarketValidator constructor
