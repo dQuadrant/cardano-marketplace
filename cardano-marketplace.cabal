@@ -90,7 +90,7 @@ executable  market-cli
 test-suite market-test
   default-language: Haskell2010
   type: exitcode-stdio-1.0
-  main-is:  Test.hs
+  main-is:  Main.hs
   hs-source-dirs: test
   other-modules:
     Test.TestStorySimpleMarket
@@ -99,9 +99,7 @@ test-suite market-test
     , hspec
     , hspec-junit-formatter >= 1.0
     , kuber
-    , QuickCheck -any
-    , tasty -any
-    , tasty-hunit -any
+    , lens
     , containers
     , bytestring
     , serialise

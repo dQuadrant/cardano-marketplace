@@ -35,10 +35,12 @@ import qualified Plutus.Contracts.V2.SimpleMarketplace as Marketplace
 import PlutusLedgerApi.V2 (toData, dataToBuiltinData, FromData (fromBuiltinData))
 
 
-mint ::  VerificationKey PaymentKey -> AssetName -> Integer -> TxBuilder
-mint vKey assetName amount = 
+mintNativeAsset ::  VerificationKey PaymentKey -> AssetName -> Integer -> (AssetId, TxBuilder)
+mintNativeAsset vKey assetName amount = 
   let script = RequireSignature $ verificationKeyHash vKey
-  in txMintSimpleScript @(SimpleScript ) script [(assetName, Quantity amount)]
+      scriptHash = hashScript $ SimpleScript  script
+      assetId = AssetId  (PolicyId scriptHash ) assetName 
+  in (assetId, txMintSimpleScript @(SimpleScript ) script [(assetName, Quantity amount)])
 
 
 createReferenceScript ::  AddressInEra ConwayEra -> TxBuilder

@@ -14,7 +14,6 @@ import qualified Cardano.Api.Shelley as Shelley
 import Cardano.Kuber.Api
 import Cardano.Kuber.Data.Parsers ( parseAssetNQuantity, parseScriptData, parseTxIn, parseValueText, scriptDataParser, parseAssetId, parseSignKey, parseAddress, parseAssetName)
 import Cardano.Kuber.Util hiding (toHexString)
-import qualified Cardano.Ledger.BaseTypes as Shelley (Network (..))
 import Cardano.Marketplace.Common.TextUtils
 import Cardano.Marketplace.Common.TransactionUtils
     ( getSignKey,
@@ -56,6 +55,7 @@ import qualified Data.Text.Encoding as T
 import qualified Debug.Trace as Debug
 import qualified Data.ByteString.Lazy.Char8 as BSL8
 import PlutusLedgerApi.V2 (dataToBuiltinData, FromData (fromBuiltinData))
+import Cardano.Marketplace.Common.TransactionUtils (runBuildAndSubmit)
 
 data Modes
   = Cat -- Cat script binary
@@ -138,6 +138,8 @@ runCli = do
           CreateCollateral
             {
               signingKeyFile = def &= typ "FilePath''" &= name "signing-key-file"
+              , address = def &= typ "WalletAddress" &= name "address"
+
             }
           &= help "Create a new collateral utxo.",
           Balance
@@ -222,10 +224,11 @@ runCli = do
                 else   kWrapParser $ parseAddress walletAddrStr
                       <&> txWalletAddress
       skey <- liftIO $ readSignKey sKeyFile
+      let (assetId,mintBuilder)= mintNativeAsset  (getVerificationKey $ skey)  assetName qty
       kBuildAndSubmit $ 
         txWalletSignKey skey
         <> builderWallet
-        <> mint  (getVerificationKey $ skey)  assetName qty
+        <> mintBuilder
 
     CreateCollateral sKeyFile mAddr-> do
       skey <- getSignKey sKeyFile
@@ -252,14 +255,6 @@ runCli = do
           utxos :: UTxO ConwayEra <- kQueryUtxoByAddress (Set.singleton $ addressInEraToAddressAny walletAddr)
           liftIO $ putStrLn $ toConsoleText " - " utxos
 
-
-runBuildAndSubmit :: (HasKuberAPI api, HasSubmitApi api) => TxBuilder -> Kontract api w FrameworkError ()
-runBuildAndSubmit   txBuilder =  do 
-        tx<- kBuildTx txBuilder
-        liftIO $ putStrLn $ "Tx Created :" ++  (getTxIdFromTx tx)
-
-        kSubmitTx (InAnyCardanoEra ConwayEra tx)
-        liftIO $ putStrLn $ "Tx Submitted :" ++  (getTxIdFromTx tx)
 
 
 getAddress ::MonadFail m => NetworkId ->  SigningKey PaymentKey -> Maybe Text -> m (AddressInEra ConwayEra)

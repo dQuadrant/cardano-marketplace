@@ -1,10 +1,5 @@
-import qualified Test.ReferenceScriptTest as ReferenceScriptTest
-import           Test.Tasty
+import qualified Test.TestStorySimpleMarket as StorySimpleMarket
 
 main :: IO ()
-main = defaultMain tests
-
-tests :: TestTree
-tests = testGroup "cardano-marketplace" [
-         ReferenceScriptTest.tests
-    ]
+main = do
+    StorySimpleMarket.main

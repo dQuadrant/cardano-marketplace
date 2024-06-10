@@ -41,6 +41,8 @@ import Cardano.Api
 import Cardano.Api.Shelley (Address(..))
 import qualified PlutusLedgerApi.V2 as Plutus
 import Cardano.Kuber.Util (fromPlutusData, fromPlutusAddress)
+import Cardano.Kuber.Api
+import GHC.Base (Alternative((<|>)))
 
 
 
@@ -86,3 +88,10 @@ getSignKey skeyfile =
                             pure  $ home ++  drop 1 skeyfile
                             )
                           else pure skeyfile
+
+runBuildAndSubmit :: (HasKuberAPI api, HasSubmitApi api) => TxBuilder -> Kontract api w FrameworkError (Tx ConwayEra)
+runBuildAndSubmit   txBuilder =  do 
+        tx<- kBuildTx txBuilder
+        kSubmitTx (InAnyCardanoEra ConwayEra tx) 
+        liftIO $ putStrLn $ "Tx Submitted :" ++  (getTxIdFromTx tx)
+        pure tx

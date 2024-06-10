@@ -7,18 +7,15 @@
 module Test.ReferenceScriptTest where
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.HUnit (testCase)
-import Cardano.Marketplace.Common.TransactionUtils (getSignKey, getAddrEraFromSignKey, marketAddressShelley, submitTransaction, marketAddressInEra)
 import Cardano.Kuber.Api
 import Cardano.Api
 import Cardano.Kuber.Util (getDefaultConnection, queryAddressInEraUtxos, skeyToAddr, queryUtxos, sKeyToPkh, queryTxins, skeyToAddrInEra)
 import Control.Exception (throwIO, throw)
-import Cardano.Marketplace.V2.Core (sellToken, createReferenceScript, UtxoWithData (..), ensureMinAda, getUtxoWithData)
 import Plutus.Contracts.V2.SimpleMarketplace
     ( SimpleSale(SimpleSale), simpleMarketplacePlutusV2, simpleMarketplaceScript )
 import Data.Text (Text, pack)
 import qualified Plutus.Contracts.V2.SimpleMarketplace as SMP
 import Cardano.Api.Shelley ( fromPlutusData, TxBody (ShelleyTxBody) )
-import Plutus.V2.Ledger.Api ( toData )
 import qualified Control.Concurrent as Control
 import System.Environment
 import qualified Data.ByteString.Char8 as BS8
@@ -29,17 +26,15 @@ import Data.Time.Calendar
 import Data.Maybe (isJust)
 import Data.Time.LocalTime (utcToLocalZonedTime, getZonedTime)
 import Cardano.Kuber.Console.ConsoleWritable (ConsoleWritable(toConsoleText, toConsoleTextNoPrefix))
-import qualified Plutus.V1.Ledger.Address as Plutus
-import qualified Plutus.V2.Ledger.Api as Plutus
+
 import qualified Data.Aeson as Aeson
 import qualified Data.Text.Encoding as T
 import qualified Text.Show as T
 import qualified Data.ByteString.Lazy.Char8 as BS8L
 import Data.Functor ( (<&>) )
-import Cardano.Api.Byron (TxBody(ByronTxBody))
-import Cardano.Ledger.Babbage.Tx (txfee)
 import Cardano.Ledger.Shelley.API.Types (Coin(Coin))
-import Plutus.V1.Ledger.Value (tokenName)
+
+
 
 
 tests :: TestTree
@@ -49,15 +44,17 @@ tests =
        -- 
   ]
 
+
 attachReferenceScriptToTxOutTest :: TestTree -- ^ Test that we can attach a reference script to a transaction output
 attachReferenceScriptToTxOutTest = testCase "should attach a reference script to a transaction output" attachReferenceScriptToTxOutTestIO
 
 
-chainInfoVasilTestnet :: IO ChainConnectInfo
-chainInfoVasilTestnet = do
-  let network=Testnet  (NetworkMagic 9)
-  conn <-getDefaultConnection  "testnet" network
+chainInfoSanchonet :: IO ChainConnectInfo
+chainInfoSanchonet = do
+  let network=Testnet  (NetworkMagic 4)
+  conn <-getDefaultConnection  "sanchonet" network
   pure $ ChainConnectInfo conn
+
 
 unEither :: Either FrameworkError b -> IO b
 unEither (Right b) = pure b
