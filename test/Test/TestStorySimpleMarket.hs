@@ -51,7 +51,8 @@ main =do
     walletVkey = getVerificationKey sKey
     walletBuilder = txWalletSignKey sKey
                   <> txWalletAddress walletAddr
-    runTransactionTest' action buikderKontract = runTransactionTest chainInfo action walletBuilder buikderKontract
+    runTransactionTest' action buikderKontract = runTransactionTest'' action buikderKontract >> pure ()
+    runTransactionTest'' action buikderKontract = runTransactionTest chainInfo action walletBuilder buikderKontract
     
   hspecJUnit $ sequential $ do
     describe "SimpleMarketPlaceFlow" $ do
@@ -59,14 +60,17 @@ main =do
       before (return $ increment 1) $ do
         it "Should mint  2 Native Assets" $ \result1 -> do                            
           runTransactionTest'
-                "Place on Sell" 
+                "Mint Native Asset" 
                 (pure $ mintBuilder)
 
         it "Should place 2 tokens on sale" $ \result1 -> do
           let sellTxBuilder = sellBuilder (marketAddressInEra networkId ) (valueFromList [(mintedAsset,1)] ) 10_000_000 walletAddr 
-          runTransactionTest'
+          eTx <- runTransactionTest''
                 "Place on Sell" 
                 (pure $ sellTxBuilder <> sellTxBuilder)
+          case eTx of 
+            Right tx -> atomically$ writeTVar txHolder (Just $ getTxId $ getTxBody tx )
+            _ -> pure ()
 
         it "Should withdraw 1 token from sale" $ \result1 -> do
           mSaleTxId <- readTVarIO txHolder
@@ -86,7 +90,12 @@ main =do
                   "Buy" 
                   (buyTokenBuilder (TxIn saleTxId (TxIx 1) ))
 
-runTransactionTest :: (HasKuberAPI api,HasSubmitApi api,HasChainQueryAPI api) => api -> String -> TxBuilder -> Kontract api w FrameworkError TxBuilder ->  IO ()
+runTransactionTest :: (HasKuberAPI a, HasSubmitApi a, HasChainQueryAPI a) =>
+  a
+  -> String
+  -> TxBuilder
+  -> Kontract a w FrameworkError TxBuilder
+  -> IO (Either FrameworkError (Tx ConwayEra))
 runTransactionTest chainInfo  action walletBuilder builderKontract = do 
     result <-evaluateKontract chainInfo  $ 
           performTransactionAndReport 
@@ -98,6 +107,7 @@ runTransactionTest chainInfo  action walletBuilder builderKontract = do
         Left _ -> False
         Right _ -> True
       ) 
+    pure result
 
 performTransactionAndReport :: (HasKuberAPI api,HasSubmitApi api,HasChainQueryAPI api) => String -> TxBuilder -> Kontract api w FrameworkError TxBuilder ->     Kontract api w FrameworkError (Tx ConwayEra)
 performTransactionAndReport action wallet builderKontract = do
