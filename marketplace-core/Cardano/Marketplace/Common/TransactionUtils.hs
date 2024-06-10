@@ -58,12 +58,14 @@ getSignKey skeyfile =
                             )
                           else pure skeyfile
 
-withdrawTokenBuilder' :: IsPlutusScript script => script -> HashableScriptData ->  NetworkId ->   TxIn -> TxOut CtxUTxO ConwayEra -> Either String  TxBuilder
-withdrawTokenBuilder' script redeemer netId txIn tout = do 
+withdrawTokenBuilder' :: IsPlutusScript script => script -> HashableScriptData ->  NetworkId -> Maybe TxIn ->   TxIn -> TxOut CtxUTxO ConwayEra -> Either String  TxBuilder
+withdrawTokenBuilder' script redeemer netId refTxIn txIn tout = do 
     (sellerAddr , price) <- getSimpleSaleInfo netId tout
-    pure $ 
-      txRedeemUtxo txIn tout script redeemer  Nothing
+    case refTxIn of 
+      Nothing -> pure $ txRedeemUtxo txIn tout script redeemer  Nothing
         <> txSignBy (sellerAddr)
+      Just referenceScriptTxIn -> pure $ txRedeemUtxoWithReferenceScript referenceScriptTxIn txIn tout redeemer Nothing 
+        <> txSignBy (sellerAddr)  
 
 getSimpleSaleInfo :: NetworkId -> TxOut CtxUTxO ConwayEra -> Either String (AddressInEra ConwayEra, Integer)
 getSimpleSaleInfo netId (TxOut addr val datum refscript) = do
@@ -85,11 +87,13 @@ createReferenceScript ::  IsPlutusScript script => script->AddressInEra ConwayEr
 createReferenceScript script receiverAddr = do
     txPayToWithReferenceScript  receiverAddr mempty ( TxScriptPlutus $ toTxPlutusScript $ script)
 
-buyTokenBuilder' :: IsPlutusScript script => script -> HashableScriptData -> NetworkId -> TxIn -> TxOut CtxUTxO ConwayEra -> Either String  TxBuilder
-buyTokenBuilder' script buyRedeemer netId txIn tout = do 
+buyTokenBuilder' :: IsPlutusScript script => script -> HashableScriptData -> NetworkId -> Maybe TxIn -> TxIn -> TxOut CtxUTxO ConwayEra -> Either String  TxBuilder
+buyTokenBuilder' script buyRedeemer netId refTxIn txIn tout = do 
     (sellerAddr , price) <- getSimpleSaleInfo netId tout
-    pure $ 
-      txRedeemUtxo txIn tout script buyRedeemer  Nothing
+    case refTxIn of 
+      Nothing -> pure $ txRedeemUtxo txIn tout script buyRedeemer  Nothing
+        <> txPayTo   (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
+      Just referenceTxIn -> pure $ txRedeemUtxoWithReferenceScript referenceTxIn txIn tout buyRedeemer  Nothing
         <> txPayTo   (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
 
 resolveTxIn:: HasChainQueryAPI api => TxIn -> Kontract api w FrameworkError (TxIn, TxOut CtxUTxO ConwayEra)

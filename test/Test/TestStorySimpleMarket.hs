@@ -79,7 +79,7 @@ main =do
             Just saleTxId -> do  
               runTransactionTest'  
                   "Withdraw" 
-                  (withdrawTokenBuilder (TxIn saleTxId (TxIx 0) ))                          
+                  (withdrawTokenBuilder Nothing (TxIn saleTxId (TxIx 0) ))                          
 
         it "Should buy 1 token from sale" $ \result1 -> do
           mSaleTxId <- readTVarIO txHolder
@@ -88,7 +88,7 @@ main =do
             Just saleTxId -> do                        
               runTransactionTest'  
                   "Buy" 
-                  (buyTokenBuilder (TxIn saleTxId (TxIx 1) ))
+                  (buyTokenBuilder Nothing (TxIn saleTxId (TxIx 1) ))
 
 runTransactionTest :: (HasKuberAPI a, HasSubmitApi a, HasChainQueryAPI a) =>
   a

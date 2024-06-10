@@ -66,14 +66,14 @@ sellBuilder contractAddr saleItem cost  sellerAddr
 withdrawRedeemer = ( unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Withdraw)
 buyRedeemer = ( unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Buy)
 
-buyTokenBuilder ::  HasChainQueryAPI api => TxIn  ->  Kontract api w FrameworkError TxBuilder
-buyTokenBuilder txin  = do
+buyTokenBuilder ::  HasChainQueryAPI api => Maybe TxIn -> TxIn  ->  Kontract api w FrameworkError TxBuilder
+buyTokenBuilder refTxIn txin  = do
   netid<- kGetNetworkId
   (tin, tout) <- resolveTxIn txin
-  kWrapParser $ buyTokenBuilder' simpleMarketplacePlutusV2 buyRedeemer  netid txin tout
+  kWrapParser $ buyTokenBuilder' simpleMarketplacePlutusV2 buyRedeemer  netid refTxIn txin tout
 
-withdrawTokenBuilder ::  HasChainQueryAPI api => TxIn  ->  Kontract api w FrameworkError TxBuilder
-withdrawTokenBuilder txin = do
+withdrawTokenBuilder ::  HasChainQueryAPI api => Maybe TxIn -> TxIn  ->  Kontract api w FrameworkError TxBuilder
+withdrawTokenBuilder refTxIn txin = do
   netid<- kGetNetworkId
   (tin, tout) <- resolveTxIn txin
-  kWrapParser $ withdrawTokenBuilder' simpleMarketplacePlutusV2 withdrawRedeemer netid txin tout
+  kWrapParser $ withdrawTokenBuilder' simpleMarketplacePlutusV2 withdrawRedeemer netid refTxIn txin tout
