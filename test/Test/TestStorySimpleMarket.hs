@@ -6,7 +6,7 @@ module Test.TestStorySimpleMarket where
 import Test.Hspec ( before, describe, it, shouldBe, shouldSatisfy, expectationFailure, sequential )
 import Test.Hspec.JUnit (hspecJUnit)
 import Control.Monad.IO.Class (liftIO)
-import Cardano.Kuber.Api (chainInfoFromEnv, evaluateKontract, HasChainQueryAPI (kGetNetworkId, kQueryUtxoByTxin, kQueryUtxoByAddress), throwFrameworkError, txWalletSignKey, txWalletAddress, Kontract, FrameworkError, kError, ErrorType (TxSubmissionError), TxBuilder, HasKuberAPI, HasSubmitApi)
+import Cardano.Kuber.Api (chainInfoFromEnv, evaluateKontract, HasChainQueryAPI (kGetNetworkId, kQueryUtxoByTxin, kQueryUtxoByAddress), throwFrameworkError, txWalletSignKey, txWalletAddress, Kontract, FrameworkError, kError, ErrorType (TxSubmissionError), TxBuilder, HasKuberAPI, HasSubmitApi, txSetFee)
 import System.Environment.Blank (getEnvDefault)
 import Cardano.Kuber.Data.Parsers
 import qualified Data.Text as T
@@ -28,6 +28,7 @@ import Control.Lens ((^.))
 import qualified Cardano.Ledger.Alonzo.TxWits as L
 import qualified Cardano.Ledger.Alonzo.Scripts as L
 import qualified Cardano.Api.Ledger as L
+import Plutus.Contracts.V2.SimpleMarketplace (simpleMarketplacePlutusV2)
 
 -- A simple function to demonstrate the tests
 increment :: Int -> Int
@@ -40,6 +41,7 @@ main =do
   sKey <-  getEnv "SIGNKEY_FILE" >>= getSignKey
   walletAddr <- getEnvDefault "WALLET_ADDRESS" "" >>= parseAddress . T.pack
   txHolder <- newTVarIO (Nothing)
+  refTxHolder <- newTVarIO (Nothing)
   walletUtxo :: UTxO ConwayEra <- evaluateKontract chainInfo (kQueryUtxoByAddress $ Set.singleton (addressInEraToAddressAny walletAddr)) >>= throwFrameworkError
   
   putStrLn $ "WalletAddress  : " ++ T.unpack (serialiseAddress walletAddr)
@@ -47,7 +49,7 @@ main =do
   putStrLn $ "Wallet Balance :" ++ (toConsoleText "  "  $ utxoSum walletUtxo)
 
   let 
-    (mintedAsset,mintBuilder) = mintNativeAsset walletVkey (AssetName $ BS8.pack "TestToken") 2
+    (mintedAsset,mintBuilder) = mintNativeAsset walletVkey (AssetName $ BS8.pack "TestToken") 4
     walletVkey = getVerificationKey sKey
     walletBuilder = txWalletSignKey sKey
                   <> txWalletAddress walletAddr
@@ -58,16 +60,24 @@ main =do
     describe "SimpleMarketPlaceFlow" $ do
       -- Setup shared variable with `before` hook
       before (return $ increment 1) $ do
-        it "Should mint  2 Native Assets" $ \result1 -> do                            
+        it "Should mint  4 Native Assets" $ \result1 -> do                            
           runTransactionTest'
                 "Mint Native Asset" 
-                (pure $ mintBuilder)
+                (pure $ mintBuilder )
 
-        it "Should place 2 tokens on sale" $ \result1 -> do
+        it "Should create reference script UTxOs" $ \result1 -> do
+          eTx <- runTransactionTest''
+                "Create reference script UTxO" 
+                (pure $ createReferenceScript simpleMarketplacePlutusV2 (marketAddressInEra networkId) )
+          case eTx of 
+            Right tx -> atomically$ writeTVar refTxHolder (Just $ getTxId $ getTxBody tx )
+            _ -> pure ()
+
+        it "Should place 4 tokens on sale" $ \result1 -> do
           let sellTxBuilder = sellBuilder (marketAddressInEra networkId ) (valueFromList [(mintedAsset,1)] ) 10_000_000 walletAddr 
           eTx <- runTransactionTest''
                 "Place on Sell" 
-                (pure $ sellTxBuilder <> sellTxBuilder)
+                (pure $ sellTxBuilder <> sellTxBuilder <> sellTxBuilder <> sellTxBuilder)
           case eTx of 
             Right tx -> atomically$ writeTVar txHolder (Just $ getTxId $ getTxBody tx )
             _ -> pure ()
@@ -89,6 +99,30 @@ main =do
               runTransactionTest'  
                   "Buy" 
                   (buyTokenBuilder Nothing (TxIn saleTxId (TxIx 1) ))
+        
+        it "Should withdraw 1 token from sale with reference script" $ \result1 -> do
+          mSaleTxId <- readTVarIO txHolder
+          mRefTxId <- readTVarIO refTxHolder
+          case mSaleTxId of 
+            Nothing -> expectationFailure "Sale Transaction was not successful"
+            Just saleTxId -> case mRefTxId of 
+              Nothing -> expectationFailure "RefScript UTxO creation Transaction was not successful" 
+              Just refTxId -> do  
+                runTransactionTest'  
+                    "Withdraw" 
+                    (withdrawTokenBuilder (Just $ TxIn refTxId (TxIx 0)) (TxIn saleTxId (TxIx 2) )) 
+        
+        it "Should buy 1 token from sale with reference script" $ \result1 -> do
+          mSaleTxId <- readTVarIO txHolder
+          mRefTxId <- readTVarIO refTxHolder
+          case mSaleTxId of 
+            Nothing -> expectationFailure "Sale Transaction was not successful"
+            Just saleTxId ->case mRefTxId of 
+              Nothing -> expectationFailure "RefScript UTxO creation Transaction was not successful" 
+              Just refTxId -> do  
+                runTransactionTest'   
+                  "Buy" 
+                  (buyTokenBuilder (Just $ TxIn refTxId (TxIx 0)) (TxIn saleTxId (TxIx 3) ))
 
 runTransactionTest :: (HasKuberAPI a, HasSubmitApi a, HasChainQueryAPI a) =>
   a
