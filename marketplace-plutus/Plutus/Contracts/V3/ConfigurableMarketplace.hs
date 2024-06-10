@@ -17,9 +17,9 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE ViewPatterns #-}
-{-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:target-version=1.0.0 #-}
+{-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:target-version=1.1.0 #-}
 
-module Plutus.Contracts.V2.ConfigurableMarketplace(
+module Plutus.Contracts.V3.ConfigurableMarketplace(
   configurableMarketValidator,
   configurableMarketScript,
   MarketRedeemer(..),
@@ -38,17 +38,17 @@ import qualified PlutusTx.AssocMap as AssocMap
 import qualified Data.Bifunctor
 import qualified Data.ByteString.Short as SBS
 import qualified Data.ByteString.Lazy  as LBS
-import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV2)
+import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV3)
 import Codec.Serialise ( serialise )
 import Plutus.Contracts.V2.MarketplaceConfig (MarketConfig(..))
-import Cardano.Api (IsCardanoEra,BabbageEra,NetworkId, AddressInEra, ShelleyAddr, BabbageEra, Script (PlutusScript), PlutusScriptVersion (PlutusScriptV2), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress)
+import Cardano.Api (IsCardanoEra,BabbageEra,NetworkId, AddressInEra, ShelleyAddr, BabbageEra, Script (PlutusScript), PlutusScriptVersion (PlutusScriptV3), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress)
 import qualified Cardano.Api.Shelley
 import PlutusTx.Builtins.Class (stringToBuiltinByteString)
 import PlutusTx.Builtins (decodeUtf8)
-import PlutusLedgerApi.V2
-import PlutusCore.Version (plcVersion100)
+import PlutusLedgerApi.V3
+import PlutusCore.Version (plcVersion110)
 import PlutusLedgerApi.V1.Value
-import PlutusLedgerApi.V2.Contexts
+import PlutusLedgerApi.V3.Contexts
 import Cardano.Api (ShelleyBasedEra(ShelleyBasedEraBabbage))
 
 
@@ -126,15 +126,15 @@ mkWrappedConfigurableMarket constructor   d r c = check $ mkConfigurableMarket c
 
 configurableMarketValidator constructor = 
     $$(PlutusTx.compile [|| mkWrappedConfigurableMarket ||])
-            `unsafeApplyCode` PlutusTx.liftCode plcVersion100 constructor
+            `unsafeApplyCode` PlutusTx.liftCode plcVersion110 constructor
 
 
 configurableMarketScript constructor  =  serialiseCompiledCode   $ configurableMarketValidator constructor
 
 
 
-configurableMarketPlutusScript :: MarketConstructor -> Cardano.Api.Shelley.Script PlutusScriptV2
-configurableMarketPlutusScript  constructor = PlutusScript PlutusScriptV2  $ Cardano.Api.Shelley.PlutusScriptSerialised $ configurableMarketScriptBS
+configurableMarketPlutusScript :: MarketConstructor -> Cardano.Api.Shelley.Script PlutusScriptV3
+configurableMarketPlutusScript  constructor = PlutusScript PlutusScriptV3  $ Cardano.Api.Shelley.PlutusScriptSerialised $ configurableMarketScriptBS
   where
   configurableMarketScriptBS  =   configurableMarketScript  constructor
 

@@ -6,6 +6,7 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE NumericUnderscores #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Cardano.Marketplace.Common.TransactionUtils where
 
@@ -18,12 +19,11 @@ import Cardano.Kuber.Data.Parsers
     parseValueText, scriptDataParser, parseSignKey
   )
 import Cardano.Kuber.Util
-    ( pkhToMaybeAddr, skeyToAddrInEra, queryUtxos, toPlutusAddress )
 import qualified Data.Text as T
 import qualified Data.ByteString.Char8 as BS8
 
-import Plutus.Contracts.V2.SimpleMarketplace (SimpleSale (SimpleSale), simpleMarketplacePlutusV2)
-
+import qualified Plutus.Contracts.V2.SimpleMarketplace as V2 
+import qualified Plutus.Contracts.V3.SimpleMarketplace as V3
 
 import Control.Exception (throwIO)
 import Data.Maybe (fromMaybe)
@@ -38,45 +38,14 @@ import System.Environment (getEnv)
 import qualified Data.Aeson as A
 import qualified Data.Aeson.Text as A
 import Cardano.Api
-import Cardano.Api.Shelley (Address(..))
-import qualified PlutusLedgerApi.V2 as Plutus
+import Cardano.Api.Shelley (Address(..), toPlutusData)
+import qualified PlutusLedgerApi.V2 as PlutusV2
+import qualified PlutusLedgerApi.V3 as PlutusV3
 import Cardano.Kuber.Util (fromPlutusData, fromPlutusAddress)
-import Cardano.Kuber.Api
-import GHC.Base (Alternative((<|>)))
-
-
-
-marketAddressShelley :: NetworkId -> Address ShelleyAddr
-marketAddressShelley network = makeShelleyAddress network scriptCredential NoStakeAddress
-
-marketAddressInEra :: NetworkId -> AddressInEra ConwayEra
-marketAddressInEra network = makeShelleyAddressInEra ShelleyBasedEraConway network scriptCredential NoStakeAddress
-
-scriptCredential :: PaymentCredential
-scriptCredential = PaymentCredentialByScript marketHash
-  where
-    marketHash = hashScript marketScript
-    marketScript = PlutusScript PlutusScriptV2 simpleMarketplacePlutusV2
-
-
-
-createSaleDatum :: AddressInEra ConwayEra -> Integer -> HashableScriptData
-createSaleDatum sellerAddr costOfAsset =
-  -- Convert AddressInEra to Plutus.Address
-  let plutusAddr =  toPlutusAddress sellerAddrShelley
-      sellerAddrShelley = case sellerAddr of {
-         AddressInEra atie ad -> case ad of
-          addr@(ShelleyAddress net cre sr )-> addr  
-          _  -> error "Byron era address Not supported"
-
-          }
-      datum = SimpleSale plutusAddr costOfAsset
-
-   in unsafeHashableScriptData $  fromPlutusData $ Plutus.toData datum
+import Cardano.Kuber.Api 
 
 getTxIdFromTx :: Tx ConwayEra -> String
 getTxIdFromTx tx = T.unpack $ serialiseToRawBytesHexText $ getTxId $ getTxBody tx
-
 
 getSignKey :: [Char] -> IO (SigningKey PaymentKey)
 getSignKey skeyfile =
@@ -88,6 +57,54 @@ getSignKey skeyfile =
                             pure  $ home ++  drop 1 skeyfile
                             )
                           else pure skeyfile
+
+withdrawTokenBuilder' :: IsPlutusScript script => script -> HashableScriptData ->  NetworkId ->   TxIn -> TxOut CtxUTxO ConwayEra -> Either String  TxBuilder
+withdrawTokenBuilder' script redeemer netId txIn tout = do 
+    (sellerAddr , price) <- getSimpleSaleInfo netId tout
+    pure $ 
+      txRedeemUtxo txIn tout script redeemer  Nothing
+        <> txSignBy (sellerAddr)
+
+getSimpleSaleInfo :: NetworkId -> TxOut CtxUTxO ConwayEra -> Either String (AddressInEra ConwayEra, Integer)
+getSimpleSaleInfo netId (TxOut addr val datum refscript) = do
+    (seller, price) <- case datum of
+        TxOutDatumInline _ sd -> case PlutusV2.fromBuiltinData $ PlutusV2.dataToBuiltinData $ toPlutusData $ getScriptData sd of
+            Just (V2.SimpleSale seller price) -> Right (seller, price)
+            Nothing -> case PlutusV3.fromBuiltinData $ PlutusV3.dataToBuiltinData $ toPlutusData $ getScriptData sd of
+                Just (V3.SimpleSale seller price) -> Right (seller, price)
+                Nothing -> Left "Unable to parse datum as V2 or V3 SimpleSale"
+        _ -> Left "Unexpected datum type"
+    
+    sellerAddr <- case fromPlutusAddress netId seller of
+        Just addr -> Right addr
+        Nothing -> Left "Invalid address present in datum of the Utxo to be bought"
+    
+    Right (AddressInEra (ShelleyAddressInEra ShelleyBasedEraConway) sellerAddr, price)
+
+createReferenceScript ::  IsPlutusScript script => script->AddressInEra ConwayEra -> TxBuilder
+createReferenceScript script receiverAddr = do
+    txPayToWithReferenceScript  receiverAddr mempty ( TxScriptPlutus $ toTxPlutusScript $ script)
+
+buyTokenBuilder' :: IsPlutusScript script => script -> HashableScriptData -> NetworkId -> TxIn -> TxOut CtxUTxO ConwayEra -> Either String  TxBuilder
+buyTokenBuilder' script buyRedeemer netId txIn tout = do 
+    (sellerAddr , price) <- getSimpleSaleInfo netId tout
+    pure $ 
+      txRedeemUtxo txIn tout script buyRedeemer  Nothing
+        <> txPayTo   (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
+
+resolveTxIn:: HasChainQueryAPI api => TxIn -> Kontract api w FrameworkError (TxIn, TxOut CtxUTxO ConwayEra)
+resolveTxIn txin = do 
+  (UTxO uMap) :: UTxO ConwayEra <- kQueryUtxoByTxin  $ Set.singleton txin
+  case Map.toList uMap  of 
+    [] -> kError NodeQueryError $ "Provided Utxo not found " ++  T.unpack (renderTxIn txin )
+    [(_,tout)]-> pure (txin,tout)
+
+mintNativeAsset ::  VerificationKey PaymentKey -> AssetName -> Integer -> (AssetId, TxBuilder)
+mintNativeAsset vKey assetName amount = 
+  let script = RequireSignature $ verificationKeyHash vKey
+      scriptHash = hashScript $ SimpleScript  script
+      assetId = AssetId  (PolicyId scriptHash ) assetName 
+  in (assetId, txMintSimpleScript @(SimpleScript ) script [(assetName, Quantity amount)])
 
 runBuildAndSubmit :: (HasKuberAPI api, HasSubmitApi api) => TxBuilder -> Kontract api w FrameworkError (Tx ConwayEra)
 runBuildAndSubmit   txBuilder =  do 

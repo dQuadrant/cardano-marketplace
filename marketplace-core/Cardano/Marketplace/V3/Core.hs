@@ -7,7 +7,7 @@
 {-# LANGUAGE TypeFamilies #-}
 {-# LANGUAGE TypeApplications #-}
 
-module Cardano.Marketplace.V2.Core where
+module Cardano.Marketplace.V3.Core where
 
 import Cardano.Api
 import Cardano.Api.Shelley (ProtocolParameters, ReferenceScript (ReferenceScriptNone), fromPlutusData, scriptDataToJsonDetailedSchema, toPlutusData, Address (ShelleyAddress))
@@ -24,15 +24,16 @@ import qualified Data.Map as Map
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TLE
-import Plutus.Contracts.V2.SimpleMarketplace hiding (Withdraw)
-import qualified Plutus.Contracts.V2.SimpleMarketplace as SMP
+import Plutus.Contracts.V3.SimpleMarketplace hiding (Withdraw)
+import qualified Plutus.Contracts.V3.SimpleMarketplace as SMP
 
 import qualified Debug.Trace as Debug
 import Data.Functor ((<&>))
 import Control.Exception (throw)
 import qualified Data.Set as Set
-import qualified Plutus.Contracts.V2.SimpleMarketplace as Marketplace
-import PlutusLedgerApi.V2 (toData, dataToBuiltinData, FromData (fromBuiltinData))
+import qualified Plutus.Contracts.V3.SimpleMarketplace as Marketplace
+import PlutusLedgerApi.V3 (toData, dataToBuiltinData, FromData (fromBuiltinData))
+
 
 marketAddressShelley :: NetworkId -> Address ShelleyAddr
 marketAddressShelley network = makeShelleyAddress network scriptCredential' NoStakeAddress
@@ -41,13 +42,13 @@ scriptCredential' :: PaymentCredential
 scriptCredential' = PaymentCredentialByScript marketHash
   where
     marketHash = hashScript marketScript
-    marketScript = PlutusScript PlutusScriptV2 simpleMarketplacePlutusV2
+    marketScript = PlutusScript PlutusScriptV3 simpleMarketplacePlutusV3
 
 marketAddressInEra :: NetworkId -> AddressInEra ConwayEra
 marketAddressInEra network = makeShelleyAddressInEra ShelleyBasedEraConway network scriptCredential' NoStakeAddress
 
-createV2SaleDatum :: AddressInEra ConwayEra -> Integer -> HashableScriptData
-createV2SaleDatum sellerAddr costOfAsset =
+createV3SaleDatum :: AddressInEra ConwayEra -> Integer -> HashableScriptData
+createV3SaleDatum sellerAddr costOfAsset =
   -- Convert AddressInEra to Plutus.Address
   let plutusAddr =  toPlutusAddress sellerAddrShelley
       sellerAddrShelley = case sellerAddr of {
@@ -61,7 +62,7 @@ createV2SaleDatum sellerAddr costOfAsset =
 
 sellBuilder :: AddressInEra ConwayEra ->  Value -> Integer -> AddressInEra  ConwayEra  -> TxBuilder
 sellBuilder contractAddr saleItem cost  sellerAddr 
-  = txPayToScriptWithData contractAddr saleItem (createV2SaleDatum sellerAddr cost)
+  = txPayToScriptWithData contractAddr saleItem (createV3SaleDatum sellerAddr cost)
 
 withdrawRedeemer = ( unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Withdraw)
 buyRedeemer = ( unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Buy)
@@ -70,10 +71,10 @@ buyTokenBuilder ::  HasChainQueryAPI api => TxIn  ->  Kontract api w FrameworkEr
 buyTokenBuilder txin  = do
   netid<- kGetNetworkId
   (tin, tout) <- resolveTxIn txin
-  kWrapParser $ buyTokenBuilder' simpleMarketplacePlutusV2 buyRedeemer  netid txin tout
+  kWrapParser $ buyTokenBuilder' simpleMarketplacePlutusV3 buyRedeemer  netid txin tout
 
 withdrawTokenBuilder ::  HasChainQueryAPI api => TxIn  ->  Kontract api w FrameworkError TxBuilder
 withdrawTokenBuilder txin = do
   netid<- kGetNetworkId
   (tin, tout) <- resolveTxIn txin
-  kWrapParser $ withdrawTokenBuilder' simpleMarketplacePlutusV2 withdrawRedeemer netid txin tout
+  kWrapParser $ withdrawTokenBuilder' simpleMarketplacePlutusV3 withdrawRedeemer netid txin tout

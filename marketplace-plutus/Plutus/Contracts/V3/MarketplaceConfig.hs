@@ -17,7 +17,7 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE ViewPatterns #-}
-module Plutus.Contracts.V2.MarketplaceConfig(
+module Plutus.Contracts.V3.MarketplaceConfig(
   marketConfigPlutusScript,
   marketConfigValidator,
   marketConfigScript,
@@ -39,10 +39,10 @@ import qualified Data.Bifunctor
 import qualified Data.ByteString.Short as SBS
 import qualified Data.ByteString.Lazy  as LBS
 import Codec.Serialise ( serialise )
-import Cardano.Api (IsCardanoEra,BabbageEra,NetworkId, AddressInEra, ShelleyAddr, BabbageEra, Script (PlutusScript), PlutusScriptVersion (PlutusScriptV2), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress)
+import Cardano.Api (IsCardanoEra,BabbageEra,NetworkId, AddressInEra, ShelleyAddr, BabbageEra, Script (PlutusScript), PlutusScriptVersion (PlutusScriptV3), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress)
 import qualified Cardano.Api.Shelley
-import PlutusLedgerApi.V2
-import PlutusLedgerApi.V2.Contexts
+import PlutusLedgerApi.V3
+import PlutusLedgerApi.V3.Contexts
 
 
 data MarketConfig=MarketConfig{
@@ -79,7 +79,7 @@ marketConfigValidator =
 marketConfigScript  =  serialiseCompiledCode  marketConfigValidator
 
 
-marketConfigPlutusScript  = PlutusScript PlutusScriptV2  $ Cardano.Api.Shelley.PlutusScriptSerialised $ marketConfigScriptBS
+marketConfigPlutusScript  = PlutusScript PlutusScriptV3  $ Cardano.Api.Shelley.PlutusScriptSerialised $ marketConfigScriptBS
   where
   marketConfigScriptBS :: SBS.ShortByteString
   marketConfigScriptBS  =  SBS.toShort . LBS.toStrict $ serialise $ marketConfigScript 
