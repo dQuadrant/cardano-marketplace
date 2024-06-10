@@ -17,7 +17,7 @@ import Cardano.Marketplace.V2.Core
 import Cardano.Api (Key(getVerificationKey), AssetName (AssetName), getTxId, getTxBody, TxIn (TxIn), UTxO (UTxO), ConwayEra, Tx, valueFromList, SerialiseAddress (serialiseAddress), toAddressAny, prettyPrintJSON)
 import qualified Data.ByteString.Char8 as BS8
 import qualified Data.Set as Set
-import Cardano.Api.Shelley (TxIx(..), Tx (ShelleyTx))
+import Cardano.Api.Shelley (TxIx(..), Tx (ShelleyTx), ShelleyBasedEra (..))
 import qualified Data.Map as Map
 import qualified Control.Concurrent as Control
 import GHC.Conc (newTVarIO, writeTVar, atomically, readTVarIO)
@@ -29,6 +29,8 @@ import qualified Cardano.Ledger.Alonzo.TxWits as L
 import qualified Cardano.Ledger.Alonzo.Scripts as L
 import qualified Cardano.Api.Ledger as L
 import Plutus.Contracts.V2.SimpleMarketplace (simpleMarketplacePlutusV2)
+import qualified Debug.Trace as Debug
+import Cardano.Api (serialiseTxLedgerCddl)
 
 -- A simple function to demonstrate the tests
 increment :: Int -> Int
@@ -143,18 +145,21 @@ runTransactionTest chainInfo  action walletBuilder builderKontract = do
       ) 
     pure result
 
-performTransactionAndReport :: (HasKuberAPI api,HasSubmitApi api,HasChainQueryAPI api) => String -> TxBuilder -> Kontract api w FrameworkError TxBuilder ->     Kontract api w FrameworkError (Tx ConwayEra)
-performTransactionAndReport action wallet builderKontract = do
-    builder <- builderKontract 
-    tx <- runBuildAndSubmit  $
-              builder
-              <> wallet
-    liftIO$ putStrLn $ action ++ " Tx submitted : " ++ (show tx)
-    liftIO $ reportExUnitsandFee tx
-    waitTxConfirmation tx 180
-    liftIO $ do 
-          putStrLn $ action ++ " Tx Confirmed: " ++ (show tx)
-          pure tx
+performTransactionAndReport :: (HasKuberAPI api,HasSubmitApi api,HasChainQueryAPI api) => 
+  String -> 
+  TxBuilder -> 
+  Kontract api w FrameworkError TxBuilder -> 
+  Kontract api w FrameworkError (Tx ConwayEra) 
+performTransactionAndReport action wallet builderKontract = do 
+  builder <- builderKontract 
+  tx <- runBuildAndSubmit  $ builder <> wallet 
+  Debug.traceM (BS8.unpack $ prettyPrintJSON (builder<>wallet)) 
+  let txEnvelope =  serialiseTxLedgerCddl ShelleyBasedEraConway tx 
+  liftIO$ putStrLn $ action ++ " Tx submitted : " ++ (BS8.unpack $  prettyPrintJSON txEnvelope) 
+  liftIO $ reportExUnitsandFee tx 
+  waitTxConfirmation tx 180 
+  liftIO $ do putStrLn $ action ++ " Tx Confirmed: " ++ (show $ getTxId (getTxBody tx)) 
+  pure (tx)
 
 reportExUnitsandFee:: Tx ConwayEra -> IO() 
 reportExUnitsandFee  = (\case  
