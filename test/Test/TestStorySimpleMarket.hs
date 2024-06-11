@@ -6,7 +6,7 @@ module Test.TestStorySimpleMarket where
 import Test.Hspec ( before, describe, it, shouldBe, shouldSatisfy, expectationFailure, sequential )
 import Test.Hspec.JUnit (hspecJUnit)
 import Control.Monad.IO.Class (liftIO)
-import Cardano.Kuber.Api (chainInfoFromEnv, evaluateKontract, HasChainQueryAPI (kGetNetworkId, kQueryUtxoByTxin, kQueryUtxoByAddress), throwFrameworkError, txWalletSignKey, txWalletAddress, Kontract, FrameworkError, kError, ErrorType (TxSubmissionError), TxBuilder, HasKuberAPI, HasSubmitApi, txSetFee)
+import Cardano.Kuber.Api 
 import System.Environment.Blank (getEnvDefault)
 import Cardano.Kuber.Data.Parsers
 import qualified Data.Text as T
@@ -14,7 +14,7 @@ import System.Environment (getEnv)
 import Cardano.Marketplace.Common.TransactionUtils
 import Cardano.Marketplace.V2.Core (sellBuilder)
 import Cardano.Marketplace.V2.Core
-import Cardano.Api (Key(getVerificationKey), AssetName (AssetName), getTxId, getTxBody, TxIn (TxIn), UTxO (UTxO), ConwayEra, Tx, valueFromList, SerialiseAddress (serialiseAddress), toAddressAny, prettyPrintJSON)
+import Cardano.Api 
 import qualified Data.ByteString.Char8 as BS8
 import qualified Data.Set as Set
 import Cardano.Api.Shelley (TxIx(..), Tx (ShelleyTx), ShelleyBasedEra (..))
@@ -54,8 +54,15 @@ main =do
     (mintedAsset,mintBuilder) = mintNativeAsset walletVkey (AssetName $ BS8.pack "TestToken") 4
     walletVkey = getVerificationKey sKey
     walletBuilder = txWalletSignKey sKey
-                  <> txWalletAddress walletAddr
-    runTransactionTest' action buikderKontract = runTransactionTest'' action buikderKontract >> pure ()
+                  <> txWalletAddress walletAddr 
+    runTransactionTest' action builderKontract = do 
+      txb <- evaluateKontract chainInfo builderKontract 
+      eTx <- runTransactionTest'' action builderKontract 
+      case eTx of 
+        Left _ -> case txb of 
+          Left _ -> pure()
+          Right txb' -> Debug.traceM(action ++ " Transaction Failed: " ++ "\n" ++ (BS8.unpack $ prettyPrintJSON (txb')))  
+        Right _ -> pure()
     runTransactionTest'' action buikderKontract = runTransactionTest chainInfo action walletBuilder buikderKontract
     
   hspecJUnit $ sequential $ do
@@ -67,7 +74,7 @@ main =do
                 "Mint Native Asset" 
                 (pure $ mintBuilder )
 
-        it "Should create reference script UTxOs" $ \result1 -> do
+        it "Should create reference script UTxO" $ \result1 -> do
           eTx <- runTransactionTest''
                 "Create reference script UTxO" 
                 (pure $ createReferenceScript simpleMarketplacePlutusV2 (marketAddressInEra networkId) )
@@ -89,18 +96,20 @@ main =do
           case mSaleTxId of 
             Nothing -> expectationFailure "Sale Transaction was not successful"
             Just saleTxId -> do  
+              let txBuilder = withdrawTokenBuilder Nothing (TxIn saleTxId (TxIx 0) )
               runTransactionTest'  
-                  "Withdraw" 
-                  (withdrawTokenBuilder Nothing (TxIn saleTxId (TxIx 0) ))                          
-
+                     "Withdraw" 
+                      (txBuilder)  
+              
         it "Should buy 1 token from sale" $ \result1 -> do
           mSaleTxId <- readTVarIO txHolder
           case mSaleTxId of 
             Nothing -> expectationFailure "Sale Transaction was not successful"
-            Just saleTxId -> do                        
+            Just saleTxId -> do    
+              let txBuilder = buyTokenBuilder Nothing (TxIn saleTxId (TxIx 1) )                      
               runTransactionTest'  
-                  "Buy" 
-                  (buyTokenBuilder Nothing (TxIn saleTxId (TxIx 1) ))
+                    "Buy" 
+                    (txBuilder)
         
         it "Should withdraw 1 token from sale with reference script" $ \result1 -> do
           mSaleTxId <- readTVarIO txHolder
@@ -110,9 +119,10 @@ main =do
             Just saleTxId -> case mRefTxId of 
               Nothing -> expectationFailure "RefScript UTxO creation Transaction was not successful" 
               Just refTxId -> do  
+                let txBuilder = withdrawTokenBuilder (Just $ TxIn refTxId (TxIx 0)) (TxIn saleTxId (TxIx 2) )
                 runTransactionTest'  
-                    "Withdraw" 
-                    (withdrawTokenBuilder (Just $ TxIn refTxId (TxIx 0)) (TxIn saleTxId (TxIx 2) )) 
+                      "Withdraw with RefScript" 
+                      (txBuilder) 
         
         it "Should buy 1 token from sale with reference script" $ \result1 -> do
           mSaleTxId <- readTVarIO txHolder
@@ -122,9 +132,10 @@ main =do
             Just saleTxId ->case mRefTxId of 
               Nothing -> expectationFailure "RefScript UTxO creation Transaction was not successful" 
               Just refTxId -> do  
+                let txBuilder = buyTokenBuilder (Just $ TxIn refTxId (TxIx 0)) (TxIn saleTxId (TxIx 3) )
                 runTransactionTest'   
-                  "Buy" 
-                  (buyTokenBuilder (Just $ TxIn refTxId (TxIx 0)) (TxIn saleTxId (TxIx 3) ))
+                  "Buy with RefScript" 
+                  (txBuilder)
 
 runTransactionTest :: (HasKuberAPI a, HasSubmitApi a, HasChainQueryAPI a) =>
   a
@@ -138,7 +149,6 @@ runTransactionTest chainInfo  action walletBuilder builderKontract = do
           action 
           walletBuilder  
           (builderKontract)
-
     result `shouldSatisfy` (\case
         Left _ -> False
         Right _ -> True
@@ -153,7 +163,6 @@ performTransactionAndReport :: (HasKuberAPI api,HasSubmitApi api,HasChainQueryAP
 performTransactionAndReport action wallet builderKontract = do 
   builder <- builderKontract 
   tx <- runBuildAndSubmit  $ builder <> wallet 
-  Debug.traceM (BS8.unpack $ prettyPrintJSON (builder<>wallet)) 
   let txEnvelope =  serialiseTxLedgerCddl ShelleyBasedEraConway tx 
   liftIO$ putStrLn $ action ++ " Tx submitted : " ++ (BS8.unpack $  prettyPrintJSON txEnvelope) 
   liftIO $ reportExUnitsandFee tx 

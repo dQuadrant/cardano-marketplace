@@ -1,3 +1,27 @@
-<testsuites name="marketplace-test"><testsuite name="SimpleMarketPlaceFlow" package="SimpleMarketPlaceFlow" id="0" time="133.147224813" timestamp="2024-06-10T15:54:48.197255624Z" hostname="localhost" tests="7" failures="2" errors="0" skipped="0"><properties/><testcase file="test/Test/TestStorySimpleMarket.hs" line="142" name="Should buy 1 token from sale with reference script" classname="SimpleMarketPlaceFlow" time="0.089137029"><failure type="error">test/Test/TestStorySimpleMarket.hs:142:12
-predicate failed on: Left FrameworkError: TxSubmissionError: "ShelleyTxValidationError ShelleyBasedEraConway (ApplyTxError (ConwayUtxowFailure (UtxoFailure (FeeTooSmallUTxO (Coin 570900) (Coin 368544))) :| []))"</failure></testcase><testcase file="test/Test/TestStorySimpleMarket.hs" line="142" name="Should withdraw 1 token from sale with reference script" classname="SimpleMarketPlaceFlow" time="0.134287485"><failure type="error">test/Test/TestStorySimpleMarket.hs:142:12
-predicate failed on: Left FrameworkError: TxSubmissionError: "ShelleyTxValidationError ShelleyBasedEraConway (ApplyTxError (ConwayUtxowFailure (UtxoFailure (FeeTooSmallUTxO (Coin 486411) (Coin 304899))) :| []))"</failure></testcase><testcase file="test/Test/TestStorySimpleMarket.hs" line="96" name="Should buy 1 token from sale" classname="SimpleMarketPlaceFlow" time="18.199955246"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="87" name="Should withdraw 1 token from sale" classname="SimpleMarketPlaceFlow" time="34.217807716"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="78" name="Should place 4 tokens on sale" classname="SimpleMarketPlaceFlow" time="30.178978524"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="70" name="Should create reference script UTxOs" classname="SimpleMarketPlaceFlow" time="6.111601179"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="65" name="Should mint  4 Native Assets" classname="SimpleMarketPlaceFlow" time="44.215457634"/></testsuite></testsuites>
+<testsuites name="marketplace-test">
+    <testsuite name="SimpleMarketPlaceFlow" package="SimpleMarketPlaceFlow" id="0"
+        time="88.944729019" timestamp="2024-06-11T07:22:49.960809749Z" hostname="localhost"
+        tests="7" failures="0" errors="0" skipped="0">
+        <properties />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="127"
+            name="Should buy 1 token from sale with reference script"
+            classname="SimpleMarketPlaceFlow" time="12.145118405" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="114"
+            name="Should withdraw 1 token from sale with reference script"
+            classname="SimpleMarketPlaceFlow" time="4.117116702" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="104"
+            name="Should buy 1 token from sale" classname="SimpleMarketPlaceFlow" time="4.125617192" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="94"
+            name="Should withdraw 1 token from sale" classname="SimpleMarketPlaceFlow"
+            time="18.153354269" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="85"
+            name="Should place 4 tokens on sale" classname="SimpleMarketPlaceFlow"
+            time="12.133905631" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="77"
+            name="Should create reference script UTxO" classname="SimpleMarketPlaceFlow"
+            time="8.113211624" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="72"
+            name="Should mint  4 Native Assets" classname="SimpleMarketPlaceFlow"
+            time="30.156405196" />
+    </testsuite>
+</testsuites>
