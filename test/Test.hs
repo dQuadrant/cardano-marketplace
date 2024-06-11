@@ -1,5 +1,6 @@
-import qualified Test.TestStorySimpleMarket as StorySimpleMarket
-
+import qualified Test.TestStorySimpleMarketV2 as StorySimpleMarketV2
+import qualified Test.TestStorySimpleMarketV3 as StorySimpleMarketV3
 main :: IO ()
 main = do
-    StorySimpleMarket.main
+    StorySimpleMarketV2.main
+    StorySimpleMarketV3.main

@@ -1,0 +1,28 @@
+<testsuites name="v2-marketplace-test">
+    <testsuite name="SimpleMarketPlaceFlow" package="SimpleMarketPlaceFlow" id="0"
+        time="133.299654170" timestamp="2024-06-11T08:31:24.092788004Z" hostname="localhost"
+        tests="7" failures="0" errors="0" skipped="0">
+        <properties />
+        <testcase file="test/Test/TestStorySimpleMarketV2.hs" line="113"
+            name="Should buy 1 token from sale with reference script"
+            classname="SimpleMarketPlaceFlow" time="34.222983770" />
+        <testcase file="test/Test/TestStorySimpleMarketV2.hs" line="100"
+            name="Should withdraw 1 token from sale with reference script"
+            classname="SimpleMarketPlaceFlow" time="4.153579897" />
+        <testcase file="test/Test/TestStorySimpleMarketV2.hs" line="90"
+            name="Should buy 1 token from sale" classname="SimpleMarketPlaceFlow"
+            time="10.204312693" />
+        <testcase file="test/Test/TestStorySimpleMarketV2.hs" line="80"
+            name="Should withdraw 1 token from sale" classname="SimpleMarketPlaceFlow"
+            time="42.251813149" />
+        <testcase file="test/Test/TestStorySimpleMarketV2.hs" line="71"
+            name="Should place 4 tokens on sale" classname="SimpleMarketPlaceFlow"
+            time="22.174735623" />
+        <testcase file="test/Test/TestStorySimpleMarketV2.hs" line="63"
+            name="Should create reference script UTxO" classname="SimpleMarketPlaceFlow"
+            time="6.119679294" />
+        <testcase file="test/Test/TestStorySimpleMarketV2.hs" line="58"
+            name="Should mint  4 Native Assets" classname="SimpleMarketPlaceFlow"
+            time="14.172549744" />
+    </testsuite>
+</testsuites>

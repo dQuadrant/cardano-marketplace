@@ -97,7 +97,9 @@ test-suite market-test
   main-is:  Main.hs
   hs-source-dirs: test
   other-modules:
-    Test.TestStorySimpleMarket
+    Test.Common
+    Test.TestStorySimpleMarketV2
+    Test.TestStorySimpleMarketV3
   build-depends:
     base >= 4.9 && <5
     , hspec
