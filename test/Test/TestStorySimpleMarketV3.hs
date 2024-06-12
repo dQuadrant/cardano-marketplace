@@ -83,20 +83,16 @@ main =do
           case mSaleTxId of 
             Nothing -> expectationFailure "Sale Transaction was not successful"
             Just saleTxId -> do  
-              let txBuilder = withdrawTokenBuilder Nothing (TxIn saleTxId (TxIx 0) )
-              runTransactionTest'  
-                     "Withdraw" 
-                      (txBuilder)  
+              let txBuilder = withdrawTokenBuilder Nothing (TxIn saleTxId (TxIx 0) ) simpleMarketplacePlutusV3
+              runTransactionTest' "Withdraw" txBuilder
               
         it "Should buy 1 token from sale" $ \result1 -> do
           mSaleTxId <- readTVarIO txHolder
           case mSaleTxId of 
             Nothing -> expectationFailure "Sale Transaction was not successful"
             Just saleTxId -> do    
-              let txBuilder = buyTokenBuilder Nothing (TxIn saleTxId (TxIx 1) )                      
-              runTransactionTest'  
-                    "Buy" 
-                    (txBuilder)
+              let txBuilder = buyTokenBuilder Nothing (TxIn saleTxId (TxIx 1) ) simpleMarketplacePlutusV3 Nothing                       
+              runTransactionTest' "Buy" txBuilder
         
         it "Should withdraw 1 token from sale with reference script" $ \result1 -> do
           mSaleTxId <- readTVarIO txHolder
@@ -106,10 +102,8 @@ main =do
             Just saleTxId -> case mRefTxId of 
               Nothing -> expectationFailure "RefScript UTxO creation Transaction was not successful" 
               Just refTxId -> do  
-                let txBuilder = withdrawTokenBuilder (Just $ TxIn refTxId (TxIx 0)) (TxIn saleTxId (TxIx 2) )
-                runTransactionTest'  
-                      "Withdraw with RefScript" 
-                      (txBuilder) 
+                let txBuilder = withdrawTokenBuilder (Just $ TxIn refTxId (TxIx 0)) (TxIn saleTxId (TxIx 2) ) simpleMarketplacePlutusV3
+                runTransactionTest' "Withdraw with RefScript" txBuilder 
         
         it "Should buy 1 token from sale with reference script" $ \result1 -> do
           mSaleTxId <- readTVarIO txHolder
@@ -119,8 +113,6 @@ main =do
             Just saleTxId ->case mRefTxId of 
               Nothing -> expectationFailure "RefScript UTxO creation Transaction was not successful" 
               Just refTxId -> do  
-                let txBuilder = buyTokenBuilder (Just $ TxIn refTxId (TxIx 0)) (TxIn saleTxId (TxIx 3) )
-                runTransactionTest'   
-                  "Buy with RefScript" 
-                  (txBuilder)
+                let txBuilder = buyTokenBuilder (Just $ TxIn refTxId (TxIx 0)) (TxIn saleTxId (TxIx 3) ) simpleMarketplacePlutusV3 Nothing
+                runTransactionTest' "Buy with RefScript" txBuilder
 

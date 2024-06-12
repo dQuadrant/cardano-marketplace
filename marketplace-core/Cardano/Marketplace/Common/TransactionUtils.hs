@@ -43,6 +43,7 @@ import qualified PlutusLedgerApi.V2 as PlutusV2
 import qualified PlutusLedgerApi.V3 as PlutusV3
 import Cardano.Kuber.Util (fromPlutusData, fromPlutusAddress)
 import Cardano.Kuber.Api 
+import qualified Debug.Trace as Debug
 
 getTxIdFromTx :: Tx ConwayEra -> String
 getTxIdFromTx tx = T.unpack $ serialiseToRawBytesHexText $ getTxId $ getTxBody tx
@@ -87,15 +88,21 @@ createReferenceScript ::  IsPlutusScript script => script->AddressInEra ConwayEr
 createReferenceScript script receiverAddr = do
     txPayToWithReferenceScript  receiverAddr mempty ( TxScriptPlutus $ toTxPlutusScript $ script)
 
-buyTokenBuilder' :: IsPlutusScript script => script -> HashableScriptData -> NetworkId -> Maybe TxIn -> TxIn -> TxOut CtxUTxO ConwayEra -> Either String  TxBuilder
-buyTokenBuilder' script buyRedeemer netId refTxIn txIn tout = do 
-    (sellerAddr , price) <- getSimpleSaleInfo netId tout
+buyTokenBuilder' :: IsPlutusScript script => script -> HashableScriptData -> NetworkId -> Maybe TxIn -> TxIn -> TxOut CtxUTxO ConwayEra -> Maybe (AddressInEra ConwayEra, Integer, TxIn) -> Either String  TxBuilder
+buyTokenBuilder' script buyRedeemer netId refTxIn txIn tout feeInfo = do 
+    (sellerAddr , price) <- getSimpleSaleInfo netId tout 
+    let marketFeeOutput = case feeInfo of 
+          Just (operator, fee, txin) -> txPayTo operator (valueFromList[(AdaAssetId, Quantity fee)])
+              <> txReferenceTxIn txin
+          Nothing -> mempty
     case refTxIn of 
-      Nothing -> pure $ txRedeemUtxo txIn tout script buyRedeemer  Nothing
-        <> txPayTo   (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
-      Just referenceTxIn -> pure $ txRedeemUtxoWithReferenceScript referenceTxIn txIn tout buyRedeemer  Nothing
-        <> txPayTo   (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
-
+          Nothing -> pure $ txRedeemUtxo txIn tout script buyRedeemer  Nothing
+            <> txPayTo   (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
+            <> marketFeeOutput
+          Just referenceTxIn -> pure $ txRedeemUtxoWithReferenceScript referenceTxIn txIn tout buyRedeemer  Nothing
+            <> txPayTo   (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
+            <> marketFeeOutput
+            
 resolveTxIn:: HasChainQueryAPI api => TxIn -> Kontract api w FrameworkError (TxIn, TxOut CtxUTxO ConwayEra)
 resolveTxIn txin = do 
   (UTxO uMap) :: UTxO ConwayEra <- kQueryUtxoByTxin  $ Set.singleton txin

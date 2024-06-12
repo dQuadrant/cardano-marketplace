@@ -26,7 +26,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy as TLE
 import Plutus.Contracts.V3.SimpleMarketplace hiding (Withdraw)
 import qualified Plutus.Contracts.V3.SimpleMarketplace as SMP
-
+import qualified Plutus.Contracts.V2.ConfigurableMarketplace as Config
 import qualified Debug.Trace as Debug
 import Data.Functor ((<&>))
 import Control.Exception (throw)
@@ -67,14 +67,14 @@ sellBuilder contractAddr saleItem cost  sellerAddr
 withdrawRedeemer = ( unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Withdraw)
 buyRedeemer = ( unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Buy)
 
-buyTokenBuilder ::  HasChainQueryAPI api => Maybe TxIn ->  TxIn  ->  Kontract api w FrameworkError TxBuilder
-buyTokenBuilder refTxIn txin  = do
+buyTokenBuilder ::  HasChainQueryAPI api => Maybe TxIn ->  TxIn  ->  PlutusScript PlutusScriptV3 -> Maybe (AddressInEra ConwayEra, Integer, TxIn) -> Kontract api w FrameworkError TxBuilder
+buyTokenBuilder refTxIn txin script feeInfo = do
   netid<- kGetNetworkId
   (tin, tout) <- resolveTxIn txin
-  kWrapParser $ buyTokenBuilder' simpleMarketplacePlutusV3 buyRedeemer  netid refTxIn txin tout
+  kWrapParser $ buyTokenBuilder' script buyRedeemer  netid refTxIn txin tout feeInfo
 
-withdrawTokenBuilder ::  HasChainQueryAPI api =>Maybe TxIn ->  TxIn  ->  Kontract api w FrameworkError TxBuilder
-withdrawTokenBuilder refTxIn txin = do
+withdrawTokenBuilder ::  HasChainQueryAPI api =>Maybe TxIn ->  TxIn  ->  PlutusScript PlutusScriptV3 -> Kontract api w FrameworkError TxBuilder
+withdrawTokenBuilder refTxIn txin script = do
   netid<- kGetNetworkId
   (tin, tout) <- resolveTxIn txin
-  kWrapParser $ withdrawTokenBuilder' simpleMarketplacePlutusV3 withdrawRedeemer netid refTxIn txin tout
+  kWrapParser $ withdrawTokenBuilder' script withdrawRedeemer netid refTxIn txin tout

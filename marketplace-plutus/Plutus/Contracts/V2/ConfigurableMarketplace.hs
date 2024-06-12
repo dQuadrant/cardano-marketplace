@@ -19,14 +19,7 @@
 {-# LANGUAGE ViewPatterns #-}
 {-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:target-version=1.0.0 #-}
 
-module Plutus.Contracts.V2.ConfigurableMarketplace(
-  configurableMarketValidator,
-  configurableMarketScript,
-  MarketRedeemer(..),
-  SimpleSale(..),
-  MarketConstructor(..)
-)
-where
+module Plutus.Contracts.V2.ConfigurableMarketplace where
 
 import GHC.Generics (Generic)
 import PlutusTx.Prelude
@@ -49,7 +42,8 @@ import PlutusLedgerApi.V2
 import PlutusCore.Version (plcVersion100)
 import PlutusLedgerApi.V1.Value
 import PlutusLedgerApi.V2.Contexts
-import Cardano.Api (ShelleyBasedEra(ShelleyBasedEraBabbage))
+import Cardano.Api (ShelleyBasedEra(ShelleyBasedEraConway))
+import Cardano.Api (ConwayEra)
 
 
 
@@ -131,10 +125,8 @@ configurableMarketValidator constructor =
 
 configurableMarketScript constructor  =  serialiseCompiledCode   $ configurableMarketValidator constructor
 
-
-
-configurableMarketPlutusScript :: MarketConstructor -> Cardano.Api.Shelley.Script PlutusScriptV2
-configurableMarketPlutusScript  constructor = PlutusScript PlutusScriptV2  $ Cardano.Api.Shelley.PlutusScriptSerialised $ configurableMarketScriptBS
+configurableMarketPlutusScript :: MarketConstructor -> PlutusScript PlutusScriptV2
+configurableMarketPlutusScript  constructor = Cardano.Api.Shelley.PlutusScriptSerialised $ configurableMarketScriptBS
   where
   configurableMarketScriptBS  =   configurableMarketScript  constructor
 
@@ -142,9 +134,9 @@ configurableMarketAddressShelly :: MarketConstructor ->  NetworkId -> Cardano.Ap
 configurableMarketAddressShelly constructor network = makeShelleyAddress network (configurableMarketScriptCredential constructor) NoStakeAddress
 
 
-configurableMarketAddress ::  MarketConstructor ->  NetworkId -> AddressInEra BabbageEra 
-configurableMarketAddress constructor network = makeShelleyAddressInEra ShelleyBasedEraBabbage network (configurableMarketScriptCredential constructor) NoStakeAddress
+configurableMarketAddress ::  MarketConstructor ->  NetworkId -> AddressInEra ConwayEra 
+configurableMarketAddress constructor network = makeShelleyAddressInEra ShelleyBasedEraConway network (configurableMarketScriptCredential constructor) NoStakeAddress
 
 
 configurableMarketScriptCredential :: MarketConstructor ->  Cardano.Api.Shelley.PaymentCredential
-configurableMarketScriptCredential constructor = PaymentCredentialByScript $ hashScript $ configurableMarketPlutusScript constructor
+configurableMarketScriptCredential constructor = PaymentCredentialByScript $ hashScript $ PlutusScript PlutusScriptV2  $  configurableMarketPlutusScript constructor

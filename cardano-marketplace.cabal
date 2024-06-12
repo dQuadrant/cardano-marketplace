@@ -98,6 +98,8 @@ test-suite market-test
   hs-source-dirs: test
   other-modules:
     Test.Common
+    Test.TestStoryConfigurableMarketV2
+    Test.TestStoryConfigurableMarketV3
     Test.TestStorySimpleMarketV2
     Test.TestStorySimpleMarketV3
   build-depends:

@@ -17,6 +17,9 @@ import Test.Hspec (shouldSatisfy)
 import qualified Data.Map as Map
 import qualified Control.Concurrent as Control
 import qualified Data.Set as Set
+import qualified PlutusLedgerApi.V1.Scripts as P
+import Cardano.Api.Ledger (hashToBytes)
+import qualified PlutusTx.Builtins as BI
 
 increment :: Int -> Int
 increment x = x + 1
