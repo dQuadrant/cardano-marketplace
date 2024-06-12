@@ -121,7 +121,7 @@ main = do
             Just saleTxId -> case mRefTxId of 
               Nothing -> expectationFailure "RefScript UTxO creation Transaction was not successful" 
               Just refTxId -> do  
-                let txBuilder = withdrawTokenBuilder (Just $ TxIn refTxId (TxIx 0)) (TxIn saleTxId (TxIx 2) ) marketScript
+                let txBuilder = withdrawTokenBuilder (Just $ TxIn refTxId (TxIx 0)) (TxIn saleTxId (TxIx 1) ) marketScript
                 runTransactionTest' "Withdraw with RefScript" txBuilder 
 
         it "Should buy 1 token from sale" $ \result1 -> do
@@ -137,7 +137,7 @@ main = do
               Just configTxId -> do    
                 let
                   feeInfo = (operatorAddress, marketFee marketConfig, TxIn configTxId (TxIx 0))  
-                  txBuilder = buyTokenBuilder Nothing (TxIn saleTxId (TxIx 1)) marketScript (Just feeInfo) 
+                  txBuilder = buyTokenBuilder Nothing (TxIn saleTxId (TxIx 2)) marketScript (Just feeInfo) 
                 runTransactionTest' "Buy" txBuilder   
         
         it "Should buy 1 token from sale with reference script" $ \result1 -> do
@@ -156,5 +156,5 @@ main = do
                 Just refTxId -> do    
                   let
                     feeInfo = (operatorAddress, marketFee marketConfig, TxIn configTxId (TxIx 0))  
-                    txBuilder = buyTokenBuilder (Just $ TxIn refTxId (TxIx 0)) (TxIn saleTxId (TxIx 1)) marketScript (Just feeInfo) 
+                    txBuilder = buyTokenBuilder (Just $ TxIn refTxId (TxIx 0)) (TxIn saleTxId (TxIx 3)) marketScript (Just feeInfo) 
                   runTransactionTest' "Buy" txBuilder
