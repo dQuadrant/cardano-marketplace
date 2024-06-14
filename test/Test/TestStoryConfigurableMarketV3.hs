@@ -157,4 +157,4 @@ main = do
                   let
                     feeInfo = (operatorAddress, marketFee marketConfig, TxIn configTxId (TxIx 0))  
                     txBuilder = buyTokenBuilder (Just $ TxIn refTxId (TxIx 0)) (TxIn saleTxId (TxIx 3)) marketScript (Just feeInfo) 
-                  runTransactionTest' "Buy" txBuilder
+                  runTransactionTest' "Buy with RefScript" txBuilder
