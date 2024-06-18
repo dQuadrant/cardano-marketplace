@@ -26,6 +26,9 @@ library marketplace-plutus
     Plutus.Contracts.V2.SimpleMarketplace
     Plutus.Contracts.V2.MarketplaceConfig
     Plutus.Contracts.V2.ConfigurableMarketplace
+    Plutus.Contracts.V3.ConfigurableMarketplace
+    Plutus.Contracts.V3.SimpleMarketplace
+    Plutus.Contracts.V3.MarketplaceConfig
   hs-source-dirs: marketplace-plutus
   build-depends:
       base  -any
@@ -43,8 +46,11 @@ library marketplace-plutus
 library marketplace-core
   exposed-modules:
     Cardano.Marketplace.V2.Core
+    Cardano.Marketplace.V3.Core
     Cardano.Marketplace.Common.TextUtils
     Cardano.Marketplace.Common.TransactionUtils
+    Cardano.Marketplace.SimpleMarketplace
+    Cardano.Marketplace.ConfigurableMarketplace
   hs-source-dirs: marketplace-core
   build-depends:
       base -any
@@ -92,8 +98,13 @@ test-suite market-test
   type: exitcode-stdio-1.0
   main-is:  Main.hs
   hs-source-dirs: test
+  test-options:  -v2
   other-modules:
+    Test.Common
+    Test.TestStoryConfigurableMarket
+    -- Test.TestStoryConfigurableMarketV3
     Test.TestStorySimpleMarket
+    -- Test.TestStorySimpleMarketV3
   build-depends:
     base >= 4.9 && <5
     , hspec
@@ -122,6 +133,7 @@ test-suite market-test
     , marketplace-core
     , time
     , cardano-ledger-babbage
+    , exceptions  
 
 
 --Used for running tests without the cabal test so output can be viewed without --test-show-details=streaming

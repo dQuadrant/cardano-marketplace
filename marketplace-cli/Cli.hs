@@ -17,10 +17,9 @@ import Cardano.Kuber.Util hiding (toHexString)
 import Cardano.Marketplace.Common.TextUtils
 import Cardano.Marketplace.Common.TransactionUtils
     ( getSignKey,
-      getTxIdFromTx,
-      marketAddressInEra,
-      marketAddressShelley )
-import Cardano.Marketplace.V2.Core
+      getTxIdFromTx )
+import qualified Cardano.Marketplace.V2.Core as V2.Core
+import qualified Cardano.Marketplace.V3.Core as V3.Core
 import Codec.Serialise (serialise)
 import Control.Exception (throwIO)
 import Control.Monad (void)
@@ -42,43 +41,54 @@ import qualified Data.Text.IO as T
 
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TL
-import Plutus.Contracts.V2.SimpleMarketplace (SimpleSale (..), simpleMarketplacePlutusV2)
-import qualified Plutus.Contracts.V2.SimpleMarketplace as SMP
-
+import qualified Plutus.Contracts.V2.SimpleMarketplace as V2
+import qualified Plutus.Contracts.V3.SimpleMarketplace as V3
 import System.Console.CmdArgs
 import System.Directory (doesFileExist, getCurrentDirectory, getDirectoryContents)
 import Cardano.Kuber.Console.ConsoleWritable
 import Data.Text.Encoding (encodeUtf8)
 import qualified Data.Aeson as A
 import qualified Data.Text.Lazy.IO as TL
+
 import qualified Data.Text.Encoding as T
 import qualified Debug.Trace as Debug
 import qualified Data.ByteString.Lazy.Char8 as BSL8
 import PlutusLedgerApi.V2 (dataToBuiltinData, FromData (fromBuiltinData))
 import Cardano.Marketplace.Common.TransactionUtils (runBuildAndSubmit)
+import Cardano.Marketplace.Common.TransactionUtils
+import Cardano.Marketplace.SimpleMarketplace
+import Cardano.Marketplace.V2.Core (simpleMarketV2Helper)
+import Cardano.Marketplace.V3.Core (simpleMarketV3Helper)
+
 
 data Modes
-  = Cat -- Cat script binary
+  = Cat
+      { plutusVersion :: Integer } -- Cat script binary
   | Sell -- Sell item with cost on the market
-      { item :: T.Text, -- Asset to be placed on market <policyId.AssetName>
+      { plutusVersion :: Integer , -- Sell to V2 script or V3 script
+        item :: T.Text, -- Asset to be placed on market <policyId.AssetName>
         cost :: Integer, -- cost in Lovelace
         addressSeller  :: Maybe Text, -- adddress OfSeller
         signingKeyFile :: String
       }
   | Buy -- Buy item from marketplace
-      { txin :: Text, -- txin to buy from marketplace
+      { plutusVersion :: Integer, -- buy from v2 marketplace or v3 marketplace
+        txin :: Text, -- txin to buy from marketplace
         datum :: Maybe String, -- datum to buy from marketplace
         signingKeyFile :: String,
         address:: Maybe T.Text
       }
   | Withdraw -- Withdraw by the seller placed item from the marketplace
-      { txin :: Text,
+      { plutusVersion :: Integer, -- withdraw from v2 marketplace or v3 marketplace  
+        txin :: Text,
         datum :: Maybe String,
         signingKeyFile :: String,
         address:: Maybe T.Text
-
       }
-  | Ls -- List utxos for market
+  | Ls
+    {
+      plutusVersion :: Integer -- list assets of v2 marketplace or v3 marketplace
+    } -- List utxos for market
   | Mint -- It mints a sample token 'testtoken' on the wallet
       {
         signingKeyFile :: String,
@@ -90,43 +100,47 @@ data Modes
     {
       signingKeyFile :: String,
       address:: Maybe T.Text
-
     }
   | Balance -- Command for showing funds of the wallet
     {
       signingKeyFile :: String,
       address:: Maybe T.Text
     }
-  deriving (Show, Data, Typeable)
+  deriving (Show, Data, Typeable, Eq)
 
 runCli :: IO ()
 runCli = do
   op <-
     cmdArgs $
       modes
-        [ Cat &= help "Cat script binary",
+        [ Cat { plutusVersion = 3 &= name "plutus-version" &= explicit &= name "pv"} &= help "Cat script binary",
           Sell
-            { item = "" &= typ "Asset" &= argPos 0,
+            { plutusVersion = 3 &= typ "PlutusVersion" &= name "plutus-version" &= explicit &= name "pv",
+              item = "" &= typ "Asset" &= argPos 0,
               cost = def &= typ "Price" &= argPos 1,
               addressSeller = def &= typ "PaymentReceivingAddress", 
               signingKeyFile = def &= typ "FilePath" &= name "signing-key-file"
             }
             &= help "Place an asset on sale Eg. sell 8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94.Token \"2000000\"",
           Buy
-            { txin = "" &= typ "TxIn" &= argPos 0,
+            { plutusVersion = 3 &= name "plutus-version" &= explicit &= name "pv",
+              txin = "" &= typ "TxIn" &= argPos 0,
               datum = Nothing &= typ "Datum",
               signingKeyFile = def &= typ "FilePath'" &= name "signing-key-file",
               address = def  &=typ "WalletAddress" &=name "address"
             }
             &= help "Buy an asset on sale after finiding out txIn from market-cli ls.  Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'",
           Withdraw
-            { txin = "" &= typ "TxIn'" &= argPos 0,
+            { plutusVersion = 3 &= name "plutus-version" &= explicit &= name "pv",
+              txin = "" &= typ "TxIn'" &= argPos 0,
               datum = Nothing &= typ "Datum'",
               signingKeyFile = def &= typ "'FilePath'" &= name "signing-key-file",
               address = def  &=typ "WalletAddress" &=name "address"
             }
             &= help "Withdraw an asset by seller after finiding out txIn from market-cli ls. Eg. buy '8932e54402bd3658a6d529da707ab367982ae4cde1742166769e4f94#0' '{\"fields\":...}'",
-          Ls &= help "List utxos for market",
+          Ls 
+            { plutusVersion = 3 &= name "plutus-version" &= explicit &= name "pv"
+            } &= help "List utxos for market",
           Mint
             {
               assetName = "" &= typ "AssetName" &= argPos 0,
@@ -154,20 +168,32 @@ runCli = do
 
   chainInfo <- chainInfoFromEnv
   networkId <- evaluateKontract chainInfo kGetNetworkId >>= throwFrameworkError
-  let marketAddr = marketAddressShelley networkId
-
+  let 
+      v2MarketAddr = plutusScriptAddr  (simpleMarketScript simpleMarketV2Helper)  networkId
+      v3MarketAddr =plutusScriptAddr  (simpleMarketScript simpleMarketV3Helper)  networkId
+      -- v3marketAddr version = 
   case op of
-    Ls -> runKontract chainInfo $  do
-      (UTxO uMap) <- kQueryUtxoByAddress  $ Set.singleton ( toAddressAny marketAddr)
-      let vals = mapMaybe (\(txin,TxOut addr val datum _) -> case datum of
-            TxOutDatumNone -> Nothing
-            TxOutDatumHash sdsie ha -> Nothing
-            TxOutDatumInline rtisidsie sd -> case fromBuiltinData $  dataToBuiltinData $  toPlutusData $ getScriptData  sd of
-              Nothing -> Nothing
-              Just (SimpleSale artist cost) -> pure (txin,cost,val)  ) (Map.toList uMap)
+    Ls version -> runKontract chainInfo $ do
+      let marketAddr = case version of 
+              2 -> v2MarketAddr
+              3 -> v3MarketAddr
+              _ -> error "Expected version to be either 2 or 3"
+      (UTxO uMap) <- kQueryUtxoByAddress $ Set.singleton (addressInEraToAddressAny $ marketAddr)
+      let vals = mapMaybe (\(txin, TxOut addr val datum _) -> 
+            case datum of
+              TxOutDatumNone -> Nothing
+              TxOutDatumHash _ _ -> Nothing
+              TxOutDatumInline _ sd -> 
+                case (fromBuiltinData $ dataToBuiltinData $ toPlutusData $ getScriptData sd :: Maybe V2.SimpleSale) of
+                  Just (V2.SimpleSale artist cost) -> Just (txin, cost, val)
+                  Nothing -> 
+                    case (fromBuiltinData $ dataToBuiltinData $ toPlutusData $ getScriptData sd :: Maybe V3.SimpleSale) of
+                      Just (V3.SimpleSale artist cost) -> Just (txin, cost, val)
+                      Nothing -> Nothing
+            ) (Map.toList uMap)
 
       liftIO $ do
-        putStrLn $ "Market Address : " ++ T.unpack (serialiseAddress marketAddr)
+        putStrLn $ "Market Address : " ++ T.unpack (serialiseAddress (marketAddr))
 
         if null vals
           then putStrLn "Marketplace is Empty <> "
@@ -180,38 +206,47 @@ runCli = do
         showVal val= intercalate " +" $ map (\(AssetId pol (AssetName a),Quantity v) -> (if v>1 then show v ++ " " else "") ++ T.unpack (serialiseToRawBytesHexText pol) ++ "." ++ BS8.unpack a ) filtered
           where
             filtered= filter (\(a,v)-> a /= AdaAssetId )  $ valueToList val
-    Cat -> do
-      let envelope = serialiseToTextEnvelope (Just $   "SimpleMarketplaceV2")  simpleMarketplacePlutusV2
+    Cat version -> do
+      let envelope = case version of 
+               2 -> serialiseToTextEnvelope (Just $   "SimpleMarketplaceV2")  V2.simpleMarketplacePlutusV2
+               3 -> serialiseToTextEnvelope (Just $   "SimpleMarketplaceV3")  V3.simpleMarketplacePlutusV3
       T.putStrLn $ T.decodeUtf8 $ prettyPrintJSON  envelope
-    Sell itemStr cost saddressMaybe sKeyFile-> do
+    Sell version itemStr cost saddressMaybe sKeyFile-> do
       sKey <- getSignKey sKeyFile
       sellVale <- parseAssetNQuantity itemStr
       sellerAddress <- case saddressMaybe of
         Nothing -> pure  $ skeyToAddrInEra sKey networkId 
         Just txt -> parseAddress txt
-      let txBuilder
-            = sellBuilder  (marketAddressInEra networkId)  (valueFromList [sellVale]) cost  sellerAddress 
+      let
+        txBuilder = (case version of 
+                  2 -> sellBuilder simpleMarketV2Helper   v2MarketAddr  (valueFromList [sellVale]) cost  sellerAddress 
+                  3 -> sellBuilder simpleMarketV3Helper  v3MarketAddr (valueFromList [sellVale]) cost  sellerAddress )
               <> txWalletSignKey sKey
               <> txWalletAddress sellerAddress
       runKontract chainInfo $ runBuildAndSubmit txBuilder 
         
-    Buy txInText datumStr sKeyFile addrMaybe-> do
+    Buy version txInText datumStr sKeyFile addrMaybe -> do
       sKey <- getSignKey sKeyFile
       tin <- parseTxIn txInText
       address <- getAddress networkId sKey addrMaybe
+
       runKontract  chainInfo $ do
-        buyBuilder <- buyTokenBuilder tin
+        buyBuilder <- case version of 
+            2 -> buyTokenBuilder simpleMarketV2Helper Nothing tin Nothing
+            3 -> buyTokenBuilder simpleMarketV3Helper Nothing tin Nothing
         let builder = buyBuilder
                         <> txWalletSignKey sKey
                         <> txWalletAddress address
         runBuildAndSubmit builder
  
-    Withdraw txInText datumStr sKeyFile mAddr-> do
+    Withdraw version txInText datumStr sKeyFile mAddr-> do
       sKey <- getSignKey sKeyFile
       txIn <- parseTxIn txInText
       address <- getAddress networkId sKey mAddr
       runKontract  chainInfo $ do
-        withdrawBuilder <- withdrawTokenBuilder txIn
+        withdrawBuilder <- case version of 
+          2 -> withdrawTokenBuilder simpleMarketV2Helper Nothing txIn 
+          3 -> withdrawTokenBuilder simpleMarketV3Helper Nothing txIn
         let builder = withdrawBuilder
                         <> txWalletSignKey sKey
                         <> txWalletAddress address
