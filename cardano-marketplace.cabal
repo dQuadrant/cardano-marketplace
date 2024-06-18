@@ -26,6 +26,9 @@ library marketplace-plutus
     Plutus.Contracts.V2.SimpleMarketplace
     Plutus.Contracts.V2.MarketplaceConfig
     Plutus.Contracts.V2.ConfigurableMarketplace
+    Plutus.Contracts.V3.ConfigurableMarketplace
+    Plutus.Contracts.V3.SimpleMarketplace
+    Plutus.Contracts.V3.MarketplaceConfig
   hs-source-dirs: marketplace-plutus
   build-depends:
       base  -any
@@ -33,6 +36,7 @@ library marketplace-plutus
     , cardano-ledger-alonzo
     , plutus-ledger-api
     , plutus-tx-plugin
+    , plutus-core
     , aeson
     , bytestring
     , cardano-api
@@ -42,8 +46,11 @@ library marketplace-plutus
 library marketplace-core
   exposed-modules:
     Cardano.Marketplace.V2.Core
+    Cardano.Marketplace.V3.Core
     Cardano.Marketplace.Common.TextUtils
     Cardano.Marketplace.Common.TransactionUtils
+    Cardano.Marketplace.SimpleMarketplace
+    Cardano.Marketplace.ConfigurableMarketplace
   hs-source-dirs: marketplace-core
   build-depends:
       base -any
@@ -55,17 +62,11 @@ library marketplace-core
     , serialise
     , http-types
     , marketplace-plutus
+    , cardano-api
+    , plutus-ledger-api
     , text 
     , text-conversions
-    , cardano-api
-    , cardano-ledger-shelley
-    , cardano-ledger-core
-    , cardano-ledger-shelley-ma
-    , cardano-ledger-alonzo
-    , plutus-ledger-api
     , plutus-tx
-    , cborg
-    , cardano-binary
     , mtl
     , kuber
 
@@ -77,7 +78,7 @@ executable  market-cli
   build-depends:
       base -any
     , directory
-    , cmdargs >= 0.10.18
+    , cmdargs
     , plutus-ledger-api
     , text
     , containers
@@ -86,48 +87,53 @@ executable  market-cli
     , serialise
     , cardano-ledger-shelley
     , cardano-ledger-core
-    , cardano-ledger-shelley-ma
     , cardano-ledger-alonzo
     , cardano-api
     , kuber
     , marketplace-plutus
     , marketplace-core
 
--- test-suite marketplace-test
---   default-language: Haskell2010
---   type: exitcode-stdio-1.0
---   main-is:  Test.hs
---   hs-source-dirs: test
---   other-modules:
---     Test.ReferenceScriptTest
---   build-depends:
---     base >= 4.9 && <5
---     , kuber
---     , QuickCheck -any
---     , tasty -any
---     , tasty-hunit -any
---     , containers
---     , bytestring
---     , serialise
---     , cborg
---     , cardano-binary
---     , text
---     , aeson
---     , text-conversions
---     , cardano-api
---     , cardano-ledger-alonzo
---     , cardano-ledger-shelley
---     , cardano-slotting
---     , plutus-ledger-api
---     , plutus-tx
---     , ouroboros-network
---     , cardano-binary
---     , vector
---     , unordered-containers
---     , marketplace-plutus
---     , marketplace-core
---     , time
---     , cardano-ledger-babbage
+test-suite market-test
+  default-language: Haskell2010
+  type: exitcode-stdio-1.0
+  main-is:  Main.hs
+  hs-source-dirs: test
+  test-options:  -v2
+  other-modules:
+    Test.Common
+    Test.TestStoryConfigurableMarket
+    -- Test.TestStoryConfigurableMarketV3
+    Test.TestStorySimpleMarket
+    -- Test.TestStorySimpleMarketV3
+  build-depends:
+    base >= 4.9 && <5
+    , hspec
+    , hspec-junit-formatter >= 1.0
+    , kuber
+    , lens
+    , containers
+    , bytestring
+    , serialise
+    , cborg
+    , cardano-binary
+    , text
+    , aeson
+    , text-conversions
+    , cardano-api
+    , cardano-ledger-alonzo
+    , cardano-ledger-shelley
+    , cardano-slotting
+    , plutus-ledger-api
+    , plutus-tx
+    , ouroboros-network
+    , cardano-binary
+    , vector
+    , unordered-containers
+    , marketplace-plutus
+    , marketplace-core
+    , time
+    , cardano-ledger-babbage
+    , exceptions  
 
 
 --Used for running tests without the cabal test so output can be viewed without --test-show-details=streaming

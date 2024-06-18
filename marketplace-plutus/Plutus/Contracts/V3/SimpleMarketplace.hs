@@ -17,9 +17,10 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE ViewPatterns #-}
-{-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:target-version=1.0.0 #-}
-module Plutus.Contracts.V2.SimpleMarketplace(
-  simpleMarketplacePlutusV2,
+{-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:target-version=1.1.0 #-}
+
+module Plutus.Contracts.V3.SimpleMarketplace(
+  simpleMarketplacePlutusV3,
   simpleMarketplaceScript,
   MarketRedeemer(..),
   SimpleSale(..)
@@ -37,11 +38,11 @@ import qualified Data.Bifunctor
 import qualified Data.ByteString.Short as SBS
 import qualified Data.ByteString.Lazy  as LBS
 
-import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV2)
+import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV3)
 import Codec.Serialise ( serialise )
-import PlutusLedgerApi.V2
+import PlutusLedgerApi.V3
 import PlutusLedgerApi.V1.Value
-import PlutusLedgerApi.V2.Contexts
+import PlutusLedgerApi.V3.Contexts
 
 
 {-# INLINABLE allScriptInputsCount #-}
@@ -97,6 +98,5 @@ simpleMarketValidator =
 
 simpleMarketplaceScript  =  serialiseCompiledCode  simpleMarketValidator
 
-
-simpleMarketplacePlutusV2 ::  PlutusScript PlutusScriptV2
-simpleMarketplacePlutusV2  = PlutusScriptSerialised $ simpleMarketplaceScript
+simpleMarketplacePlutusV3 ::  PlutusScript PlutusScriptV3
+simpleMarketplacePlutusV3  = PlutusScriptSerialised $ simpleMarketplaceScript

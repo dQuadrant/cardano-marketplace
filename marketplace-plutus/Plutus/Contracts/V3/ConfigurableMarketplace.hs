@@ -17,9 +17,9 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE ViewPatterns #-}
-{-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:target-version=1.0.0 #-}
+{-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:target-version=1.1.0 #-}
 
-module Plutus.Contracts.V2.ConfigurableMarketplace where
+module Plutus.Contracts.V3.ConfigurableMarketplace where
 
 import GHC.Generics (Generic)
 import PlutusTx.Prelude
@@ -31,18 +31,18 @@ import qualified PlutusTx.AssocMap as AssocMap
 import qualified Data.Bifunctor
 import qualified Data.ByteString.Short as SBS
 import qualified Data.ByteString.Lazy  as LBS
-import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV2)
+import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV3)
 import Codec.Serialise ( serialise )
-import Plutus.Contracts.V2.MarketplaceConfig (MarketConfig(..))
-import Cardano.Api (IsCardanoEra,BabbageEra,NetworkId, AddressInEra, ShelleyAddr, BabbageEra, Script (PlutusScript), PlutusScriptVersion (PlutusScriptV2), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress)
+import Cardano.Api (IsCardanoEra,BabbageEra,NetworkId, AddressInEra, ShelleyAddr, BabbageEra, Script (PlutusScript), PlutusScriptVersion (PlutusScriptV3), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress, ShelleyBasedEra (..))
 import qualified Cardano.Api.Shelley
 import PlutusTx.Builtins.Class (stringToBuiltinByteString)
 import PlutusTx.Builtins (decodeUtf8)
-import PlutusLedgerApi.V2
-import PlutusCore.Version (plcVersion100)
+import PlutusLedgerApi.V3
+import PlutusCore.Version (plcVersion110)
 import PlutusLedgerApi.V1.Value
-import PlutusLedgerApi.V2.Contexts
-import Cardano.Api (ShelleyBasedEra(ShelleyBasedEraConway))
+import PlutusLedgerApi.V3.Contexts
+import Cardano.Api (ShelleyBasedEra(ShelleyBasedEraBabbage))
+import Plutus.Contracts.V3.MarketplaceConfig (MarketConfig(..))
 import Cardano.Api (ConwayEra)
 
 
@@ -120,12 +120,12 @@ mkWrappedConfigurableMarket constructor   d r c = check $ mkConfigurableMarket c
 
 configurableMarketValidator constructor = 
     $$(PlutusTx.compile [|| mkWrappedConfigurableMarket ||])
-            `unsafeApplyCode` PlutusTx.liftCode plcVersion100 constructor
+            `unsafeApplyCode` PlutusTx.liftCode plcVersion110 constructor
 
 
 configurableMarketScript constructor  =  serialiseCompiledCode   $ configurableMarketValidator constructor
 
-configurableMarketPlutusScript :: MarketConstructor -> PlutusScript PlutusScriptV2
+configurableMarketPlutusScript :: MarketConstructor -> PlutusScript PlutusScriptV3
 configurableMarketPlutusScript  constructor = Cardano.Api.Shelley.PlutusScriptSerialised $ configurableMarketScriptBS
   where
   configurableMarketScriptBS  =   configurableMarketScript  constructor
@@ -139,4 +139,5 @@ configurableMarketAddress constructor network = makeShelleyAddressInEra ShelleyB
 
 
 configurableMarketScriptCredential :: MarketConstructor ->  Cardano.Api.Shelley.PaymentCredential
-configurableMarketScriptCredential constructor = PaymentCredentialByScript $ hashScript $ PlutusScript PlutusScriptV2  $  configurableMarketPlutusScript constructor
+configurableMarketScriptCredential constructor = PaymentCredentialByScript $ hashScript $ PlutusScript PlutusScriptV3  $  configurableMarketPlutusScript constructor
+
