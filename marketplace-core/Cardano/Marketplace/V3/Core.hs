@@ -9,43 +9,44 @@
 
 module Cardano.Marketplace.V3.Core where
 
+
+import Cardano.Marketplace.SimpleMarketplace
 import Cardano.Api
-import Cardano.Api.Shelley (ProtocolParameters, ReferenceScript (ReferenceScriptNone), fromPlutusData, scriptDataToJsonDetailedSchema, toPlutusData, Address (ShelleyAddress))
-import qualified Cardano.Api.Shelley as Shelley
+import Cardano.Api.Shelley
 import Cardano.Kuber.Api
-import Cardano.Kuber.Data.Parsers
-import Cardano.Kuber.Util
-import Cardano.Marketplace.Common.TextUtils
-import Cardano.Marketplace.Common.TransactionUtils
-import Codec.Serialise (serialise)
-import qualified Data.Aeson as Aeson
-import qualified Data.Aeson.Text as Aeson
-import qualified Data.Map as Map
-import Data.Text (Text)
-import qualified Data.Text as T
-import qualified Data.Text.Lazy as TLE
-import Plutus.Contracts.V3.SimpleMarketplace hiding (Withdraw)
-import qualified Plutus.Contracts.V3.SimpleMarketplace as SMP
-import qualified Plutus.Contracts.V2.ConfigurableMarketplace as Config
-import qualified Debug.Trace as Debug
-import Data.Functor ((<&>))
-import Control.Exception (throw)
-import qualified Data.Set as Set
-import qualified Plutus.Contracts.V3.SimpleMarketplace as Marketplace
-import PlutusLedgerApi.V3 (toData, dataToBuiltinData, FromData (fromBuiltinData))
+import Plutus.Contracts.V3.SimpleMarketplace (simpleMarketplacePlutusV3, SimpleSale (SimpleSale), MarketRedeemer (Withdraw, Buy))
+import PlutusTx
+import Cardano.Kuber.Util (toPlutusAddress, addrInEraToPlutusAddress)
+import Cardano.Marketplace.ConfigurableMarketplace
+import qualified Plutus.Contracts.V3.ConfigurableMarketplace as V3ConfigurableMarketplace
+import qualified Plutus.Contracts.V3.MarketplaceConfig as V3MarketConfig
+import qualified PlutusLedgerApi.V3 as PlutusV3
 
+simpleMarketV3Helper :: SimpleMarketHelper
+simpleMarketV3Helper = SimpleMarketHelper {
+    simpleMarketScript = toTxPlutusScript simpleMarketplacePlutusV3
+  , makeSaleDatum = createV3SaleDatum
+  , withdrawRedeemer  = unsafeHashableScriptData $ fromPlutusData$ toData Withdraw
+  , buyRedeemer = unsafeHashableScriptData $ fromPlutusData$ toData Buy
+}
 
-marketAddressShelley :: NetworkId -> Address ShelleyAddr
-marketAddressShelley network = makeShelleyAddress network scriptCredential' NoStakeAddress
+makeConfigurableMarketV3Helper operatorAddr fee = 
+  let operatorAddress = addrInEraToPlutusAddress operatorAddr
+      ownerAddress = operatorAddress
+      marketConfig = V3MarketConfig.MarketConfig operatorAddress operatorAddress fee
+      marketConstructor = V3ConfigurableMarketplace.MarketConstructor  ( 
+        PlutusV3.ScriptHash $ PlutusV3.toBuiltin $ serialiseToRawBytes $ hashTxScript  $ TxScriptPlutus mConfigScript)
+      mConfigScript = toTxPlutusScript $ V3MarketConfig.marketConfigPlutusScript
+    in
+    ConfigurableMarketHelper {
+        cmMarketScript = toTxPlutusScript $ V3ConfigurableMarketplace.configurableMarketPlutusScript marketConstructor 
+      , cmConfigScript = mConfigScript
+      , cmMakeSaleDatum = createV3SaleDatum
+      , cmWithdrawRedeemer = unsafeHashableScriptData $ fromPlutusData$ toData V3ConfigurableMarketplace.Withdraw
+      , cmBuyRedeemer = unsafeHashableScriptData $ fromPlutusData$ toData V3ConfigurableMarketplace.Buy
+      , cmConfigDatum = unsafeHashableScriptData $ fromPlutusData$ toData marketConfig
+      }
 
-scriptCredential' :: PaymentCredential
-scriptCredential' = PaymentCredentialByScript marketHash
-  where
-    marketHash = hashScript marketScript
-    marketScript = PlutusScript PlutusScriptV3 simpleMarketplacePlutusV3
-
-marketAddressInEra :: NetworkId -> AddressInEra ConwayEra
-marketAddressInEra network = makeShelleyAddressInEra ShelleyBasedEraConway network scriptCredential' NoStakeAddress
 
 createV3SaleDatum :: AddressInEra ConwayEra -> Integer -> HashableScriptData
 createV3SaleDatum sellerAddr costOfAsset =
@@ -59,22 +60,3 @@ createV3SaleDatum sellerAddr costOfAsset =
           }
       datum = SimpleSale plutusAddr costOfAsset
    in unsafeHashableScriptData $  fromPlutusData $ toData datum
-
-sellBuilder :: AddressInEra ConwayEra ->  Value -> Integer -> AddressInEra  ConwayEra  -> TxBuilder
-sellBuilder contractAddr saleItem cost  sellerAddr 
-  = txPayToScriptWithData contractAddr saleItem (createV3SaleDatum sellerAddr cost)
-
-withdrawRedeemer = ( unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Withdraw)
-buyRedeemer = ( unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Buy)
-
-buyTokenBuilder ::  HasChainQueryAPI api => Maybe TxIn ->  TxIn  ->  PlutusScript PlutusScriptV3 -> Maybe (AddressInEra ConwayEra, Integer, TxIn) -> Kontract api w FrameworkError TxBuilder
-buyTokenBuilder refTxIn txin script feeInfo = do
-  netid<- kGetNetworkId
-  (tin, tout) <- resolveTxIn txin
-  kWrapParser $ buyTokenBuilder' script buyRedeemer  netid refTxIn txin tout feeInfo
-
-withdrawTokenBuilder ::  HasChainQueryAPI api =>Maybe TxIn ->  TxIn  ->  PlutusScript PlutusScriptV3 -> Kontract api w FrameworkError TxBuilder
-withdrawTokenBuilder refTxIn txin script = do
-  netid<- kGetNetworkId
-  (tin, tout) <- resolveTxIn txin
-  kWrapParser $ withdrawTokenBuilder' script withdrawRedeemer netid refTxIn txin tout

@@ -32,53 +32,43 @@ import Data.Functor ((<&>))
 import Control.Exception (throw)
 import qualified Data.Set as Set
 import qualified Plutus.Contracts.V2.SimpleMarketplace as Marketplace
+import qualified Plutus.Contracts.V2.ConfigurableMarketplace as V2ConfigurableMarketplace
+import qualified Plutus.Contracts.V2.MarketplaceConfig as V2MarketConfig
+
 import PlutusLedgerApi.V2 (toData, dataToBuiltinData, FromData (fromBuiltinData))
+import Cardano.Marketplace.SimpleMarketplace
+import qualified PlutusLedgerApi.V2 as PlutusV2
+import Cardano.Marketplace.ConfigurableMarketplace
 
-marketAddressShelley :: NetworkId -> Address ShelleyAddr
-marketAddressShelley network = makeShelleyAddress network scriptCredential' NoStakeAddress
+simpleMarketV2Helper :: SimpleMarketHelper
+simpleMarketV2Helper = SimpleMarketHelper {
+    simpleMarketScript = toTxPlutusScript simpleMarketplacePlutusV2
+  , makeSaleDatum = createV2SaleDatum
+  , withdrawRedeemer  = unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Withdraw
+  , buyRedeemer = unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Buy
+}
 
-scriptCredential' :: PaymentCredential
-scriptCredential' = PaymentCredentialByScript marketHash
-  where
-    marketHash = hashScript marketScript
-    marketScript = PlutusScript PlutusScriptV2 simpleMarketplacePlutusV2
 
-marketAddressInEra :: NetworkId -> AddressInEra ConwayEra
-marketAddressInEra network = makeShelleyAddressInEra ShelleyBasedEraConway network scriptCredential' NoStakeAddress
+makeConfigurableMarketV2Helper operatorAddr fee = 
+  let operatorAddress = addrInEraToPlutusAddress operatorAddr
+      ownerAddress = operatorAddress
+      marketConfig = V2MarketConfig.MarketConfig operatorAddress operatorAddress fee
+      marketConstructor = V2ConfigurableMarketplace.MarketConstructor  ( 
+        PlutusV2.ScriptHash $ PlutusV2.toBuiltin $ serialiseToRawBytes $ hashTxScript  $ TxScriptPlutus mConfigScript)
+      mConfigScript = toTxPlutusScript $ V2MarketConfig.marketConfigPlutusScript
+    in
+    ConfigurableMarketHelper {
+        cmMarketScript = toTxPlutusScript $ V2ConfigurableMarketplace.configurableMarketPlutusScript marketConstructor 
+      , cmConfigScript = mConfigScript
+      , cmMakeSaleDatum = createV2SaleDatum
+      , cmWithdrawRedeemer = unsafeHashableScriptData $ fromPlutusData$ toData V2ConfigurableMarketplace.Withdraw
+      , cmBuyRedeemer = unsafeHashableScriptData $ fromPlutusData$ toData V2ConfigurableMarketplace.Buy
+      , cmConfigDatum = unsafeHashableScriptData $ fromPlutusData$ toData marketConfig
+      }
 
 createV2SaleDatum :: AddressInEra ConwayEra -> Integer -> HashableScriptData
 createV2SaleDatum sellerAddr costOfAsset =
-  -- Convert AddressInEra to Plutus.Address
-  let plutusAddr =  toPlutusAddress sellerAddrShelley
-      sellerAddrShelley = case sellerAddr of {
-         AddressInEra atie ad -> case ad of
-          addr@(ShelleyAddress net cre sr )-> addr  
-          _  -> error "Byron era address Not supported"
-
-          }
+  -- Convert  to Plutus.Address
+  let plutusAddr =  addrInEraToPlutusAddress sellerAddr
       datum = SimpleSale plutusAddr costOfAsset
    in unsafeHashableScriptData $  fromPlutusData $ toData datum
-
-sellBuilder :: AddressInEra ConwayEra ->  Value -> Integer -> AddressInEra  ConwayEra  -> TxBuilder
-sellBuilder contractAddr saleItem cost  sellerAddr 
-  = txPayToScriptWithData contractAddr saleItem (createV2SaleDatum sellerAddr cost)
-
-withdrawRedeemer = ( unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Withdraw)
-buyRedeemer = ( unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Buy)
-
-buyTokenBuilder ::  HasChainQueryAPI api => 
-  Maybe TxIn -> 
-  TxIn -> 
-  PlutusScript PlutusScriptV2 -> 
-  Maybe (AddressInEra ConwayEra, Integer, TxIn) -> 
-  Kontract api w FrameworkError TxBuilder
-buyTokenBuilder refTxIn txin script feeInfo = do
-  netid<- kGetNetworkId
-  (tin, tout) <- resolveTxIn txin
-  kWrapParser $ buyTokenBuilder' script buyRedeemer  netid refTxIn txin tout feeInfo
-
-withdrawTokenBuilder ::  HasChainQueryAPI api => Maybe TxIn -> TxIn  -> PlutusScript PlutusScriptV2 -> Kontract api w FrameworkError TxBuilder
-withdrawTokenBuilder refTxIn txin script = do
-  netid<- kGetNetworkId
-  (tin, tout) <- resolveTxIn txin
-  kWrapParser $ withdrawTokenBuilder' script withdrawRedeemer netid refTxIn txin tout

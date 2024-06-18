@@ -119,7 +119,7 @@ mintNativeAsset vKey assetName amount =
 
 runBuildAndSubmit :: (HasKuberAPI api, HasSubmitApi api) => TxBuilder -> Kontract api w FrameworkError (Tx ConwayEra)
 runBuildAndSubmit txBuilder =  do 
-        tx<- kBuildTx txBuilder
+        tx<- kBuildTx txBuilder     
         kSubmitTx (InAnyCardanoEra ConwayEra tx) 
         liftIO $ putStrLn $ "Tx Submitted :" ++  (getTxIdFromTx tx)
         pure tx
