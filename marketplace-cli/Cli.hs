@@ -55,6 +55,11 @@ import qualified Debug.Trace as Debug
 import qualified Data.ByteString.Lazy.Char8 as BSL8
 import PlutusLedgerApi.V2 (dataToBuiltinData, FromData (fromBuiltinData))
 import Cardano.Marketplace.Common.TransactionUtils (runBuildAndSubmit)
+import Cardano.Marketplace.Common.TransactionUtils
+import Cardano.Marketplace.SimpleMarketplace
+import Cardano.Marketplace.V2.Core (simpleMarketV2Helper)
+import Cardano.Marketplace.V3.Core (simpleMarketV3Helper)
+
 
 data Modes
   = Cat
@@ -164,15 +169,16 @@ runCli = do
   chainInfo <- chainInfoFromEnv
   networkId <- evaluateKontract chainInfo kGetNetworkId >>= throwFrameworkError
   let 
-      v2MarketAddr = V2.Core.marketAddressShelley networkId
-      v3MarketAddr = V3.Core.marketAddressShelley networkId
+      v2MarketAddr = plutusScriptAddr  (simpleMarketScript simpleMarketV2Helper)  networkId
+      v3MarketAddr =plutusScriptAddr  (simpleMarketScript simpleMarketV3Helper)  networkId
       -- v3marketAddr version = 
   case op of
     Ls version -> runKontract chainInfo $ do
-      (UTxO uMap) <- case version of 
-        2 -> kQueryUtxoByAddress $ Set.singleton (toAddressAny $ v2MarketAddr)
-        3 -> kQueryUtxoByAddress $ Set.singleton (toAddressAny $ v3MarketAddr)
-        _ -> error "Expected version to be either 2 or 3"
+      let marketAddr = case version of 
+              2 -> v2MarketAddr
+              3 -> v3MarketAddr
+              _ -> error "Expected version to be either 2 or 3"
+      (UTxO uMap) <- kQueryUtxoByAddress $ Set.singleton (addressInEraToAddressAny $ marketAddr)
       let vals = mapMaybe (\(txin, TxOut addr val datum _) -> 
             case datum of
               TxOutDatumNone -> Nothing
@@ -185,9 +191,7 @@ runCli = do
                       Just (V3.SimpleSale artist cost) -> Just (txin, cost, val)
                       Nothing -> Nothing
             ) (Map.toList uMap)
-      let marketAddr = case version of 
-              2 -> v2MarketAddr
-              3 -> v3MarketAddr
+
       liftIO $ do
         putStrLn $ "Market Address : " ++ T.unpack (serialiseAddress (marketAddr))
 
@@ -214,11 +218,9 @@ runCli = do
         Nothing -> pure  $ skeyToAddrInEra sKey networkId 
         Just txt -> parseAddress txt
       let
-        txBuilder = case version of 
-          2 -> V2.Core.sellBuilder  (V2.Core.marketAddressInEra networkId)  (valueFromList [sellVale]) cost  sellerAddress 
-              <> txWalletSignKey sKey
-              <> txWalletAddress sellerAddress
-          3 -> V3.Core.sellBuilder  (V3.Core.marketAddressInEra networkId)  (valueFromList [sellVale]) cost  sellerAddress 
+        txBuilder = (case version of 
+                  2 -> sellBuilder simpleMarketV2Helper   v2MarketAddr  (valueFromList [sellVale]) cost  sellerAddress 
+                  3 -> sellBuilder simpleMarketV3Helper  v3MarketAddr (valueFromList [sellVale]) cost  sellerAddress )
               <> txWalletSignKey sKey
               <> txWalletAddress sellerAddress
       runKontract chainInfo $ runBuildAndSubmit txBuilder 
@@ -230,8 +232,8 @@ runCli = do
 
       runKontract  chainInfo $ do
         buyBuilder <- case version of 
-            2 -> V2.Core.buyTokenBuilder tin
-            3 -> V3.Core.buyTokenBuilder tin
+            2 -> buyTokenBuilder simpleMarketV2Helper Nothing tin Nothing
+            3 -> buyTokenBuilder simpleMarketV3Helper Nothing tin Nothing
         let builder = buyBuilder
                         <> txWalletSignKey sKey
                         <> txWalletAddress address
@@ -243,8 +245,8 @@ runCli = do
       address <- getAddress networkId sKey mAddr
       runKontract  chainInfo $ do
         withdrawBuilder <- case version of 
-          2 -> V2.Core.withdrawTokenBuilder txIn 
-          3 -> V3.Core.withdrawTokenBuilder txIn
+          2 -> withdrawTokenBuilder simpleMarketV2Helper Nothing txIn 
+          3 -> withdrawTokenBuilder simpleMarketV3Helper Nothing txIn
         let builder = withdrawBuilder
                         <> txWalletSignKey sKey
                         <> txWalletAddress address
