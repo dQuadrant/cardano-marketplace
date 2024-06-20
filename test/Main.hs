@@ -1,11 +1,5 @@
--- import qualified Test.ReferenceScriptTest as ReferenceScriptTest
--- import qualified Test.ReferenceDataTest as ReferenceDataTest
-
--- import           Test.Tasty
 import Test.TestStorySimpleMarket (makeSimpleMarketSpecs)
 import Test.TestStoryConfigurableMarket  (makeConfigurableMarketSpecs)
--- import qualified Test.TestStoryConfigurableMarket as StoryConfigurableMarketV2
--- import qualified Test.TestStoryConfigurableMarketV3 as StoryConfigurableMarketV3
 import System.Environment (setEnv)
 import Test.Common (testContextFromEnv)
 import Test.Hspec (sequential)
@@ -16,19 +10,22 @@ import System.IO
 import Data.Time (formatTime, getCurrentTime)
 import Data.Time.Format (defaultTimeLocale)
 import GHC.IO.Handle (hDuplicateTo)
-
+import System.Directory (createDirectoryIfMissing)
+import Test.Reporting (writeReports)
+import Control.Exception (finally)
 
 main :: IO ()
 main = do
     currentTime <- getCurrentTime
     let dateStr = formatTime defaultTimeLocale "%Y-%m-%d_%H-%M-%S" currentTime
-    let junitDir = "./test-reports"
-    let junitFileName = "v2-simple-marketplace-test-" ++ dateStr ++ ".xml"
-    let logFileName = "v2-simple-marketplace-test-" ++ dateStr ++ ".log"
+    let reportDir = "./test-reports"
+    
+    let junitFileName = dateStr ++ "-marketplace-test"  ++ ".xml"
+    let logFileName = dateStr ++ "-marketplace-test" ++ ".log"
+    let transactionReports =  dateStr ++ "-transaction-report" ++ ".md"
 
-
-
-    logFile <- openFile (junitDir ++ "/" ++ logFileName) WriteMode
+    createDirectoryIfMissing True reportDir
+    logFile <- openFile (reportDir ++ "/" ++ logFileName) WriteMode
     hDuplicateTo logFile stdout
     hDuplicateTo logFile stderr
     
@@ -37,7 +34,7 @@ main = do
 
         -- Set environment variables
     setEnv "JUNIT_ENABLED" "1"
-    setEnv "JUNIT_OUTPUT_DIRECTORY" junitDir
+    setEnv "JUNIT_OUTPUT_DIRECTORY" reportDir
     setEnv "JUNIT_SUITE_NAME" "Marketplace Scenario Test"
 
 
@@ -45,11 +42,8 @@ main = do
     simpleMarketSpecs <-  makeSimpleMarketSpecs 1 testContext 
     configurableMarketSpecs <- makeConfigurableMarketSpecs 3 testContext
 
-    hspecJUnit $ sequential $ do
-        sequence_  simpleMarketSpecs
-        sequence_ configurableMarketSpecs
-
-    
-
-    
-    -- Redirect stdout and stderr to log file
+    finally (hspecJUnit $ sequential  $ do
+                sequence_  simpleMarketSpecs
+                sequence_ configurableMarketSpecs
+            )
+        (writeReports testContext  ( reportDir <> "/" <>transactionReports))

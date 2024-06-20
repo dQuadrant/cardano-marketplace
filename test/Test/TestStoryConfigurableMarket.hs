@@ -30,26 +30,32 @@ import Cardano.Api (prettyPrintJSON)
 import Cardano.Marketplace.ConfigurableMarketplace
 import Cardano.Marketplace.V2.Core (makeConfigurableMarketV2Helper)
 import Cardano.Marketplace.V3.Core (makeConfigurableMarketV3Helper)
+import Test.TestContext
+import Test.Reporting (collectReports)
 
 
 makeConfigurableMarketSpecs :: Integer -> TestContext ChainConnectInfo -> IO [SpecWith ()]
-makeConfigurableMarketSpecs testIdx cinfo = do 
+makeConfigurableMarketSpecs testIdx tContext = do 
   let makeVars = do 
         saleVar <- newTVarIO Nothing
         refVar <- newTVarIO Nothing
         configVar <- newTVarIO Nothing
         pure (configVar,saleVar,refVar)
-      v2Helper = makeConfigurableMarketV2Helper (tcWalletAddr cinfo) 3_000_000
-      v3Helper = makeConfigurableMarketV3Helper (tcWalletAddr cinfo) 3_000_000
+      v2Helper = makeConfigurableMarketV2Helper (tcWalletAddr tContext) 3_000_000
+      v3Helper = makeConfigurableMarketV3Helper (tcWalletAddr tContext) 3_000_000
   v2Vars <- makeVars
   v3Vars <- makeVars
   pure [
-      simpleMarketSpecs testIdx "ConfigurableMarketV2 Flow" v2Helper cinfo (pure v2Vars)
-    , simpleMarketSpecs  (testIdx+1) "ConfigurableMarketV3 Flow" v3Helper cinfo (pure  v3Vars)
+      afterAll 
+          (\x -> collectReports  "Configurable Market" "V2" tContext ) 
+          $ simpleMarketSpecs testIdx "ConfigurableMarketV2 Flow" v2Helper tContext (pure v2Vars)
+    , afterAll 
+        (\x -> collectReports  "Configurable Market" "V3" tContext) 
+        $ simpleMarketSpecs  (testIdx+1) "ConfigurableMarketV3 Flow" v3Helper tContext (pure  v3Vars)
     ]
 
 simpleMarketSpecs::  Integer ->  String -> ConfigurableMarketHelper -> TestContext ChainConnectInfo -> IO (TVar (Maybe TxId), TVar (Maybe TxId),TVar (Maybe TxId)) -> SpecWith ()
-simpleMarketSpecs testIndex scriptName marketHelper context@(TestContext chainInfo networkId sKey walletAddr _)  ioAction =
+simpleMarketSpecs testIndex scriptName marketHelper context@(TestContext chainInfo networkId sKey walletAddr _ _)  ioAction =
   let 
       operatorAddr = walletAddr
       treasuryAddr= walletAddr
@@ -66,7 +72,11 @@ simpleMarketSpecs testIndex scriptName marketHelper context@(TestContext chainIn
     describe scriptName $ do
       before ioAction $ do
         it "Should mint  4 Native Assets" $ \(configTx,saleTx, refUtxo) -> do
-          runTest_ 1 Nothing "Mint Native Asset"  (pure $ mintBuilder )
+          runTest_ 1 Nothing "Mint Native Asset"  (do 
+              utxos ::UTxO ConwayEra <- kQueryUtxoByAddress (Set.singleton $ addressInEraToAddressAny walletAddr)
+              pure $ mintBuilder   <> txConsumeUtxos utxos
+              
+              )
 
         it "Should create reference script UTxO" $ \(configTx,saleTx, refUtxo) -> do
           runTest_ 2
