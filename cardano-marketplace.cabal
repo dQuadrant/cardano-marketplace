@@ -102,9 +102,9 @@ test-suite market-test
   other-modules:
     Test.Common
     Test.TestStoryConfigurableMarket
-    -- Test.TestStoryConfigurableMarketV3
+    Test.Reporting
+    Test.TestContext
     Test.TestStorySimpleMarket
-    -- Test.TestStorySimpleMarketV3
   build-depends:
     base >= 4.9 && <5
     , hspec
@@ -112,6 +112,7 @@ test-suite market-test
     , kuber
     , lens
     , containers
+    , directory
     , bytestring
     , serialise
     , cborg
@@ -134,41 +135,3 @@ test-suite market-test
     , time
     , cardano-ledger-babbage
     , exceptions  
-
-
---Used for running tests without the cabal test so output can be viewed without --test-show-details=streaming
--- executable market-test
---   default-language: Haskell2010
---   main-is:  Main.hs
---   hs-source-dirs: test
---   other-modules:
---     Test.ReferenceScriptTest
---     Test.ReferenceDataTest
---   build-depends:
---     base >= 4.9 && <5
---     , kuber
---     , QuickCheck -any
---     , tasty -any
---     , tasty-hunit -any
---     , containers
---     , bytestring
---     , serialise
---     , cborg
---     , cardano-binary
---     , text
---     , aeson
---     , text-conversions
---     , cardano-api
---     , cardano-ledger-babbage
---     , cardano-ledger-alonzo
---     , cardano-ledger-shelley
---     , cardano-slotting
---     , plutus-ledger-api
---     , plutus-tx
---     , ouroboros-network
---     , cardano-binary
---     , vector
---     , unordered-containers
---     , marketplace-plutus
---     , marketplace-core
---     , time

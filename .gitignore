@@ -6,3 +6,4 @@ cabal.project.local
 *.vkey
 
 .history
+test-reports/
