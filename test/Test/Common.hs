@@ -1,6 +1,7 @@
 {-# LANGUAGE NumericUnderscores #-}
 {-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Test.Common where
 import Cardano.Kuber.Api
@@ -32,19 +33,11 @@ import GHC.Conc.Sync (atomically)
 import GHC.Conc (TVar, newTVarIO, readTVar)
 import Control.Exception (throwIO)
 import qualified Data.ByteString as BS
+import Data.List (nub)
+import Test.TestContext
 
 
-increment :: Int -> Int
-increment x = x + 1
 
-data TestContext a= TestContext{
-    tcChainInfo:: a
-  , tcNetworkId :: NetworkId
-  , tcSignKey :: SigningKey PaymentKey
-  , tcWalletAddr :: AddressInEra ConwayEra
-  , tcLastTx :: TVar (Maybe TxId)
-}
- 
 testContextFromEnv :: IO (TestContext ChainConnectInfo)
 testContextFromEnv = do 
   chainInfo <- chainInfoFromEnv
@@ -58,13 +51,16 @@ testContextFromEnv = do
   walletUtxo :: UTxO ConwayEra <- evaluateKontract chainInfo (kQueryUtxoByAddress $ Set.singleton (addressInEraToAddressAny walletAddr)) >>= throwFrameworkError
   putStrLn $ "WalletAddress  : " ++ T.unpack (serialiseAddress walletAddr)
   putStrLn $ "Wallet Balance :" ++ (toConsoleText "  "  $ utxoSum walletUtxo)  
-  lastTx <- newTVarIO Nothing
+  report <- newTVarIO mempty
+  tempreport <- newTVarIO mempty
+
   pure$ TestContext {
       tcChainInfo = chainInfo
     , tcNetworkId = networkId
     , tcSignKey = sKey
     , tcWalletAddr = walletAddr
-    , tcLastTx = lastTx
+    , tcReports = report
+    , tcTempReport = tempreport
   }   
 
 readSaleAndRefScriptVar ::  (TVar (Maybe TxId),TVar (Maybe TxId)) -> IO  ( TxId,TxId)
@@ -106,15 +102,19 @@ runTestContext  context txVar testName kontract = do
           Nothing -> pure ()
           Just tvar -> do 
               atomically $ writeTVar  tvar v 
+      appendTvar v a = 
+        atomically $ do 
+            val <- readTVar v
+            writeTVar v (val ++ [a])
   case result of 
     Left e -> do  
-      
       setTvar Nothing 
-      expectationFailure $ testName ++ ": Marked as Failed" 
+      expectationFailure $ testName ++ ": Marked as Failed"     
       throwIO e
     Right tx -> do 
       let txId = getTxId $ getTxBody tx
       setTvar (Just txId)
+      appendTvar (tcTempReport context)(TxDetail testName tx)
       pure txId 
  
 
@@ -164,7 +164,7 @@ runBuildAndSubmit txBuilder =  do
         liftIO $ putStrLn $ "Tx Submitted :" ++  (getTxIdFromTx tx)
         pure tx
 
-reportExUnitsandFee:: Tx ConwayEra -> IO() 
+reportExUnitsandFee:: Tx ConwayEra -> IO () 
 reportExUnitsandFee tx = case tx of
   ShelleyTx era ledgerTx -> let 
     txWitnesses = ledgerTx ^. L.witsTxL 
@@ -172,13 +172,16 @@ reportExUnitsandFee tx = case tx of
     sizeCapi = fromIntegral $  BS.length  $ serialiseToCBOR tx
     -- this should be exUnits of single script involved in the transaction
     exUnits = map snd $ map snd $  Map.toList $ L.unRedeemers $  txWitnesses ^. L.rdmrsTxWitsL
+    txFee=L.unCoin $ ledgerTx ^. L.bodyTxL ^. L.feeTxBodyL 
     in do 
-      case exUnits of 
-        [eunit]-> let eu = L.unWrapExUnits eunit
-                      (mem,cpu) =   (L.exUnitsMem' eu,L.exUnitsSteps' eu)
-                  in putStrLn $  "ExUnits     :  memory = " ++ show mem ++ " cpu = " ++ show cpu
-        _       -> pure () 
-      putStrLn $  "Fee      :   " ++ show (L.unCoin $ ledgerTx ^. L.bodyTxL ^. L.feeTxBodyL )
+      (euMem,euCpu) <-case exUnits of 
+            [eunit]-> let eu = L.unWrapExUnits eunit
+                          (mem,cpu) =   (L.exUnitsMem' eu,L.exUnitsSteps' eu)
+                      in do 
+                        putStrLn $  "ExUnits     :  memory = " ++ show mem ++ " cpu = " ++ show cpu
+                        pure (toInteger mem, toInteger cpu)
+            _       -> pure  (0,0)
+      putStrLn $  "Fee      :   " ++ show txFee
       if sizeLedger /= sizeCapi
         then do 
           putStrLn $  "Tx Bytes (ledger):   " ++ show sizeLedger

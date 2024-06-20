@@ -22,23 +22,30 @@ import Test.Common
 import Cardano.Marketplace.SimpleMarketplace
 import Cardano.Marketplace.V2.Core (simpleMarketV2Helper)
 import Cardano.Marketplace.V3.Core (simpleMarketV3Helper)
+import Test.TestContext
+import Test.Reporting (collectReports)
 
 
 makeSimpleMarketSpecs :: Integer -> TestContext ChainConnectInfo -> IO [SpecWith ()]
-makeSimpleMarketSpecs start_index cinfo = do 
+makeSimpleMarketSpecs start_index tContext = do 
   let makeVars = do 
         saleVar <- newTVarIO Nothing
         refVar <- newTVarIO Nothing
         pure (saleVar,refVar)
   v2Vars <- makeVars
   v3Vars <- makeVars
+  
   pure [
-      simpleMarketSpecs "SimpleMarketV2 Flow" start_index simpleMarketV2Helper cinfo (pure v2Vars)
-    , simpleMarketSpecs "SimpleMarketV3 Flow" (start_index+1) simpleMarketV3Helper cinfo (pure  v3Vars)
+      afterAll
+        (\x -> collectReports  "Simple Market" "V2" tContext ) 
+        $ simpleMarketSpecs "SimpleMarketV2 Flow" start_index simpleMarketV2Helper tContext (pure v2Vars)
+    , afterAll
+        (\x -> collectReports  "Simple Market" "V3" tContext ) 
+        $ simpleMarketSpecs "SimpleMarketV3 Flow" (start_index+1) simpleMarketV3Helper tContext (pure  v3Vars)
     ]
 
 simpleMarketSpecs::  String-> Integer -> SimpleMarketHelper -> TestContext ChainConnectInfo -> IO (TVar (Maybe TxId), TVar (Maybe TxId)) -> SpecWith ()
-simpleMarketSpecs scriptName testIndex marketHelper context@(TestContext chainInfo networkId sKey walletAddr _)  ioAction =
+simpleMarketSpecs scriptName testIndex marketHelper context@(TestContext chainInfo networkId sKey walletAddr _ _ )  ioAction =
   let 
       (mintedAsset,mintBuilder) = mintNativeAsset (getVerificationKey sKey) (AssetName $ BS8.pack "TestToken") 4
       runTest_ index mRef str tb = do 
@@ -51,7 +58,11 @@ simpleMarketSpecs scriptName testIndex marketHelper context@(TestContext chainIn
       -- Setup shared variable with `before` hook
       before ioAction $ do
         it  "Should mint  4 Native Assets" $ \(saleTx, refUtxo) -> do
-          runTest_  1 Nothing "Mint Native Asset"  (pure $ mintBuilder )
+          runTest_  1 Nothing "Mint Native Asset"  (do 
+              utxos ::UTxO ConwayEra <- kQueryUtxoByAddress (Set.singleton $ addressInEraToAddressAny walletAddr)
+              pure $ mintBuilder   <> txConsumeUtxos utxos
+              )
+
 
         it "Should create reference script UTxO" $ \(saleTx, refUtxo) -> do
           runTest_ 2
