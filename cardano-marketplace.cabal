@@ -135,3 +135,49 @@ test-suite market-test
     , time
     , cardano-ledger-babbage
     , exceptions  
+
+
+benchmark marketplace
+  type:                exitcode-stdio-1.0
+  hs-source-dirs:      benchmark
+  Main-is:             Main.hs
+  default-language:    Haskell2010
+  other-modules: 
+      Reporting
+      ParallelUtils
+      Wallet
+  build-depends:        
+      base
+    , cardano-api
+    , aeson
+    , statistics
+    , vector
+    , text
+    , containers
+    , criterion
+    , plutus-tx
+    , cborg
+    , cardano-binary
+    , mtl
+    , split
+    , clock
+    , time
+    , async
+    , cardano-ledger-core
+    , random
+    , kuber
+    , marketplace-core
+    , marketplace-plutus
+    , plutus-ledger-api
+    , plutus-tx
+    , directory
+    , random-shuffle
+    , bytestring
+    , cardano-ledger-babbage
+    , cardano-ledger-alonzo
+    , cardano-ledger-shelley
+    , cardano-crypto
+    , cardano-crypto-class
+    , cardano-addresses
+    , memory
+    , lens

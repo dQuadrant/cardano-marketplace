@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 import Test.TestStorySimpleMarket (makeSimpleMarketSpecs)
 import Test.TestStoryConfigurableMarket  (makeConfigurableMarketSpecs)
 import System.Environment (setEnv)
@@ -26,11 +28,12 @@ main = do
 
     createDirectoryIfMissing True reportDir
     logFile <- openFile (reportDir ++ "/" ++ logFileName) WriteMode
+    hSetBuffering stdout LineBuffering
+    hSetBuffering stderr LineBuffering
+    
     hDuplicateTo logFile stdout
     hDuplicateTo logFile stderr
     
-    hSetBuffering stdout LineBuffering
-    hSetBuffering stderr LineBuffering
 
         -- Set environment variables
     setEnv "JUNIT_ENABLED" "1"
