@@ -27,7 +27,7 @@ package cardano-crypto-praos
   
 -- Always build tests and benchmarks.
 tests: True
-benchmarks: False
+benchmarks: True
 test-show-details: streaming
 
 package cryptonite
@@ -39,4 +39,12 @@ package cryptonite
 source-repository-package
   type: git
   location: https://github.com/dquadrant/kuber
-  tag: 3e169ee13a3a6cfd4bc6007c1cc107d78dcbc3f7
+  tag: 384dc51337dd027bbda95afcef9b1da95fcb010b
+
+
+source-repository-package
+  type: git
+  location: https://github.com/IntersectMBO/cardano-addresses
+  tag: 78c0a81d17e3a159cd973707cff4c6597369d40b
+  subdir: 
+    core

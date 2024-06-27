@@ -24,6 +24,7 @@ import Cardano.Marketplace.V2.Core (simpleMarketV2Helper)
 import Cardano.Marketplace.V3.Core (simpleMarketV3Helper)
 import Test.TestContext
 import Test.Reporting (collectReports)
+import qualified Data.Map as Map
 
 
 makeSimpleMarketSpecs :: Integer -> TestContext ChainConnectInfo -> IO [SpecWith ()]
@@ -59,8 +60,8 @@ simpleMarketSpecs scriptName testIndex marketHelper context@(TestContext chainIn
       before ioAction $ do
         it  "Should mint  4 Native Assets" $ \(saleTx, refUtxo) -> do
           runTest_  1 Nothing "Mint Native Asset"  (do 
-              utxos ::UTxO ConwayEra <- kQueryUtxoByAddress (Set.singleton $ addressInEraToAddressAny walletAddr)
-              pure $ mintBuilder   <> txConsumeUtxos utxos
+              (UTxO utxos) ::UTxO ConwayEra <- kQueryUtxoByAddress (Set.singleton $ addressInEraToAddressAny walletAddr)
+              pure $ mintBuilder   <> txConsumeUtxos (UTxO $ Map.fromList $ take 100  $ Map.toList utxos)
               )
 
 
