@@ -47,8 +47,8 @@ import PlutusLedgerApi.V3.Contexts
 
 {-# INLINABLE allScriptInputsCount #-}
 allScriptInputsCount:: ScriptContext ->Integer
-allScriptInputsCount ctx@(ScriptContext info purpose)=
-    foldl (\c txOutTx-> c + countTxOut txOutTx) 0 (txInfoInputs  info)
+allScriptInputsCount ctx@(ScriptContext txInfo redeemer scriptInfo)=
+    foldl (\c txOutTx-> c + countTxOut txOutTx) 0 (txInfoInputs  txInfo)
   where
   countTxOut (TxInInfo _ (TxOut addr _ _ _)) = case addr of { Address cre m_sc -> case cre of
                                                               PubKeyCredential pkh -> 0
@@ -68,8 +68,8 @@ data SimpleSale=SimpleSale{
 PlutusTx.makeIsDataIndexed ''SimpleSale [('SimpleSale, 0)]    
 
 {-# INLINABLE mkMarket #-}
-mkMarket ::  SimpleSale   -> MarketRedeemer -> ScriptContext    -> Bool
-mkMarket  ds@SimpleSale{sellerAddress,priceOfAsset}  action ctx =
+mkMarket ::   ScriptContext    -> Bool
+mkMarket  ctx =
   case sellerPkh of 
     Nothing -> traceError "Script Address in seller"
     Just pkh -> case  action of
@@ -82,11 +82,21 @@ mkMarket  ds@SimpleSale{sellerAddress,priceOfAsset}  action ctx =
                                                            PubKeyCredential pkh -> Just pkh
                                                            ScriptCredential vh -> Nothing  }
       info  =  scriptContextTxInfo ctx
+      action = case fromBuiltinData $ getRedeemer (scriptContextRedeemer ctx) of
+        Nothing -> traceError "Invalid Redeemer"
+        Just r -> r
+      ds@SimpleSale{sellerAddress,priceOfAsset} = case (scriptContextScriptInfo ctx ) of
+        SpendingScript outRef datum -> case datum of 
+          Just d ->  case fromBuiltinData  (getDatum d) of
+            Nothing -> traceError "Invalid datum format"
+            Just v -> v
+          _ -> traceError "Missing datum" 
+        _ -> traceError "Script used for other than spending"
       adaAsset=AssetClass (adaSymbol,adaToken )
 
 {-# INLINABLE mkWrappedMarket #-}
-mkWrappedMarket ::  BuiltinData -> BuiltinData -> BuiltinData -> ()
-mkWrappedMarket  d r c = check $ mkMarket (parseData d "Invalid data") (parseData r "Invalid redeemer") (parseData c "Invalid context")
+mkWrappedMarket ::  BuiltinData -> BuiltinUnit
+mkWrappedMarket  c = check $ mkMarket (parseData c "Invalid context")
   where
     parseData md s = case fromBuiltinData  md of 
       Just datum -> datum

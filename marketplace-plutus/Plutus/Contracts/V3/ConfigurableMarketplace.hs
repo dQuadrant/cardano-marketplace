@@ -35,7 +35,6 @@ import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV3)
 import Codec.Serialise ( serialise )
 import Cardano.Api (IsCardanoEra,BabbageEra,NetworkId, AddressInEra, ShelleyAddr, BabbageEra, Script (PlutusScript), PlutusScriptVersion (PlutusScriptV3), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress, ShelleyBasedEra (..))
 import qualified Cardano.Api.Shelley
-import PlutusTx.Builtins.Class (stringToBuiltinByteString)
 import PlutusTx.Builtins (decodeUtf8)
 import PlutusLedgerApi.V3
 import PlutusCore.Version (plcVersion110)
@@ -49,7 +48,7 @@ import Cardano.Api (ConwayEra)
 
 {-# INLINABLE allScriptInputsCount #-}
 allScriptInputsCount:: ScriptContext ->Integer
-allScriptInputsCount ctx@(ScriptContext info purpose)=
+allScriptInputsCount ctx@(ScriptContext  info redeemer  scriptInfo)=
     foldl (\c txOutTx-> c + countTxOut txOutTx) 0 (txInfoInputs  info)
   where
   countTxOut (TxInInfo _ (TxOut addr _ _ _)) = case addr of { Address cre m_sc -> case cre of
@@ -109,10 +108,26 @@ mkConfigurableMarket  MarketConstructor{configValidatorytHash} ds@SimpleSale{sel
       info  =  scriptContextTxInfo ctx
       adaAsset=AssetClass (adaSymbol,adaToken )
 
+
+{-# INLINABLE expectSpending #-}
+expectSpending :: FromData a => ScriptContext -> a
+expectSpending ctx =  case (scriptContextScriptInfo ctx ) of
+        SpendingScript outRef datum -> case datum of 
+          Just d ->  case fromBuiltinData  (getDatum d) of
+            Nothing -> traceError "Invalid datum format"
+            Just v -> v
+          _ -> traceError "Missing datum" 
+        _ -> traceError "Script used for other than spending" 
+
 {-# INLINABLE mkWrappedConfigurableMarket #-}
-mkWrappedConfigurableMarket :: MarketConstructor ->  BuiltinData -> BuiltinData -> BuiltinData -> ()
-mkWrappedConfigurableMarket constructor   d r c = check $ mkConfigurableMarket constructor (parseData d "ConfigurableMarket: Invalid data") (parseData r "ConfigurableMarket: Invalid redeemer") (unsafeFromBuiltinData c)
+mkWrappedConfigurableMarket :: MarketConstructor ->  BuiltinData -> BuiltinData -> BuiltinData -> BuiltinUnit
+mkWrappedConfigurableMarket constructor   d r c = check $ mkConfigurableMarket constructor 
+          (expectSpending context) 
+          redeemer context
   where
+    redeemer = parseData (getRedeemer $ scriptContextRedeemer context) "Invalid redeemer"
+    context = parseData c "Invalid Context"
+    parseData ::FromData a =>  BuiltinData -> BuiltinString -> a
     parseData d s = case fromBuiltinData  d of
       Just d -> d
       _      -> traceError s

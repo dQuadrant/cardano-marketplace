@@ -62,13 +62,24 @@ mkMarketConfig  MarketConfig{marketOwner}  ctx =
   where
     info  =  scriptContextTxInfo ctx
 
+{-# INLINABLE expectSpending #-}
+expectSpending :: FromData a => ScriptContext -> a
+expectSpending ctx =  case (scriptContextScriptInfo ctx ) of
+        SpendingScript outRef datum -> case datum of 
+          Just d ->  case fromBuiltinData  (getDatum d) of
+            Nothing -> traceError "Invalid datum format"
+            Just v -> v
+          _ -> traceError "Missing datum" 
+        _ -> traceError "Script used for other than spending" 
+
 
 {-# INLINABLE mkWrappedMarketConfig #-}
-mkWrappedMarketConfig ::  BuiltinData -> BuiltinData -> BuiltinData -> ()
-mkWrappedMarketConfig  d _r c = 
-  check $ mkMarketConfig (parseData d "Invalid data") (unsafeFromBuiltinData c)
+mkWrappedMarketConfig ::   BuiltinData -> BuiltinUnit
+mkWrappedMarketConfig   c = 
+  check $ mkMarketConfig (expectSpending context) context
   where
-    parseData md s = case fromBuiltinData  d of 
+    context = parseData c "Invalid Context"
+    parseData md s = case fromBuiltinData  md of 
       Just d -> d
       _      -> traceError s
 
