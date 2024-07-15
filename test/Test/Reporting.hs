@@ -13,6 +13,7 @@ import qualified Cardano.Api.Ledger as L
 import qualified Data.ByteString as BS
 import qualified Cardano.Ledger.Alonzo.TxWits as L
 import Test.TestContext
+import qualified Debug.Trace as Debug
 
 collectReports:: String -> String -> TestContext a -> IO ()
 collectReports testGroup  partition  context = 
@@ -86,48 +87,69 @@ renderReports testReports =
 renderGroupedReports :: [TestReport] -> [String]
 renderGroupedReports testReports = 
   let 
-      tags = nub (map trTag testReports)
-      allTests = concat $  map trTxDetail testReports
-      testNames = nub (map  tdTestName allTests )  
-      filterByName tName = filter (\tDetail -> tdTestName tDetail == tName) (allTests )
-      testDetailMetric  (TxDetail tName tx ) = (tName,getTxMetrics tx) 
+      tags =  nub (map trTag testReports)
+      flatTests = concat $ map (\tr -> ( map(\txDetails -> ( trTag tr, tdTestName txDetails, txDetails))) (trTxDetail tr) ) testReports
+      testsByName = aggregateTests flatTests
+
+      aggregateTests :: (Ord b) => [(a, b, c)] -> Map.Map b [(a, c)]
+      aggregateTests = foldr (\(a, b, c) -> Map.insertWith (++) b [(a, c)]) Map.empty
+
+      allTestsTxs = concat $  map trTxDetail testReports
+      
+      testNames = nub (map  tdTestName allTestsTxs )  
+      testDetailMetric  (tag, (TxDetail tName tx )) = (tag,getTxMetrics tx) 
+      lookupStrict a b = case Map.lookup a b of
+          Just v -> v
+          Nothing -> error "Unexpected"
       -- it should never be empty.
       groupName = if null testReports then "" else trTestGroup (head testReports)
   in 
+    
       [ "\n### " ++ groupName
         ,"<table border=\"1\">"]
-      <> tableHeader tags 
+      <> tableHeader (Debug.trace ("Tags:"<> show tags) tags) 
       <>(
           concat $ map (\testName -> 
-            renderReportRow testName  (map testDetailMetric (filterByName testName))
+            renderReportRow tags testName  (map testDetailMetric (lookupStrict  testName testsByName))
           ) testNames )
       <>
       ["</table>"]
 
 
-renderReportRow :: String -> [(String,TxMetrics)] -> [String]
-renderReportRow testName results = 
+renderReportRow :: [String] -> String -> [(String,TxMetrics)] -> [String]
+renderReportRow orderedTagList testName results = 
   let
+      resultMap = Map.fromList results
       -- getReport f =  map (\(_tag,metric) ->  "<td>" ++  show (f metric)  ++ "</td>") results
 
-      getReport' ::(Integral a,Show a )=>  (b ->  a) -> Maybe a -> [(x, b)] -> [String] 
-      getReport' f  _ [] = []
-      getReport' f Nothing ((_tag,metric):rest) = let value = (f metric) 
-                                                  in  ("<td>" ++  showNum value  ++ "</td>") : getReport' f (Just value) rest
-      getReport' f (Just earlier) ((_tag,metric):rest) = let
-            currentVal = f metric 
-          in
-          (if earlier == currentVal
-            then  "<td>" ++  showNum (f metric)  ++ "</td>"
-            else (
-              if earlier < currentVal 
-                then "<td class=\"declined\">" ++  showNum (f metric)  ++ "</td>"
-                else "<td class=\"improved\">" ++  showNum (f metric)  ++ "</td>"
-            )
-          ) : getReport' f (Just currentVal) rest
+      -- this is recursive function to loop over the results in each tag 
+      -- and render them with improved/no-imporved color 
+      getReport' ::(Integral a,Show a )=>  (TxMetrics ->  a) -> Maybe a -> [String]  -> [String] 
+      getReport' f  _  [] = []
+      getReport' f Nothing  (tag:remainingTag) = 
+          case Map.lookup tag resultMap of
+              Nothing ->  Debug.trace ("Lookup " ++  tag ++" "++ show (Map.keys resultMap) ) ("<td>" ++  "-"  ++ "</td>") : getReport' f Nothing   remainingTag
+              Just metric->  let
+                  value = f metric
+                in ("<td>" ++  showNum value  ++ "</td>") : getReport' f (Just value)  remainingTag
+
+      getReport' f (Just earlier)  (tag:remainingTag) = 
+        case Map.lookup tag resultMap of
+              Nothing ->  ("<td>" ++  "-"  ++ "</td>") : getReport' f Nothing   remainingTag
+              Just metric->  let
+                  currentVal = f metric
+                in 
+                  (if earlier == currentVal
+                    then  "<td>" ++  showNum (f metric)  ++ "</td>"
+                    else (
+                      if earlier < currentVal 
+                        then "<td class=\"declined\">" ++  showNum (f metric)  ++ "</td>"
+                        else "<td class=\"improved\">" ++  showNum (f metric)  ++ "</td>"
+                    )
+                  ) : getReport' f (Just currentVal) remainingTag
       showNum 0 = "-"
       showNum v = show (v)
-      getReport f = getReport' f Nothing results
+      getReport f = getReport' f Nothing orderedTagList
       exUnitf f metric = case tmExUnit metric of 
           Nothing -> 0
           Just exunits ->  f exunits

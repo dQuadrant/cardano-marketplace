@@ -133,13 +133,15 @@ monitoredSubmitTx'  index txName  txBuilder = do
           pure result
 
         )
-        (\e -> 
-          do 
+          (\e@(FrameworkError eType msg) -> case eType of
+          ConnectionError  ->do -- connection errors will be retried
             liftIO $ do 
               putStrLn $ show index ++ " : " ++ txName ++ "-" ++ actName ++ " : " ++  show e 
               threadDelay 2_000_000
             loopedAction  shouldLog actName action
+          _ -> throwError e     
         )
+
     loopedWaitTxConfirmation tx =  loopedWaitTxIdConfirmation (getTxId$ getTxBody tx) 600
     loopedWaitTxIdConfirmation txId totalWaitSecs  = 
           waitTxId txId  (totalWaitSecs * 1_000_000)
@@ -154,7 +156,8 @@ monitoredSubmitTx'  index txName  txBuilder = do
                 endTime <- liftIO getCurrentTime 
                 case Map.toList uMap of 
                   [] -> waitTxId txId (remainingSecs - (floor $ diffUTCTime startTime endTime * 1_000_000))
-                  _ -> pure ()
+                  _ -> liftIO $ putStrLn $ show index ++ " : " ++ txName ++ "-" ++ "confirmation" ++ " : Confirmed " ++ show txId 
+
 
 
 monitoredSubmitTx ::(HasKuberAPI api, HasSubmitApi api, HasChainQueryAPI api) =>Integer -> String ->ShelleyWallet->   Kontract api w FrameworkError TxBuilder ->  Kontract api w FrameworkError TransactionTime
@@ -181,7 +184,7 @@ runOperations index refScriptUtxo  marketHelper  sellAsset (sellerWallet,buyerWa
   let saleTxId = (timingTxId primarySale)
 
   --  perform buy
-  primaryBuy <- monitoredSubmitTx  index "Primary Buy" sellerWallet 
+  primaryBuy <- monitoredSubmitTx  index "Primary Buy" buyerWallet 
         $  buyTokenBuilder marketHelper (Just refScriptUtxo) (TxIn saleTxId (TxIx 0))  Nothing
   let buyTxId = (timingTxId primaryBuy)
 

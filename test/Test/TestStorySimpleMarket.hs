@@ -62,6 +62,12 @@ simpleMarketSpecs scriptName testIndex marketHelper context@(TestContext chainIn
           runTest_  1 Nothing "Mint Native Asset"  (do 
               (UTxO utxos) ::UTxO ConwayEra <- kQueryUtxoByAddress (Set.singleton $ addressInEraToAddressAny walletAddr)
               pure $ mintBuilder   <> txConsumeUtxos (UTxO $ Map.fromList $ take 100  $ Map.toList utxos)
+                      <> txPayTo walletAddr (valueFromList [(AdaAssetId,5_000_000)])
+                      <> txPayTo walletAddr (valueFromList [(AdaAssetId,10_000_000)])
+                      <> txPayTo walletAddr (valueFromList [(AdaAssetId,20_000_000)])
+                      <> txPayTo walletAddr (valueFromList [(AdaAssetId,30_000_000)])
+                      -- create extra utxos that might be required
+
               )
 
 
