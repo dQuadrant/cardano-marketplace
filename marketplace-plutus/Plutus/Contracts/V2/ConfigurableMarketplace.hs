@@ -36,7 +36,6 @@ import Codec.Serialise ( serialise )
 import Plutus.Contracts.V2.MarketplaceConfig (MarketConfig(..))
 import Cardano.Api (IsCardanoEra,BabbageEra,NetworkId, AddressInEra, ShelleyAddr, BabbageEra, Script (PlutusScript), PlutusScriptVersion (PlutusScriptV2), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress)
 import qualified Cardano.Api.Shelley
-import PlutusTx.Builtins.Class (stringToBuiltinByteString)
 import PlutusTx.Builtins (decodeUtf8)
 import PlutusLedgerApi.V2
 import PlutusCore.Version (plcVersion100)
@@ -110,7 +109,7 @@ mkConfigurableMarket  MarketConstructor{configValidatorytHash} ds@SimpleSale{sel
       adaAsset=AssetClass (adaSymbol,adaToken )
 
 {-# INLINABLE mkWrappedConfigurableMarket #-}
-mkWrappedConfigurableMarket :: MarketConstructor ->  BuiltinData -> BuiltinData -> BuiltinData -> ()
+mkWrappedConfigurableMarket :: MarketConstructor ->  BuiltinData -> BuiltinData -> BuiltinData -> BuiltinUnit
 mkWrappedConfigurableMarket constructor   d r c = check $ mkConfigurableMarket constructor (parseData d "ConfigurableMarket: Invalid data") (parseData r "ConfigurableMarket: Invalid redeemer") (unsafeFromBuiltinData c)
   where
     parseData d s = case fromBuiltinData  d of

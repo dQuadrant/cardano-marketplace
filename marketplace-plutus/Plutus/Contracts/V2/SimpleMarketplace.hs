@@ -84,7 +84,7 @@ mkMarket  ds@SimpleSale{sellerAddress,priceOfAsset}  action ctx =
       adaAsset=AssetClass (adaSymbol,adaToken )
 
 {-# INLINABLE mkWrappedMarket #-}
-mkWrappedMarket ::  BuiltinData -> BuiltinData -> BuiltinData -> ()
+mkWrappedMarket ::  BuiltinData -> BuiltinData -> BuiltinData -> BuiltinUnit
 mkWrappedMarket  d r c = check $ mkMarket (parseData d "Invalid data") (parseData r "Invalid redeemer") (parseData c "Invalid context")
   where
     parseData md s = case fromBuiltinData  md of 

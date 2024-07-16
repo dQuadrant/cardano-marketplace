@@ -64,7 +64,7 @@ mkMarketConfig  MarketConfig{marketOwner}  ctx =
 
 
 {-# INLINABLE mkWrappedMarketConfig #-}
-mkWrappedMarketConfig ::  BuiltinData -> BuiltinData -> BuiltinData -> ()
+mkWrappedMarketConfig ::  BuiltinData -> BuiltinData -> BuiltinData -> BuiltinUnit
 mkWrappedMarketConfig  d r c = 
   check $ mkMarketConfig (parseData d "Invalid data") (unsafeFromBuiltinData c)
   where
