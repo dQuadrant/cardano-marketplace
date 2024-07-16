@@ -129,13 +129,5 @@ configurableMarketPlutusScript  constructor = Cardano.Api.Shelley.PlutusScriptSe
   where
   configurableMarketScriptBS  =   configurableMarketScript  constructor
 
-configurableMarketAddressShelly :: MarketConstructor ->  NetworkId -> Cardano.Api.Shelley.Address ShelleyAddr
-configurableMarketAddressShelly constructor network = makeShelleyAddress network (configurableMarketScriptCredential constructor) NoStakeAddress
-
-
-configurableMarketAddress ::  MarketConstructor ->  NetworkId -> AddressInEra ConwayEra 
-configurableMarketAddress constructor network = makeShelleyAddressInEra ShelleyBasedEraConway network (configurableMarketScriptCredential constructor) NoStakeAddress
-
-
 configurableMarketScriptCredential :: MarketConstructor ->  Cardano.Api.Shelley.PaymentCredential
 configurableMarketScriptCredential constructor = PaymentCredentialByScript $ hashScript $ PlutusScript PlutusScriptV2  $  configurableMarketPlutusScript constructor

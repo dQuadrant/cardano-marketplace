@@ -37,7 +37,7 @@ import qualified PlutusTx.AssocMap as AssocMap
 import qualified Data.Bifunctor
 import qualified Data.ByteString.Short as SBS
 import qualified Data.ByteString.Lazy  as LBS
-
+import qualified PlutusTx.Builtins.Internal as BI
 import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV3)
 import Codec.Serialise ( serialise )
 import PlutusLedgerApi.V3
@@ -46,14 +46,23 @@ import PlutusLedgerApi.V3.Contexts
 
 
 {-# INLINABLE allScriptInputsCount #-}
-allScriptInputsCount:: ScriptContext ->Integer
-allScriptInputsCount ctx@(ScriptContext txInfo redeemer scriptInfo)=
+allScriptInputsCount:: TxInfo ->Integer
+allScriptInputsCount txInfo =
     foldl (\c txOutTx-> c + countTxOut txOutTx) 0 (txInfoInputs  txInfo)
   where
   countTxOut (TxInInfo _ (TxOut addr _ _ _)) = case addr of { Address cre m_sc -> case cre of
                                                               PubKeyCredential pkh -> 0
                                                               ScriptCredential vh -> 1  } 
 
+{-# INLINABLE constrArgs #-}
+constrArgs :: BuiltinData -> BI.BuiltinList BuiltinData
+constrArgs bd = BI.snd (BI.unsafeDataAsConstr bd)
+
+{-# INLINABLE parseData #-}
+parseData ::FromData a =>  BuiltinData -> BuiltinString -> a
+parseData d s = case fromBuiltinData  d of
+  Just d -> d
+  _      -> traceError s
 
 data MarketRedeemer =  Buy | Withdraw
     deriving (Generic,FromJSON,ToJSON,Show,Prelude.Eq)
@@ -73,7 +82,7 @@ mkMarket  ctx =
   case sellerPkh of 
     Nothing -> traceError "Script Address in seller"
     Just pkh -> case  action of
-        Buy       -> traceIfFalse "Multiple script inputs" (allScriptInputsCount  ctx == 1)  && 
+        Buy       -> traceIfFalse "Multiple script inputs" (allScriptInputsCount  info == 1)  && 
                      traceIfFalse "Seller not paid" (assetClassValueOf   (valuePaidTo info pkh) adaAsset >= priceOfAsset)
         Withdraw -> traceIfFalse "Seller Signature Missing" $ txSignedBy info pkh
 
@@ -94,19 +103,66 @@ mkMarket  ctx =
         _ -> traceError "Script used for other than spending"
       adaAsset=AssetClass (adaSymbol,adaToken )
 
+mkMarketLazy :: TxInfo -> SimpleSale -> MarketRedeemer -> Bool 
+mkMarketLazy  info ds@SimpleSale{sellerAddress,priceOfAsset} action =
+  case sellerPkh of 
+    Nothing -> traceError "Script Address in seller"
+    Just pkh -> case  action of
+        Buy       -> traceIfFalse "Multiple script inputs" (allScriptInputsCount  info == 1)  && 
+                     traceIfFalse "Seller not paid" (assetClassValueOf   (valuePaidTo info pkh) adaAsset >= priceOfAsset)
+        Withdraw -> traceIfFalse "Seller Signature Missing" $ txSignedBy info pkh
+
+    where
+      sellerPkh= case sellerAddress of { Address cre m_sc -> case cre of
+                                                           PubKeyCredential pkh -> Just pkh
+                                                           ScriptCredential vh -> Nothing  }
+      adaAsset=AssetClass (adaSymbol,adaToken )
+
 {-# INLINABLE mkWrappedMarket #-}
 mkWrappedMarket ::  BuiltinData -> BuiltinUnit
-mkWrappedMarket  c = check $ mkMarket (parseData c "Invalid context")
-  where
-    parseData md s = case fromBuiltinData  md of 
-      Just datum -> datum
-      _      -> traceError s
+mkWrappedMarket ctx = check $ mkMarket (parseData ctx "Invalid context")
 
+{-# INLINABLE mkWrappedMarketLazy #-}
+mkWrappedMarketLazy ::  BuiltinData -> BuiltinUnit
+mkWrappedMarketLazy  ctx = check $ mkMarketLazy info datum redeemer
+  where 
+    context = constrArgs ctx
+
+    redeemerFollowedByScriptInfo :: BI.BuiltinList BuiltinData
+    redeemerFollowedByScriptInfo = BI.tail context
+
+    redeemerBuiltinData :: BuiltinData
+    redeemerBuiltinData = BI.head redeemerFollowedByScriptInfo
+
+    scriptInfoData :: BuiltinData
+    scriptInfoData = BI.head (BI.tail redeemerFollowedByScriptInfo)
+
+    txInfoData :: BuiltinData 
+    txInfoData = BI.head context
+
+    datumData :: BuiltinData
+    datumData = BI.head (constrArgs (BI.head (BI.tail (constrArgs scriptInfoData))))
+
+    redeemer :: MarketRedeemer
+    redeemer = parseData redeemerBuiltinData "Invalid Redeemer Type"
+
+    datum :: SimpleSale
+    datum = parseData (getDatum (unsafeFromBuiltinData datumData)) "Invalid Datum Type"
+
+    info :: TxInfo 
+    info = parseData txInfoData "Invalid TxInfo Type"
 
 simpleMarketValidator = 
             $$(PlutusTx.compile [|| mkWrappedMarket ||])
 
-simpleMarketplaceScript  =  serialiseCompiledCode  simpleMarketValidator
+simpleMarketValidatorLazy = 
+            $$(PlutusTx.compile [|| mkWrappedMarketLazy ||])
+
+simpleMarketplaceScript :: CompiledCode a -> SerialisedScript
+simpleMarketplaceScript script =  serialiseCompiledCode script
 
 simpleMarketplacePlutusV3 ::  PlutusScript PlutusScriptV3
-simpleMarketplacePlutusV3  = PlutusScriptSerialised $ simpleMarketplaceScript
+simpleMarketplacePlutusV3  = PlutusScriptSerialised $ simpleMarketplaceScript simpleMarketValidator
+
+simpleMarketplacePlutusV3Lazy ::  PlutusScript PlutusScriptV3
+simpleMarketplacePlutusV3Lazy  = PlutusScriptSerialised $ simpleMarketplaceScript simpleMarketValidatorLazy

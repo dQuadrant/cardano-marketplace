@@ -21,10 +21,7 @@ module Plutus.Contracts.V2.MarketplaceConfig(
   marketConfigPlutusScript,
   marketConfigValidator,
   marketConfigScript,
-  MarketConfig(..),
-  marketConfigAddressShelly,
-  marketConfigAddress,
-  marketConfigScriptCredential
+  MarketConfig(..)
 )
 where
 
@@ -83,17 +80,3 @@ marketConfigPlutusScript  = PlutusScript PlutusScriptV2  $ Cardano.Api.Shelley.P
   where
   marketConfigScriptBS :: SBS.ShortByteString
   marketConfigScriptBS  =  SBS.toShort . LBS.toStrict $ serialise $ marketConfigScript 
-
-marketConfigAddressShelly :: NetworkId -> Cardano.Api.Shelley.Address ShelleyAddr
-marketConfigAddressShelly network = makeShelleyAddress network marketConfigScriptCredential NoStakeAddress
-
-
-marketConfigAddress ::  NetworkId -> AddressInEra ConwayEra 
-marketConfigAddress network = makeShelleyAddressInEra Cardano.Api.Shelley.ShelleyBasedEraConway network marketConfigScriptCredential NoStakeAddress
-
-
-marketConfigScriptCredential :: Cardano.Api.Shelley.PaymentCredential
-marketConfigScriptCredential = PaymentCredentialByScript $ hashScript marketConfigPlutusScript
-
-marketConfigValidatorHash :: Cardano.Api.Shelley.PaymentCredential
-marketConfigValidatorHash = PaymentCredentialByScript $ hashScript marketConfigPlutusScript

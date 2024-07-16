@@ -21,10 +21,7 @@ module Plutus.Contracts.V3.MarketplaceConfig(
   marketConfigPlutusScript,
   marketConfigValidator,
   marketConfigScript,
-  MarketConfig(..),
-  marketConfigAddressShelly,
-  marketConfigAddress,
-  marketConfigScriptCredential
+  MarketConfig(..)
 )
 where
 
@@ -43,6 +40,7 @@ import Cardano.Api (IsCardanoEra,NetworkId, AddressInEra, ShelleyAddr, Script (P
 import qualified Cardano.Api.Shelley
 import PlutusLedgerApi.V3
 import PlutusLedgerApi.V3.Contexts
+import qualified PlutusTx.Builtins.Internal as BI
 
 
 data MarketConfig=MarketConfig{
@@ -73,38 +71,69 @@ expectSpending ctx =  case (scriptContextScriptInfo ctx ) of
         _ -> traceError "Script used for other than spending" 
 
 
+{-# INLINABLE parseData #-}
+parseData ::FromData a =>  BuiltinData -> BuiltinString -> a
+parseData d s = case fromBuiltinData  d of
+  Just d -> d
+  _      -> traceError s
+
+{-# INLINABLE constrArgs #-}
+constrArgs :: BuiltinData -> BI.BuiltinList BuiltinData
+constrArgs bd = BI.snd (BI.unsafeDataAsConstr bd)
+
+{-# INLINABLE marketConfigScriptBS #-}
+marketConfigScriptBS :: SerialisedScript -> SBS.ShortByteString
+marketConfigScriptBS  script =  SBS.toShort . LBS.toStrict $ serialise $ script
+
 {-# INLINABLE mkWrappedMarketConfig #-}
 mkWrappedMarketConfig ::   BuiltinData -> BuiltinUnit
-mkWrappedMarketConfig   c = 
+mkWrappedMarketConfig   ctx = 
   check $ mkMarketConfig (expectSpending context) context
   where
-    context = parseData c "Invalid Context"
-    parseData md s = case fromBuiltinData  md of 
-      Just d -> d
-      _      -> traceError s
+    context = parseData ctx "Invalid Context"
 
+
+{-# INLINABLE mkMarketConfigLazy #-}
+mkMarketConfigLazy ::  MarketConfig   -> TxInfo    -> Bool
+mkMarketConfigLazy  MarketConfig{marketOwner}  info = 
+  case marketOwner of {Address cre m_sc -> case cre of
+    PubKeyCredential pkh ->traceIfFalse "Missing owner signature" (txSignedBy info pkh)
+    ScriptCredential vh -> traceError "NotOperator"  }
+
+{-# INLINABLE mkWrappedMarketConfigLazy #-}
+mkWrappedMarketConfigLazy ::   BuiltinData -> BuiltinUnit
+mkWrappedMarketConfigLazy ctx = 
+  check $ mkMarketConfigLazy datum info
+  where
+    context = constrArgs ctx
+
+    redeemerFollowedByScriptInfo :: BI.BuiltinList BuiltinData
+    redeemerFollowedByScriptInfo = BI.tail context
+
+    scriptInfoData :: BuiltinData
+    scriptInfoData = BI.head (BI.tail redeemerFollowedByScriptInfo)
+
+    txInfoData :: BuiltinData 
+    txInfoData = BI.head context
+
+    datumData :: BuiltinData
+    datumData = BI.head (constrArgs (BI.head (BI.tail (constrArgs scriptInfoData))))
+
+    datum :: MarketConfig
+    datum = parseData (getDatum (unsafeFromBuiltinData datumData)) "Invalid Datum Type"
+
+    info :: TxInfo 
+    info = parseData txInfoData "Invalid TxInfo Type"
 
 marketConfigValidator =  
             $$(PlutusTx.compile [|| mkWrappedMarketConfig ||])
 
+marketConfigValidatorLazy =  
+            $$(PlutusTx.compile [|| mkWrappedMarketConfigLazy ||])
+
 marketConfigScript  =  serialiseCompiledCode  marketConfigValidator
+marketConfigScriptLazy = serialiseCompiledCode  marketConfigValidator
 
+marketConfigPlutusScript  = PlutusScript PlutusScriptV3  $ Cardano.Api.Shelley.PlutusScriptSerialised $ marketConfigScriptBS marketConfigScript
 
-marketConfigPlutusScript  = PlutusScript PlutusScriptV3  $ Cardano.Api.Shelley.PlutusScriptSerialised $ marketConfigScriptBS
-  where
-  marketConfigScriptBS :: SBS.ShortByteString
-  marketConfigScriptBS  =  SBS.toShort . LBS.toStrict $ serialise $ marketConfigScript 
-
-marketConfigAddressShelly :: NetworkId -> Cardano.Api.Shelley.Address ShelleyAddr
-marketConfigAddressShelly network = makeShelleyAddress network marketConfigScriptCredential NoStakeAddress
-
-
-marketConfigAddress ::  NetworkId -> AddressInEra ConwayEra 
-marketConfigAddress network = makeShelleyAddressInEra Cardano.Api.Shelley.ShelleyBasedEraConway network marketConfigScriptCredential NoStakeAddress
-
-
-marketConfigScriptCredential :: Cardano.Api.Shelley.PaymentCredential
-marketConfigScriptCredential = PaymentCredentialByScript $ hashScript marketConfigPlutusScript
-
-marketConfigValidatorHash :: Cardano.Api.Shelley.PaymentCredential
-marketConfigValidatorHash = PaymentCredentialByScript $ hashScript marketConfigPlutusScript
+marketConfigPlutusScriptLazy  = PlutusScript PlutusScriptV3  $ Cardano.Api.Shelley.PlutusScriptSerialised $ marketConfigScriptBS marketConfigScriptLazy
