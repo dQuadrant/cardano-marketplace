@@ -205,9 +205,3 @@ configurableMarketPlutusScript  constructor = Cardano.Api.Shelley.PlutusScriptSe
 
 configurableMarketPlutusScriptLazy :: MarketConstructor -> PlutusScript PlutusScriptV3
 configurableMarketPlutusScriptLazy  constructor = Cardano.Api.Shelley.PlutusScriptSerialised $ (configurableMarketScriptLazy  constructor) 
-
-configurableMarketScriptCredential :: MarketConstructor ->  Cardano.Api.Shelley.PaymentCredential
-configurableMarketScriptCredential constructor = PaymentCredentialByScript $ hashScript $ PlutusScript PlutusScriptV3  $  configurableMarketPlutusScript constructor
-
-configurableMarketScriptCredentialLazy :: MarketConstructor ->  Cardano.Api.Shelley.PaymentCredential
-configurableMarketScriptCredentialLazy constructor = PaymentCredentialByScript $ hashScript $ PlutusScript PlutusScriptV3  $  configurableMarketPlutusScriptLazy constructor

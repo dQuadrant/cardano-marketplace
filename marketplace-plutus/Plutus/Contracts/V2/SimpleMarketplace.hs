@@ -20,7 +20,6 @@
 {-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:target-version=1.0.0 #-}
 module Plutus.Contracts.V2.SimpleMarketplace(
   simpleMarketplacePlutusV2,
-  simpleMarketplaceScript,
   MarketRedeemer(..),
   SimpleSale(..)
 )
@@ -95,8 +94,5 @@ mkWrappedMarket  d r c = check $ mkMarket (parseData d "Invalid data") (parseDat
 simpleMarketValidator = 
             $$(PlutusTx.compile [|| mkWrappedMarket ||])
 
-simpleMarketplaceScript  =  serialiseCompiledCode  simpleMarketValidator
-
-
 simpleMarketplacePlutusV2 ::  PlutusScript PlutusScriptV2
-simpleMarketplacePlutusV2  = PlutusScriptSerialised $ simpleMarketplaceScript
+simpleMarketplacePlutusV2  = PlutusScriptSerialised $ serialiseCompiledCode  simpleMarketValidator

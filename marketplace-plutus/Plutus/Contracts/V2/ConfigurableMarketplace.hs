@@ -128,6 +128,3 @@ configurableMarketPlutusScript :: MarketConstructor -> PlutusScript PlutusScript
 configurableMarketPlutusScript  constructor = Cardano.Api.Shelley.PlutusScriptSerialised $ configurableMarketScriptBS
   where
   configurableMarketScriptBS  =   configurableMarketScript  constructor
-
-configurableMarketScriptCredential :: MarketConstructor ->  Cardano.Api.Shelley.PaymentCredential
-configurableMarketScriptCredential constructor = PaymentCredentialByScript $ hashScript $ PlutusScript PlutusScriptV2  $  configurableMarketPlutusScript constructor

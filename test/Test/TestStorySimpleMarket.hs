@@ -21,7 +21,7 @@ import qualified Debug.Trace as Debug
 import Test.Common
 import Cardano.Marketplace.SimpleMarketplace
 import Cardano.Marketplace.V2.Core (simpleMarketV2Helper)
-import Cardano.Marketplace.V3.Core (simpleMarketV3Helper)
+import Cardano.Marketplace.V3.Core (simpleMarketV3Helper, simpleMarketV3HelperLazy)
 import Test.TestContext
 import Test.Reporting (collectReports)
 import qualified Data.Map as Map
@@ -35,7 +35,7 @@ makeSimpleMarketSpecs start_index tContext = do
         pure (saleVar,refVar)
   v2Vars <- makeVars
   v3Vars <- makeVars
-  
+  v3VarsLazy <- makeVars
   pure [
       afterAll
         (\x -> collectReports  "Simple Market" "V2" tContext ) 
@@ -43,6 +43,9 @@ makeSimpleMarketSpecs start_index tContext = do
     , afterAll
         (\x -> collectReports  "Simple Market" "V3" tContext ) 
         $ simpleMarketSpecs "SimpleMarketV3 Flow" (start_index+1) simpleMarketV3Helper tContext (pure  v3Vars)
+    , afterAll
+          (\x -> collectReports  "Simple Market" "V3 Lazy" tContext ) 
+          $ simpleMarketSpecs "SimpleMarketV3Lazy Flow" (start_index+2) simpleMarketV3HelperLazy tContext (pure  v3VarsLazy)
     ]
 
 simpleMarketSpecs::  String-> Integer -> SimpleMarketHelper -> TestContext ChainConnectInfo -> IO (TVar (Maybe TxId), TVar (Maybe TxId)) -> SpecWith ()

@@ -21,7 +21,7 @@
 
 module Plutus.Contracts.V3.SimpleMarketplace(
   simpleMarketplacePlutusV3,
-  simpleMarketplaceScript,
+  simpleMarketplacePlutusV3Lazy,
   MarketRedeemer(..),
   SimpleSale(..)
 )
@@ -158,11 +158,8 @@ simpleMarketValidator =
 simpleMarketValidatorLazy = 
             $$(PlutusTx.compile [|| mkWrappedMarketLazy ||])
 
-simpleMarketplaceScript :: CompiledCode a -> SerialisedScript
-simpleMarketplaceScript script =  serialiseCompiledCode script
-
 simpleMarketplacePlutusV3 ::  PlutusScript PlutusScriptV3
-simpleMarketplacePlutusV3  = PlutusScriptSerialised $ simpleMarketplaceScript simpleMarketValidator
+simpleMarketplacePlutusV3  = PlutusScriptSerialised $ serialiseCompiledCode simpleMarketValidator
 
 simpleMarketplacePlutusV3Lazy ::  PlutusScript PlutusScriptV3
-simpleMarketplacePlutusV3Lazy  = PlutusScriptSerialised $ simpleMarketplaceScript simpleMarketValidatorLazy
+simpleMarketplacePlutusV3Lazy  = PlutusScriptSerialised $ serialiseCompiledCode simpleMarketValidatorLazy

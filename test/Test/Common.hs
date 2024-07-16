@@ -36,8 +36,6 @@ import qualified Data.ByteString as BS
 import Data.List (nub)
 import Test.TestContext
 
-
-
 testContextFromEnv :: IO (TestContext ChainConnectInfo)
 testContextFromEnv = do 
   chainInfo <- chainInfoFromEnv

@@ -29,7 +29,7 @@ import Data.Maybe (fromJust)
 import Cardano.Api (prettyPrintJSON)
 import Cardano.Marketplace.ConfigurableMarketplace
 import Cardano.Marketplace.V2.Core (makeConfigurableMarketV2Helper)
-import Cardano.Marketplace.V3.Core (makeConfigurableMarketV3Helper)
+import Cardano.Marketplace.V3.Core (makeConfigurableMarketV3Helper, makeConfigurableMarketV3HelperLazy)
 import Test.TestContext
 import Test.Reporting (collectReports)
 import qualified Data.Map as Map
@@ -45,8 +45,10 @@ makeConfigurableMarketSpecs testIdx tContext = do
         pure (configVar,saleVar,refVar)
       v2Helper = makeConfigurableMarketV2Helper (tcWalletAddr tContext) 3_000_000
       v3Helper = makeConfigurableMarketV3Helper (tcWalletAddr tContext) 3_000_000
+      v3HelperLazy = makeConfigurableMarketV3HelperLazy (tcWalletAddr tContext) 3_000_000
   v2Vars <- makeVars
   v3Vars <- makeVars
+  v3VarsLazy <- makeVars
   pure [
       afterAll 
           (\x -> collectReports  "Configurable Market" "V2" tContext ) 
@@ -54,6 +56,9 @@ makeConfigurableMarketSpecs testIdx tContext = do
     , afterAll 
         (\x -> collectReports  "Configurable Market" "V3" tContext) 
         $ simpleMarketSpecs  (testIdx+1) "ConfigurableMarketV3 Flow" v3Helper tContext (pure  v3Vars)
+    , afterAll 
+        (\x -> collectReports  "Configurable Market" "V3 Lazy" tContext) 
+        $ simpleMarketSpecs  (testIdx+1) "ConfigurableMarketV3Lazy Flow" v3HelperLazy tContext (pure  v3VarsLazy)
     ]
 
 simpleMarketSpecs::  Integer ->  String -> ConfigurableMarketHelper -> TestContext ChainConnectInfo -> IO (TVar (Maybe TxId), TVar (Maybe TxId),TVar (Maybe TxId)) -> SpecWith ()

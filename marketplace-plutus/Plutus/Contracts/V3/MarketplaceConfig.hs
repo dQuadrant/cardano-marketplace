@@ -19,6 +19,7 @@
 {-# LANGUAGE ViewPatterns #-}
 module Plutus.Contracts.V3.MarketplaceConfig(
   marketConfigPlutusScript,
+  marketConfigPlutusScriptLazy,
   marketConfigValidator,
   marketConfigScript,
   MarketConfig(..)
@@ -134,6 +135,6 @@ marketConfigValidatorLazy =
 marketConfigScript  =  serialiseCompiledCode  marketConfigValidator
 marketConfigScriptLazy = serialiseCompiledCode  marketConfigValidator
 
-marketConfigPlutusScript  = PlutusScript PlutusScriptV3  $ Cardano.Api.Shelley.PlutusScriptSerialised $ marketConfigScriptBS marketConfigScript
+marketConfigPlutusScript  = PlutusScript PlutusScriptV3  $ Cardano.Api.Shelley.PlutusScriptSerialised $ marketConfigScriptBS marketConfigScript 
 
-marketConfigPlutusScriptLazy  = PlutusScript PlutusScriptV3  $ Cardano.Api.Shelley.PlutusScriptSerialised $ marketConfigScriptBS marketConfigScriptLazy
+marketConfigPlutusScriptLazy  = PlutusScript PlutusScriptV3  $ Cardano.Api.Shelley.PlutusScriptSerialised $ marketConfigScriptBS marketConfigScriptLazy 
