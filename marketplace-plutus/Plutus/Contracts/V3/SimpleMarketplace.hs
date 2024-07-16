@@ -74,12 +74,12 @@ data SimpleSale=SimpleSale{
     priceOfAsset:: Integer  -- cost of the value in it
   } deriving(Show,Generic)
 
-PlutusTx.makeIsDataIndexed ''SimpleSale [('SimpleSale, 0)]    
+PlutusTx.makeIsDataIndexed ''SimpleSale [('SimpleSale, 0)]
 
 {-# INLINABLE mkMarket #-}
 mkMarket ::   ScriptContext    -> Bool
 mkMarket  ctx =
-  case sellerPkh of 
+  case sellerPkh of
     Nothing -> traceError "Script Address in seller"
     Just pkh -> case  action of
         Buy       -> traceIfFalse "Multiple script inputs" (allScriptInputsCount  info == 1)  && 
@@ -94,12 +94,12 @@ mkMarket  ctx =
       action = case fromBuiltinData $ getRedeemer (scriptContextRedeemer ctx) of
         Nothing -> traceError "Invalid Redeemer"
         Just r -> r
-      ds@SimpleSale{sellerAddress,priceOfAsset} = case (scriptContextScriptInfo ctx ) of
-        SpendingScript outRef datum -> case datum of 
+      ds@SimpleSale{sellerAddress,priceOfAsset} = case scriptContextScriptInfo ctx of
+        SpendingScript outRef datum -> case datum of
           Just d ->  case fromBuiltinData  (getDatum d) of
             Nothing -> traceError "Invalid datum format"
             Just v -> v
-          _ -> traceError "Missing datum" 
+          _ -> traceError "Missing datum"
         _ -> traceError "Script used for other than spending"
       adaAsset=AssetClass (adaSymbol,adaToken )
 
@@ -152,7 +152,7 @@ mkWrappedMarketLazy  ctx = check $ mkMarketLazy info datum redeemer
     info :: TxInfo 
     info = parseData txInfoData "Invalid TxInfo Type"
 
-simpleMarketValidator = 
+simpleMarketValidator =
             $$(PlutusTx.compile [|| mkWrappedMarket ||])
 
 simpleMarketValidatorLazy = 

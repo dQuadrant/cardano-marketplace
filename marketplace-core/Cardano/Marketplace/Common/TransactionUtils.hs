@@ -115,7 +115,7 @@ mintNativeAsset vKey assetName amount =
   let script = RequireSignature $ verificationKeyHash vKey
       scriptHash = hashScript $ SimpleScript  script
       assetId = AssetId  (PolicyId scriptHash ) assetName 
-  in (assetId, txMintSimpleScript @(SimpleScript ) script [(assetName, Quantity amount)])
+  in (assetId, txMintSimpleScript  script [(assetName, Quantity amount)])
 
 runBuildAndSubmit :: (HasKuberAPI api, HasSubmitApi api) => TxBuilder -> Kontract api w FrameworkError (Tx ConwayEra)
 runBuildAndSubmit txBuilder =  do 

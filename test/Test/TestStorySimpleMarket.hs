@@ -23,7 +23,7 @@ import Cardano.Marketplace.SimpleMarketplace
 import Cardano.Marketplace.V2.Core (simpleMarketV2Helper)
 import Cardano.Marketplace.V3.Core (simpleMarketV3Helper, simpleMarketV3HelperLazy)
 import Test.TestContext
-import Test.Reporting (collectReports)
+import Test.Reporting (collectReports, addTagMetric)
 import qualified Data.Map as Map
 
 
@@ -35,6 +35,10 @@ makeSimpleMarketSpecs start_index tContext = do
         pure (saleVar,refVar)
   v2Vars <- makeVars
   v3Vars <- makeVars
+
+  addTagMetric tContext (TagMetric "Simple Market" "V2" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ simpleMarketScript simpleMarketV2Helper ))
+  addTagMetric tContext (TagMetric "Simple Market" "V3" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ simpleMarketScript simpleMarketV3Helper ))
+  addTagMetric tContext (TagMetric "Simple Market" "V3 Lazy" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ simpleMarketScript simpleMarketV3HelperLazy ))
   v3VarsLazy <- makeVars
   pure [
       afterAll
@@ -49,7 +53,7 @@ makeSimpleMarketSpecs start_index tContext = do
     ]
 
 simpleMarketSpecs::  String-> Integer -> SimpleMarketHelper -> TestContext ChainConnectInfo -> IO (TVar (Maybe TxId), TVar (Maybe TxId)) -> SpecWith ()
-simpleMarketSpecs scriptName testIndex marketHelper context@(TestContext chainInfo networkId sKey walletAddr _ _ )  ioAction =
+simpleMarketSpecs scriptName testIndex marketHelper context@(TestContext chainInfo networkId sKey walletAddr _ _ _ )  ioAction =
   let 
       (mintedAsset,mintBuilder) = mintNativeAsset (getVerificationKey sKey) (AssetName $ BS8.pack "TestToken") 4
       runTest_ index mRef str tb = do 

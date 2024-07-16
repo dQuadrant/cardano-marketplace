@@ -130,8 +130,8 @@ expectSpending ctx =  case (scriptContextScriptInfo ctx ) of
         _ -> traceError "Script used for other than spending" 
 
 {-# INLINABLE mkWrappedConfigurableMarket #-}
-mkWrappedConfigurableMarket :: MarketConstructor ->  BuiltinData -> BuiltinData -> BuiltinData -> BuiltinUnit
-mkWrappedConfigurableMarket constructor   d r c = check $ mkConfigurableMarket constructor 
+mkWrappedConfigurableMarket :: MarketConstructor -> BuiltinData -> BuiltinUnit
+mkWrappedConfigurableMarket constructor  ctx = check $ mkConfigurableMarket constructor 
           (expectSpending context) 
           redeemer context
   where
