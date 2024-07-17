@@ -136,7 +136,7 @@ mkWrappedConfigurableMarket constructor  ctx = check $ mkConfigurableMarket cons
           redeemer context
   where
     redeemer = parseData (getRedeemer $ scriptContextRedeemer context) "Invalid redeemer"
-    context = parseData c "Invalid Context"
+    context = parseData ctx "Invalid Context"
 
 {-# INLINABLE mkConfigurableMarketLazy #-}
 mkConfigurableMarketLazy :: MarketConstructor -> SimpleSale   -> MarketRedeemer -> TxInfo -> Bool
