@@ -27,6 +27,7 @@ import Cardano.Api (ConwayEra, SerialiseAsRawBytes (deserialiseFromRawBytes))
 import Control.Exception (throwIO)
 import Cardano.Api (StakeKey, AddressInEra (AddressInEra), ShelleyBasedEra (ShelleyBasedEraConway), makeShelleyAddress, NetworkId (Testnet), NetworkMagic (NetworkMagic), PaymentCredential (PaymentCredentialByKey), Key (verificationKeyHash, getVerificationKey), StakeAddressReference (StakeAddressByValue), AddressTypeInEra (ShelleyAddressInEra))
 import Cardano.Ledger.Address (serialiseAddr)
+import GHC.Word (Word32)
 -- Replace these with your seed words
 seedWords :: [Text]
 seedWords =
@@ -41,6 +42,7 @@ data ShelleyWallet = ShelleyWallet {
 } deriving (Show)
 
 
+genWallet :: Word32 -> IO ShelleyWallet
 genWallet index =  do   
     let mnemonicResult = mkSomeMnemonic @'[ 24 ] seedWords
     descriminant <- case Shelley.mkNetworkDiscriminant 0 of 

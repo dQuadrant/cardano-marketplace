@@ -21,9 +21,9 @@ import qualified Debug.Trace as Debug
 import Test.Common
 import Cardano.Marketplace.SimpleMarketplace
 import Cardano.Marketplace.V2.Core (simpleMarketV2Helper)
-import Cardano.Marketplace.V3.Core (simpleMarketV3Helper)
+import Cardano.Marketplace.V3.Core (simpleMarketV3Helper, simpleMarketV3HelperLazy)
 import Test.TestContext
-import Test.Reporting (collectReports)
+import Test.Reporting (collectReports, addTagMetric)
 import qualified Data.Map as Map
 
 
@@ -35,7 +35,11 @@ makeSimpleMarketSpecs start_index tContext = do
         pure (saleVar,refVar)
   v2Vars <- makeVars
   v3Vars <- makeVars
-  
+
+  addTagMetric tContext (TagMetric "Simple Market" "V2" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ simpleMarketScript simpleMarketV2Helper ))
+  addTagMetric tContext (TagMetric "Simple Market" "V3" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ simpleMarketScript simpleMarketV3Helper ))
+  addTagMetric tContext (TagMetric "Simple Market" "V3 Lazy" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ simpleMarketScript simpleMarketV3HelperLazy ))
+  v3VarsLazy <- makeVars
   pure [
       afterAll
         (\x -> collectReports  "Simple Market" "V2" tContext ) 
@@ -43,10 +47,13 @@ makeSimpleMarketSpecs start_index tContext = do
     , afterAll
         (\x -> collectReports  "Simple Market" "V3" tContext ) 
         $ simpleMarketSpecs "SimpleMarketV3 Flow" (start_index+1) simpleMarketV3Helper tContext (pure  v3Vars)
+    , afterAll
+          (\x -> collectReports  "Simple Market" "V3 Lazy" tContext ) 
+          $ simpleMarketSpecs "SimpleMarketV3Lazy Flow" (start_index+2) simpleMarketV3HelperLazy tContext (pure  v3VarsLazy)
     ]
 
 simpleMarketSpecs::  String-> Integer -> SimpleMarketHelper -> TestContext ChainConnectInfo -> IO (TVar (Maybe TxId), TVar (Maybe TxId)) -> SpecWith ()
-simpleMarketSpecs scriptName testIndex marketHelper context@(TestContext chainInfo networkId sKey walletAddr _ _ )  ioAction =
+simpleMarketSpecs scriptName testIndex marketHelper context@(TestContext chainInfo networkId sKey walletAddr _ _ _ )  ioAction =
   let 
       (mintedAsset,mintBuilder) = mintNativeAsset (getVerificationKey sKey) (AssetName $ BS8.pack "TestToken") 4
       runTest_ index mRef str tb = do 
@@ -62,6 +69,12 @@ simpleMarketSpecs scriptName testIndex marketHelper context@(TestContext chainIn
           runTest_  1 Nothing "Mint Native Asset"  (do 
               (UTxO utxos) ::UTxO ConwayEra <- kQueryUtxoByAddress (Set.singleton $ addressInEraToAddressAny walletAddr)
               pure $ mintBuilder   <> txConsumeUtxos (UTxO $ Map.fromList $ take 100  $ Map.toList utxos)
+                      <> txPayTo walletAddr (valueFromList [(AdaAssetId,5_000_000)])
+                      <> txPayTo walletAddr (valueFromList [(AdaAssetId,10_000_000)])
+                      <> txPayTo walletAddr (valueFromList [(AdaAssetId,20_000_000)])
+                      <> txPayTo walletAddr (valueFromList [(AdaAssetId,30_000_000)])
+                      -- create extra utxos that might be required
+
               )
 
 

@@ -23,12 +23,14 @@ maintainer:         Sireto
 
 library marketplace-plutus
   exposed-modules:
+    Plutus.Contracts.V2.ConfigurableMarketplace
     Plutus.Contracts.V2.SimpleMarketplace
     Plutus.Contracts.V2.MarketplaceConfig
-    Plutus.Contracts.V2.ConfigurableMarketplace
+
     Plutus.Contracts.V3.ConfigurableMarketplace
     Plutus.Contracts.V3.SimpleMarketplace
     Plutus.Contracts.V3.MarketplaceConfig
+
   hs-source-dirs: marketplace-plutus
   build-depends:
       base  -any

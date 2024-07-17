@@ -27,13 +27,6 @@ main = do
     let transactionReports =  dateStr ++ "-transaction-report" ++ ".md"
 
     createDirectoryIfMissing True reportDir
-    logFile <- openFile (reportDir ++ "/" ++ logFileName) WriteMode
-    hSetBuffering stdout LineBuffering
-    hSetBuffering stderr LineBuffering
-    
-    hDuplicateTo logFile stdout
-    hDuplicateTo logFile stderr
-    
 
         -- Set environment variables
     setEnv "JUNIT_ENABLED" "1"
@@ -44,6 +37,14 @@ main = do
     testContext <- testContextFromEnv
     simpleMarketSpecs <-  makeSimpleMarketSpecs 1 testContext 
     configurableMarketSpecs <- makeConfigurableMarketSpecs 3 testContext
+
+    logFile <- openFile (reportDir ++ "/" ++ logFileName) WriteMode
+    hSetBuffering stdout LineBuffering
+    hSetBuffering stderr LineBuffering
+    
+    hDuplicateTo logFile stdout
+    hDuplicateTo logFile stderr
+    
 
     finally (hspecJUnit $ sequential  $ do
                 sequence_  simpleMarketSpecs
