@@ -20,7 +20,7 @@
 module Plutus.Contracts.V3.MarketplaceConfig(
   marketConfigPlutusScript,
   marketConfigPlutusScriptLazy,
-  marketConfigValidator,
+  marketConfigPlutusScriptSuperLazy,
   marketConfigScript,
   MarketConfig(..)
 )
@@ -101,6 +101,13 @@ mkMarketConfigLazy  MarketConfig{marketOwner}  info =
     PubKeyCredential pkh ->traceIfFalse "Missing owner signature" (txSignedBy info pkh)
     ScriptCredential vh -> traceError "NotOperator"  }
 
+{-# INLINABLE mkMarketConfigSuperLazy #-}
+mkMarketConfigSuperLazy :: MarketConfig -> [PubKeyHash] -> Bool 
+mkMarketConfigSuperLazy MarketConfig{marketOwner} signatures = 
+  case marketOwner of {Address cre m_sc -> case cre of
+    PubKeyCredential pkh ->traceIfFalse "Missing owner signature" (pkh `elem` signatures)
+    ScriptCredential vh -> traceError "NotOperator"  }
+
 {-# INLINABLE mkWrappedMarketConfigLazy #-}
 mkWrappedMarketConfigLazy ::   BuiltinData -> BuiltinUnit
 mkWrappedMarketConfigLazy ctx = 
@@ -126,15 +133,51 @@ mkWrappedMarketConfigLazy ctx =
     info :: TxInfo 
     info = parseData txInfoData "Invalid TxInfo Type"
 
+{-# INLINABLE mkWrappedMarketConfigSuperLazy #-}
+mkWrappedMarketConfigSuperLazy :: BuiltinData -> BuiltinUnit
+mkWrappedMarketConfigSuperLazy ctx = check $ mkMarketConfigSuperLazy datum signatures 
+  where 
+    context = constrArgs ctx
+
+    redeemerFollowedByScriptInfo :: BI.BuiltinList BuiltinData
+    redeemerFollowedByScriptInfo = BI.tail context
+
+    scriptInfoData :: BuiltinData
+    scriptInfoData = BI.head (BI.tail redeemerFollowedByScriptInfo)
+
+    txInfoData :: BuiltinData 
+    txInfoData = BI.head context
+
+    datumData :: BuiltinData
+    datumData = BI.head (constrArgs (BI.head (BI.tail (constrArgs scriptInfoData))))
+
+    datum :: MarketConfig
+    datum = parseData (getDatum (unsafeFromBuiltinData datumData)) "Invalid Datum Type"
+
+    lazyTxInfo :: BI.BuiltinList BuiltinData
+    lazyTxInfo = constrArgs txInfoData
+
+    signatures :: [PubKeyHash]
+    signatures = parseData 
+      (BI.head $ BI.tail $ BI.tail $ BI.tail $ BI.tail $ BI.tail $ BI.tail $ BI.tail $ BI.tail lazyTxInfo) 
+      "txInfoSignatories: Invalid [PubKeyHash] type"
+
 marketConfigValidator =  
-            $$(PlutusTx.compile [|| mkWrappedMarketConfig ||])
+  $$(PlutusTx.compile [|| mkWrappedMarketConfig ||])
 
 marketConfigValidatorLazy =  
-            $$(PlutusTx.compile [|| mkWrappedMarketConfigLazy ||])
+  $$(PlutusTx.compile [|| mkWrappedMarketConfigLazy ||])
+
+marketConfigValidatorSuperLazy = 
+  $$(PlutusTx.compile [|| mkWrappedMarketConfigSuperLazy ||])
+
 
 marketConfigScript  =  serialiseCompiledCode  marketConfigValidator
-marketConfigScriptLazy = serialiseCompiledCode  marketConfigValidator
+marketConfigScriptLazy = serialiseCompiledCode  marketConfigValidatorLazy
+marketConfigScriptSuperLazy = serialiseCompiledCode  marketConfigValidatorSuperLazy
 
 marketConfigPlutusScript  = PlutusScript PlutusScriptV3  $ Cardano.Api.Shelley.PlutusScriptSerialised $ marketConfigScriptBS marketConfigScript 
 
 marketConfigPlutusScriptLazy  = PlutusScript PlutusScriptV3  $ Cardano.Api.Shelley.PlutusScriptSerialised $ marketConfigScriptBS marketConfigScriptLazy 
+
+marketConfigPlutusScriptSuperLazy = PlutusScript PlutusScriptV3  $ Cardano.Api.Shelley.PlutusScriptSerialised $ marketConfigScriptBS marketConfigScriptSuperLazy 

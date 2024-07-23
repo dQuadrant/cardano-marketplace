@@ -34,37 +34,57 @@ import qualified Data.Set as Set
 import qualified Plutus.Contracts.V2.SimpleMarketplace as Marketplace
 import qualified Plutus.Contracts.V2.ConfigurableMarketplace as V2ConfigurableMarketplace
 import qualified Plutus.Contracts.V2.MarketplaceConfig as V2MarketConfig
-
 import PlutusLedgerApi.V2 (toData, dataToBuiltinData, FromData (fromBuiltinData))
 import Cardano.Marketplace.SimpleMarketplace
 import qualified PlutusLedgerApi.V2 as PlutusV2
 import Cardano.Marketplace.ConfigurableMarketplace
 
-simpleMarketV2Helper :: SimpleMarketHelper
-simpleMarketV2Helper = SimpleMarketHelper {
-    simpleMarketScript = toTxPlutusScript simpleMarketplacePlutusV2
+simpleMarketV2Helper' :: PlutusScript PlutusScriptV2 -> SimpleMarketHelper
+simpleMarketV2Helper' script = SimpleMarketHelper {
+    simpleMarketScript = toTxPlutusScript script
   , makeSaleDatum = createV2SaleDatum
   , withdrawRedeemer  = unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Withdraw
   , buyRedeemer = unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Buy
 }
 
+simpleMarketV2Helper = simpleMarketV2Helper' simpleMarketplacePlutusV2
 
-makeConfigurableMarketV2Helper operatorAddr fee = 
+simpleMarketV2HelperSuperLazy = simpleMarketV2Helper' simpleMarketplacePlutusV2SuperLazy
+
+makeConfigurableMarketV2Helper' :: 
+  AddressInEra era -> 
+  Integer -> 
+  Script PlutusScriptV2 -> 
+  (V2ConfigurableMarketplace.MarketConstructor -> PlutusScript PlutusScriptV2) -> 
+  ConfigurableMarketHelper
+makeConfigurableMarketV2Helper' operatorAddr fee marketConfigScript configurableMarketScript = 
   let operatorAddress = addrInEraToPlutusAddress operatorAddr
       ownerAddress = operatorAddress
       marketConfig = V2MarketConfig.MarketConfig operatorAddress operatorAddress fee
       marketConstructor = V2ConfigurableMarketplace.MarketConstructor  ( 
         PlutusV2.ScriptHash $ PlutusV2.toBuiltin $ serialiseToRawBytes $ hashTxScript  $ TxScriptPlutus mConfigScript)
-      mConfigScript = toTxPlutusScript $ V2MarketConfig.marketConfigPlutusScript
+      mConfigScript = toTxPlutusScript $ marketConfigScript
     in
     ConfigurableMarketHelper {
-        cmMarketScript = toTxPlutusScript $ V2ConfigurableMarketplace.configurableMarketPlutusScript marketConstructor 
+        cmMarketScript = toTxPlutusScript $ configurableMarketScript marketConstructor 
       , cmConfigScript = mConfigScript
       , cmMakeSaleDatum = createV2SaleDatum
       , cmWithdrawRedeemer = unsafeHashableScriptData $ fromPlutusData$ toData V2ConfigurableMarketplace.Withdraw
       , cmBuyRedeemer = unsafeHashableScriptData $ fromPlutusData$ toData V2ConfigurableMarketplace.Buy
       , cmConfigDatum = unsafeHashableScriptData $ fromPlutusData$ toData marketConfig
       }
+
+makeConfigurableMarketV2Helper :: AddressInEra era -> Integer -> ConfigurableMarketHelper
+makeConfigurableMarketV2Helper operatorAddr fee =
+  makeConfigurableMarketV2Helper' operatorAddr fee 
+  V2MarketConfig.marketConfigPlutusScript 
+  V2ConfigurableMarketplace.configurableMarketPlutusScript
+
+makeConfigurableMarketV2HelperSuperLazy :: AddressInEra era -> Integer -> ConfigurableMarketHelper
+makeConfigurableMarketV2HelperSuperLazy operatorAddr fee =
+  makeConfigurableMarketV2Helper' operatorAddr fee 
+  V2MarketConfig.marketConfigPlutusScriptSuperLazy 
+  V2ConfigurableMarketplace.configurableMarketPlutusScriptSuperLazy
 
 createV2SaleDatum :: AddressInEra ConwayEra -> Integer -> HashableScriptData
 createV2SaleDatum sellerAddr costOfAsset =

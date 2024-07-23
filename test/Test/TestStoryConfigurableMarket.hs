@@ -28,8 +28,8 @@ import qualified PlutusTx.Builtins as BI
 import Data.Maybe (fromJust)
 import Cardano.Api (prettyPrintJSON)
 import Cardano.Marketplace.ConfigurableMarketplace
-import Cardano.Marketplace.V2.Core (makeConfigurableMarketV2Helper)
-import Cardano.Marketplace.V3.Core (makeConfigurableMarketV3Helper, makeConfigurableMarketV3HelperLazy)
+import Cardano.Marketplace.V2.Core (makeConfigurableMarketV2Helper, makeConfigurableMarketV2HelperSuperLazy)
+import Cardano.Marketplace.V3.Core (makeConfigurableMarketV3Helper, makeConfigurableMarketV3HelperLazy, makeConfigurableMarketV3HelperSuperLazy)
 import Test.TestContext
 import Test.Reporting (collectReports, addTagMetric)
 import qualified Data.Map as Map
@@ -44,25 +44,37 @@ makeConfigurableMarketSpecs testIdx tContext = do
         configVar <- newTVarIO Nothing
         pure (configVar,saleVar,refVar)
       v2Helper = makeConfigurableMarketV2Helper (tcWalletAddr tContext) 3_000_000
+      v2HelperSuperLazy = makeConfigurableMarketV2HelperSuperLazy (tcWalletAddr tContext) 3_000_000
       v3Helper = makeConfigurableMarketV3Helper (tcWalletAddr tContext) 3_000_000
       v3HelperLazy = makeConfigurableMarketV3HelperLazy (tcWalletAddr tContext) 3_000_000
+      v3HelperSuperLazy = makeConfigurableMarketV3HelperSuperLazy (tcWalletAddr tContext) 3_000_000
   v2Vars <- makeVars
+  v2SuperLazyVars <- makeVars
   v3Vars <- makeVars
   v3VarsLazy <- makeVars
+  v3VarsSuperLazy <- makeVars
   addTagMetric tContext (TagMetric "Configurable Market" "V2" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ cmMarketScript v2Helper ))
+  addTagMetric tContext (TagMetric "Configurable Market" "V2 Super Lazy" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ cmMarketScript v2HelperSuperLazy ))
   addTagMetric tContext (TagMetric "Configurable Market" "V3" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ cmMarketScript v3Helper ))
   addTagMetric tContext (TagMetric "Configurable Market" "V3 Lazy" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ cmMarketScript v3HelperLazy ))
+  addTagMetric tContext (TagMetric "Configurable Market" "V3 Super Lazy" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ cmMarketScript v3HelperSuperLazy ))
 
   pure [
       afterAll
           (\x -> collectReports  "Configurable Market" "V2" tContext )
           $ simpleMarketSpecs testIdx "ConfigurableMarketV2 Flow" v2Helper tContext (pure v2Vars)
     , afterAll
+          (\x -> collectReports  "Configurable Market" "V2 Super Lazy" tContext )
+          $ simpleMarketSpecs (testIdx+1) "ConfigurableMarketV2SuperLazy Flow" v2HelperSuperLazy tContext (pure v2SuperLazyVars)
+    , afterAll
         (\x -> collectReports  "Configurable Market" "V3" tContext)
-        $ simpleMarketSpecs  (testIdx+1) "ConfigurableMarketV3 Flow" v3Helper tContext (pure  v3Vars)
+        $ simpleMarketSpecs  (testIdx+2) "ConfigurableMarketV3 Flow" v3Helper tContext (pure  v3Vars)
     , afterAll 
         (\x -> collectReports  "Configurable Market" "V3 Lazy" tContext) 
-        $ simpleMarketSpecs  (testIdx+1) "ConfigurableMarketV3Lazy Flow" v3HelperLazy tContext (pure  v3VarsLazy)
+        $ simpleMarketSpecs  (testIdx+3) "ConfigurableMarketV3Lazy Flow" v3HelperLazy tContext (pure  v3VarsLazy)
+    , afterAll 
+        (\x -> collectReports  "Configurable Market" "V3 Super Lazy" tContext) 
+        $ simpleMarketSpecs  (testIdx+4) "ConfigurableMarketV3SuperLazy Flow" v3HelperSuperLazy tContext (pure  v3VarsSuperLazy)
     ]
 
 simpleMarketSpecs::  Integer ->  String -> ConfigurableMarketHelper -> TestContext ChainConnectInfo -> IO (TVar (Maybe TxId), TVar (Maybe TxId),TVar (Maybe TxId)) -> SpecWith ()

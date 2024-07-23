@@ -14,7 +14,7 @@ import Cardano.Marketplace.SimpleMarketplace
 import Cardano.Api
 import Cardano.Api.Shelley
 import Cardano.Kuber.Api
-import Plutus.Contracts.V3.SimpleMarketplace (simpleMarketplacePlutusV3, simpleMarketplacePlutusV3Lazy, SimpleSale (SimpleSale), MarketRedeemer (Withdraw, Buy))
+import Plutus.Contracts.V3.SimpleMarketplace (simpleMarketplacePlutusV3, simpleMarketplacePlutusV3Lazy, simpleMarketplacePlutusV3SuperLazy, SimpleSale (SimpleSale), MarketRedeemer (Withdraw, Buy))
 import PlutusTx
 import Cardano.Kuber.Util (toPlutusAddress, addrInEraToPlutusAddress)
 import Cardano.Marketplace.ConfigurableMarketplace
@@ -34,7 +34,14 @@ simpleMarketV3Helper = simpleMarketV3Helper' simpleMarketplacePlutusV3
 
 simpleMarketV3HelperLazy = simpleMarketV3Helper' simpleMarketplacePlutusV3Lazy
 
-makeConfigurableMarketV3Helper' :: AddressInEra era -> Integer -> Script PlutusScriptV3 -> (V3ConfigurableMarketplace.MarketConstructor -> PlutusScript PlutusScriptV3) -> ConfigurableMarketHelper
+simpleMarketV3HelperSuperLazy = simpleMarketV3Helper' simpleMarketplacePlutusV3SuperLazy
+
+makeConfigurableMarketV3Helper' :: 
+  AddressInEra era -> 
+  Integer -> 
+  Script PlutusScriptV3 -> 
+  (V3ConfigurableMarketplace.MarketConstructor -> PlutusScript PlutusScriptV3) -> 
+  ConfigurableMarketHelper
 makeConfigurableMarketV3Helper' operatorAddr fee marketConfigScript configurableMarketScript= 
   let operatorAddress = addrInEraToPlutusAddress operatorAddr
       ownerAddress = operatorAddress
@@ -63,6 +70,12 @@ makeConfigurableMarketV3HelperLazy operatorAddr fee =
   makeConfigurableMarketV3Helper' operatorAddr fee 
   V3MarketConfig.marketConfigPlutusScriptLazy 
   V3ConfigurableMarketplace.configurableMarketPlutusScriptLazy
+
+makeConfigurableMarketV3HelperSuperLazy :: AddressInEra era -> Integer -> ConfigurableMarketHelper
+makeConfigurableMarketV3HelperSuperLazy operatorAddr fee = 
+  makeConfigurableMarketV3Helper' operatorAddr fee 
+  V3MarketConfig.marketConfigPlutusScriptSuperLazy 
+  V3ConfigurableMarketplace.configurableMarketPlutusScriptSuperLazy  
 
 createV3SaleDatum :: AddressInEra ConwayEra -> Integer -> HashableScriptData
 createV3SaleDatum sellerAddr costOfAsset =

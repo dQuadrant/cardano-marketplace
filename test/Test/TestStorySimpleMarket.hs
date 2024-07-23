@@ -20,8 +20,8 @@ import Cardano.Kuber.Console.ConsoleWritable
 import qualified Debug.Trace as Debug
 import Test.Common
 import Cardano.Marketplace.SimpleMarketplace
-import Cardano.Marketplace.V2.Core (simpleMarketV2Helper)
-import Cardano.Marketplace.V3.Core (simpleMarketV3Helper, simpleMarketV3HelperLazy)
+import Cardano.Marketplace.V2.Core (simpleMarketV2Helper, simpleMarketV2HelperSuperLazy)
+import Cardano.Marketplace.V3.Core (simpleMarketV3Helper, simpleMarketV3HelperLazy, simpleMarketV3HelperSuperLazy)
 import Test.TestContext
 import Test.Reporting (collectReports, addTagMetric)
 import qualified Data.Map as Map
@@ -34,22 +34,33 @@ makeSimpleMarketSpecs start_index tContext = do
         refVar <- newTVarIO Nothing
         pure (saleVar,refVar)
   v2Vars <- makeVars
+  v2VarsSuperLazy <- makeVars
   v3Vars <- makeVars
+  v3VarsLazy <- makeVars
+  v3VarsSuperLazy <- makeVars
 
   addTagMetric tContext (TagMetric "Simple Market" "V2" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ simpleMarketScript simpleMarketV2Helper ))
+  addTagMetric tContext (TagMetric "Simple Market" "V2 Super Lazy" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ simpleMarketScript simpleMarketV2HelperSuperLazy ))
   addTagMetric tContext (TagMetric "Simple Market" "V3" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ simpleMarketScript simpleMarketV3Helper ))
   addTagMetric tContext (TagMetric "Simple Market" "V3 Lazy" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ simpleMarketScript simpleMarketV3HelperLazy ))
-  v3VarsLazy <- makeVars
+  addTagMetric tContext (TagMetric "Simple Market" "V3 Super Lazy" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ simpleMarketScript simpleMarketV3HelperSuperLazy ))
+
   pure [
       afterAll
         (\x -> collectReports  "Simple Market" "V2" tContext ) 
         $ simpleMarketSpecs "SimpleMarketV2 Flow" start_index simpleMarketV2Helper tContext (pure v2Vars)
     , afterAll
-        (\x -> collectReports  "Simple Market" "V3" tContext ) 
-        $ simpleMarketSpecs "SimpleMarketV3 Flow" (start_index+1) simpleMarketV3Helper tContext (pure  v3Vars)
+        (\x -> collectReports  "Simple Market" "V2 Super Lazy" tContext ) 
+        $ simpleMarketSpecs "SimpleMarketV2SuperLazy Flow" (start_index + 1) simpleMarketV2HelperSuperLazy tContext (pure v2VarsSuperLazy)
     , afterAll
-          (\x -> collectReports  "Simple Market" "V3 Lazy" tContext ) 
-          $ simpleMarketSpecs "SimpleMarketV3Lazy Flow" (start_index+2) simpleMarketV3HelperLazy tContext (pure  v3VarsLazy)
+        (\x -> collectReports  "Simple Market" "V3" tContext ) 
+        $ simpleMarketSpecs "SimpleMarketV3 Flow" (start_index+2) simpleMarketV3Helper tContext (pure  v3Vars)
+    , afterAll
+        (\x -> collectReports  "Simple Market" "V3 Lazy" tContext ) 
+        $ simpleMarketSpecs "SimpleMarketV3Lazy Flow" (start_index+3) simpleMarketV3HelperLazy tContext (pure  v3VarsLazy)
+    , afterAll
+        (\x -> collectReports  "Simple Market" "V3 Super Lazy" tContext ) 
+        $ simpleMarketSpecs "SimpleMarketV3SuperLazy Flow" (start_index+4) simpleMarketV3HelperSuperLazy tContext (pure  v3VarsSuperLazy)
     ]
 
 simpleMarketSpecs::  String-> Integer -> SimpleMarketHelper -> TestContext ChainConnectInfo -> IO (TVar (Maybe TxId), TVar (Maybe TxId)) -> SpecWith ()

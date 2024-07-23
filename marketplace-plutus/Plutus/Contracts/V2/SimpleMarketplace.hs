@@ -20,6 +20,7 @@
 {-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:target-version=1.0.0 #-}
 module Plutus.Contracts.V2.SimpleMarketplace(
   simpleMarketplacePlutusV2,
+  simpleMarketplacePlutusV2SuperLazy,
   MarketRedeemer(..),
   SimpleSale(..)
 )
@@ -35,7 +36,7 @@ import qualified PlutusTx.AssocMap as AssocMap
 import qualified Data.Bifunctor
 import qualified Data.ByteString.Short as SBS
 import qualified Data.ByteString.Lazy  as LBS
-
+import qualified PlutusTx.Builtins.Internal as BI
 import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV2)
 import Codec.Serialise ( serialise )
 import PlutusLedgerApi.V2
@@ -44,14 +45,23 @@ import PlutusLedgerApi.V2.Contexts
 
 
 {-# INLINABLE allScriptInputsCount #-}
-allScriptInputsCount:: ScriptContext ->Integer
-allScriptInputsCount ctx@(ScriptContext info purpose)=
-    foldl (\c txOutTx-> c + countTxOut txOutTx) 0 (txInfoInputs  info)
+allScriptInputsCount:: [TxInInfo] ->Integer
+allScriptInputsCount inputs=
+    foldl (\c txOutTx-> c + countTxOut txOutTx) 0 inputs
   where
   countTxOut (TxInInfo _ (TxOut addr _ _ _)) = case addr of { Address cre m_sc -> case cre of
                                                               PubKeyCredential pkh -> 0
                                                               ScriptCredential vh -> 1  } 
 
+{-# INLINABLE parseData #-}
+parseData ::FromData a =>  BuiltinData -> BuiltinString -> a
+parseData d s = case fromBuiltinData  d of
+  Just d -> d
+  _      -> traceError s
+
+{-# INLINABLE constrArgs #-}
+constrArgs :: BuiltinData -> BI.BuiltinList BuiltinData
+constrArgs bd = BI.snd (BI.unsafeDataAsConstr bd)
 
 data MarketRedeemer =  Buy | Withdraw
     deriving (Generic,FromJSON,ToJSON,Show,Prelude.Eq)
@@ -71,7 +81,7 @@ mkMarket  ds@SimpleSale{sellerAddress,priceOfAsset}  action ctx =
   case sellerPkh of 
     Nothing -> traceError "Script Address in seller"
     Just pkh -> case  action of
-        Buy       -> traceIfFalse "Multiple script inputs" (allScriptInputsCount  ctx == 1)  && 
+        Buy       -> traceIfFalse "Multiple script inputs" (allScriptInputsCount  (txInfoInputs info) == 1)  && 
                      traceIfFalse "Seller not paid" (assetClassValueOf   (valuePaidTo info pkh) adaAsset >= priceOfAsset)
         Withdraw -> traceIfFalse "Seller Signature Missing" $ txSignedBy info pkh
 
@@ -82,17 +92,72 @@ mkMarket  ds@SimpleSale{sellerAddress,priceOfAsset}  action ctx =
       info  =  scriptContextTxInfo ctx
       adaAsset=AssetClass (adaSymbol,adaToken )
 
+{-# INLINABLE mkMarketSuperLazy #-}
+mkMarketSuperLazy :: SimpleSale -> MarketRedeemer -> [TxInInfo] -> [TxOut] -> [PubKeyHash] -> Bool
+mkMarketSuperLazy ds@SimpleSale{sellerAddress,priceOfAsset} action allInputs allOutputs signatures = 
+  case sellerPkh of 
+    Nothing -> traceError "Script Address in seller"
+    Just pkh -> case  action of
+        Buy       -> traceIfFalse "Multiple script inputs" (allScriptInputsCount allInputs == 1)  && 
+                     traceIfFalse "Seller not paid" (assetClassValueOf  (valuePaidTo' pkh) adaAsset >= priceOfAsset)
+        Withdraw -> traceIfFalse "Seller Signature Missing" $ pkh `elem` signatures
+
+    where
+      sellerPkh= case sellerAddress of { Address cre m_sc -> case cre of
+                                                           PubKeyCredential pkh -> Just pkh
+                                                           ScriptCredential vh -> Nothing  }
+      adaAsset=AssetClass (adaSymbol,adaToken )
+
+      valuePaidTo' pkh' = foldMap(\(TxOut _ val _ _) -> val ) filteredOutputs
+        where
+          filteredOutputs = mapMaybe (\x -> case x of 
+            (TxOut addr _ _ _) -> case addr of 
+              { Address cre m_sc -> case cre of
+                PubKeyCredential pkh -> if pkh == pkh' then Just x else Nothing
+                ScriptCredential vh -> Nothing }) allOutputs
+   
+
 {-# INLINABLE mkWrappedMarket #-}
 mkWrappedMarket ::  BuiltinData -> BuiltinData -> BuiltinData -> BuiltinUnit
 mkWrappedMarket  d r c = check $ mkMarket (parseData d "Invalid data") (parseData r "Invalid redeemer") (parseData c "Invalid context")
-  where
-    parseData md s = case fromBuiltinData  md of 
-      Just datum -> datum
-      _      -> traceError s
 
+{-# INLINABLE mkWrappedMarketSuperLazy #-}
+mkWrappedMarketSuperLazy ::  BuiltinData -> BuiltinData -> BuiltinData -> BuiltinUnit
+mkWrappedMarketSuperLazy  d r c = 
+  check $ mkMarketSuperLazy 
+  (parseData d "Invalid data") 
+  (parseData r "Invalid redeemer") 
+  inputs 
+  outputs 
+  signatures
+  where 
+    context = constrArgs c
+
+    txInfoData :: BuiltinData 
+    txInfoData = BI.head context
+
+    lazyTxInfo :: BI.BuiltinList BuiltinData
+    lazyTxInfo = constrArgs txInfoData 
+
+    inputs :: [TxInInfo]
+    inputs = parseData (BI.head lazyTxInfo) "txInfoInputs: Invalid [TxInInfo] type"
+
+    outputs :: [TxOut] 
+    outputs = parseData (BI.head (BI.tail (BI.tail lazyTxInfo))) "txInfoOutputs: Invalid [TxOut] type"
+
+    signatures :: [PubKeyHash]
+    signatures = parseData 
+      (BI.head $ BI.tail $ BI.tail $ BI.tail $ BI.tail $ BI.tail $ BI.tail $ BI.tail $ BI.tail lazyTxInfo) 
+      "txInfoSignatories: Invalid [PubKeyHash] type"
 
 simpleMarketValidator = 
             $$(PlutusTx.compile [|| mkWrappedMarket ||])
 
+simpleMarketValidatorSuperLazy = 
+            $$(PlutusTx.compile [|| mkWrappedMarketSuperLazy ||])
+
 simpleMarketplacePlutusV2 ::  PlutusScript PlutusScriptV2
 simpleMarketplacePlutusV2  = PlutusScriptSerialised $ serialiseCompiledCode  simpleMarketValidator
+
+simpleMarketplacePlutusV2SuperLazy ::  PlutusScript PlutusScriptV2
+simpleMarketplacePlutusV2SuperLazy  = PlutusScriptSerialised $ serialiseCompiledCode  simpleMarketValidatorSuperLazy
