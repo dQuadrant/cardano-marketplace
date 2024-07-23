@@ -1,1 +1,273 @@
-<testsuites name="Marketplace Scenario Test"><testsuite name="ConfigurableMarketV2 Flow" package="ConfigurableMarketV2 Flow" id="0" time="263.864580183" timestamp="2024-07-17T05:17:31.175636662Z" hostname="localhost" tests="8" failures="0" errors="0" skipped="0"><properties/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="138" name="Should buy 1 token from sale with reference script" classname="ConfigurableMarketV2 Flow" time="6.171523750"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="130" name="Should buy 1 token from sale" classname="ConfigurableMarketV2 Flow" time="12.172790397"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="122" name="Should withdraw 1 token from sale with reference script" classname="ConfigurableMarketV2 Flow" time="40.218215659"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="117" name="Should withdraw 1 token from sale" classname="ConfigurableMarketV2 Flow" time="36.242335943"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="110" name="Should create market configuration" classname="ConfigurableMarketV2 Flow" time="10.159584269"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="103" name="Should place 4 tokens on sale" classname="ConfigurableMarketV2 Flow" time="20.229631889"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="97" name="Should create reference script UTxO" classname="ConfigurableMarketV2 Flow" time="12.177975456"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="85" name="Should mint  4 Native Assets" classname="ConfigurableMarketV2 Flow" time="126.492522820"/></testsuite><testsuite name="ConfigurableMarketV3 Flow" package="ConfigurableMarketV3 Flow" id="1" time="119.454379348" timestamp="2024-07-17T05:17:31.175636662Z" hostname="localhost" tests="8" failures="0" errors="0" skipped="0"><properties/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="138" name="Should buy 1 token from sale with reference script" classname="ConfigurableMarketV3 Flow" time="8.160529698"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="130" name="Should buy 1 token from sale" classname="ConfigurableMarketV3 Flow" time="30.192265384"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="122" name="Should withdraw 1 token from sale with reference script" classname="ConfigurableMarketV3 Flow" time="8.157755550"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="117" name="Should withdraw 1 token from sale" classname="ConfigurableMarketV3 Flow" time="10.167844369"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="110" name="Should create market configuration" classname="ConfigurableMarketV3 Flow" time="14.167698569"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="103" name="Should place 4 tokens on sale" classname="ConfigurableMarketV3 Flow" time="22.186438014"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="97" name="Should create reference script UTxO" classname="ConfigurableMarketV3 Flow" time="20.200403640"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="85" name="Should mint  4 Native Assets" classname="ConfigurableMarketV3 Flow" time="6.221444124"/></testsuite><testsuite name="ConfigurableMarketV3Lazy Flow" package="ConfigurableMarketV3Lazy Flow" id="2" time="75.453435656" timestamp="2024-07-17T05:17:31.175636662Z" hostname="localhost" tests="8" failures="0" errors="0" skipped="0"><properties/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="138" name="Should buy 1 token from sale with reference script" classname="ConfigurableMarketV3Lazy Flow" time="16.225066650"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="130" name="Should buy 1 token from sale" classname="ConfigurableMarketV3Lazy Flow" time="18.196513491"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="122" name="Should withdraw 1 token from sale with reference script" classname="ConfigurableMarketV3Lazy Flow" time="8.167121844"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="117" name="Should withdraw 1 token from sale" classname="ConfigurableMarketV3Lazy Flow" time="4.159764609"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="110" name="Should create market configuration" classname="ConfigurableMarketV3Lazy Flow" time="4.196881574"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="103" name="Should place 4 tokens on sale" classname="ConfigurableMarketV3Lazy Flow" time="6.157711856"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="97" name="Should create reference script UTxO" classname="ConfigurableMarketV3Lazy Flow" time="6.170935183"/><testcase file="test/Test/TestStoryConfigurableMarket.hs" line="85" name="Should mint  4 Native Assets" classname="ConfigurableMarketV3Lazy Flow" time="12.179440449"/></testsuite><testsuite name="SimpleMarketV2 Flow" package="SimpleMarketV2 Flow" id="3" time="169.338946944" timestamp="2024-07-17T05:17:31.175636662Z" hostname="localhost" tests="7" failures="0" errors="0" skipped="0"><properties/><testcase file="test/Test/TestStorySimpleMarket.hs" line="109" name="Should buy 1 token from sale with reference script" classname="SimpleMarketV2 Flow" time="26.218316289"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="104" name="Should withdraw 1 token from sale with reference script" classname="SimpleMarketV2 Flow" time="26.258143738"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="99" name="Should buy 1 token from sale" classname="SimpleMarketV2 Flow" time="16.200152314"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="94" name="Should withdraw 1 token from sale" classname="SimpleMarketV2 Flow" time="24.194992486"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="87" name="Should place 4 tokens on sale" classname="SimpleMarketV2 Flow" time="28.141861436"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="81" name="Should create reference script UTxO" classname="SimpleMarketV2 Flow" time="10.139761394"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="68" name="Should mint  4 Native Assets" classname="SimpleMarketV2 Flow" time="38.185719287"/></testsuite><testsuite name="SimpleMarketV3 Flow" package="SimpleMarketV3 Flow" id="4" time="169.469613069" timestamp="2024-07-17T05:17:31.175636662Z" hostname="localhost" tests="7" failures="0" errors="0" skipped="0"><properties/><testcase file="test/Test/TestStorySimpleMarket.hs" line="109" name="Should buy 1 token from sale with reference script" classname="SimpleMarketV3 Flow" time="10.160756407"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="104" name="Should withdraw 1 token from sale with reference script" classname="SimpleMarketV3 Flow" time="24.209720262"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="99" name="Should buy 1 token from sale" classname="SimpleMarketV3 Flow" time="8.182120671"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="94" name="Should withdraw 1 token from sale" classname="SimpleMarketV3 Flow" time="78.344586558"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="87" name="Should place 4 tokens on sale" classname="SimpleMarketV3 Flow" time="12.166238922"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="81" name="Should create reference script UTxO" classname="SimpleMarketV3 Flow" time="16.185636635"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="68" name="Should mint  4 Native Assets" classname="SimpleMarketV3 Flow" time="20.220553614"/></testsuite><testsuite name="SimpleMarketV3Lazy Flow" package="SimpleMarketV3Lazy Flow" id="5" time="157.343855909" timestamp="2024-07-17T05:17:31.175636662Z" hostname="localhost" tests="7" failures="0" errors="0" skipped="0"><properties/><testcase file="test/Test/TestStorySimpleMarket.hs" line="109" name="Should buy 1 token from sale with reference script" classname="SimpleMarketV3Lazy Flow" time="16.178853675"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="104" name="Should withdraw 1 token from sale with reference script" classname="SimpleMarketV3Lazy Flow" time="8.187267927"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="99" name="Should buy 1 token from sale" classname="SimpleMarketV3Lazy Flow" time="4.157599282"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="94" name="Should withdraw 1 token from sale" classname="SimpleMarketV3Lazy Flow" time="26.215176545"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="87" name="Should place 4 tokens on sale" classname="SimpleMarketV3Lazy Flow" time="44.259987679"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="81" name="Should create reference script UTxO" classname="SimpleMarketV3Lazy Flow" time="26.184228834"/><testcase file="test/Test/TestStorySimpleMarket.hs" line="68" name="Should mint  4 Native Assets" classname="SimpleMarketV3Lazy Flow" time="32.160741967"/></testsuite></testsuites>
+<testsuites name="Marketplace Scenario Test">
+    <testsuite name="ConfigurableMarketV2 Flow" package="ConfigurableMarketV2 Flow" id="0"
+        time="203.742011342" timestamp="2024-07-23T16:03:10.776444234Z" hostname="localhost"
+        tests="8" failures="0" errors="0" skipped="0">
+        <properties />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="150"
+            name="Should buy 1 token from sale with reference script"
+            classname="ConfigurableMarketV2 Flow" time="34.260707436" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="142"
+            name="Should buy 1 token from sale" classname="ConfigurableMarketV2 Flow"
+            time="48.286042601" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="134"
+            name="Should withdraw 1 token from sale with reference script"
+            classname="ConfigurableMarketV2 Flow" time="20.183571724" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="129"
+            name="Should withdraw 1 token from sale" classname="ConfigurableMarketV2 Flow"
+            time="16.187251882" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="122"
+            name="Should create market configuration" classname="ConfigurableMarketV2 Flow"
+            time="16.190474284" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="115"
+            name="Should place 4 tokens on sale" classname="ConfigurableMarketV2 Flow"
+            time="38.221486626" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="109"
+            name="Should create reference script UTxO" classname="ConfigurableMarketV2 Flow"
+            time="10.215469260" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="97"
+            name="Should mint  4 Native Assets" classname="ConfigurableMarketV2 Flow"
+            time="20.197007529" />
+    </testsuite>
+    <testsuite name="ConfigurableMarketV2SuperLazy Flow"
+        package="ConfigurableMarketV2SuperLazy Flow" id="1" time="183.756858756"
+        timestamp="2024-07-23T16:03:10.776444234Z" hostname="localhost" tests="8" failures="0"
+        errors="0" skipped="0">
+        <properties />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="150"
+            name="Should buy 1 token from sale with reference script"
+            classname="ConfigurableMarketV2SuperLazy Flow" time="16.206091999" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="142"
+            name="Should buy 1 token from sale" classname="ConfigurableMarketV2SuperLazy Flow"
+            time="66.347794806" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="134"
+            name="Should withdraw 1 token from sale with reference script"
+            classname="ConfigurableMarketV2SuperLazy Flow" time="16.178202758" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="129"
+            name="Should withdraw 1 token from sale" classname="ConfigurableMarketV2SuperLazy Flow"
+            time="4.164910377" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="122"
+            name="Should create market configuration" classname="ConfigurableMarketV2SuperLazy Flow"
+            time="30.215740988" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="115"
+            name="Should place 4 tokens on sale" classname="ConfigurableMarketV2SuperLazy Flow"
+            time="26.226535555" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="109"
+            name="Should create reference script UTxO"
+            classname="ConfigurableMarketV2SuperLazy Flow" time="16.193976502" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="97"
+            name="Should mint  4 Native Assets" classname="ConfigurableMarketV2SuperLazy Flow"
+            time="8.223605771" />
+    </testsuite>
+    <testsuite name="ConfigurableMarketV3 Flow" package="ConfigurableMarketV3 Flow" id="2"
+        time="17212.097519592" timestamp="2024-07-23T16:03:10.776444234Z" hostname="localhost"
+        tests="8" failures="0" errors="0" skipped="0">
+        <properties />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="150"
+            name="Should buy 1 token from sale with reference script"
+            classname="ConfigurableMarketV3 Flow" time="14.158245772" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="142"
+            name="Should buy 1 token from sale" classname="ConfigurableMarketV3 Flow"
+            time="38.219237694" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="134"
+            name="Should withdraw 1 token from sale with reference script"
+            classname="ConfigurableMarketV3 Flow" time="40.281372698" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="129"
+            name="Should withdraw 1 token from sale" classname="ConfigurableMarketV3 Flow"
+            time="18.211638652" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="122"
+            name="Should create market configuration" classname="ConfigurableMarketV3 Flow"
+            time="17034.632784747" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="115"
+            name="Should place 4 tokens on sale" classname="ConfigurableMarketV3 Flow"
+            time="8.152562570" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="109"
+            name="Should create reference script UTxO" classname="ConfigurableMarketV3 Flow"
+            time="18.209077033" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="97"
+            name="Should mint  4 Native Assets" classname="ConfigurableMarketV3 Flow"
+            time="40.232600426" />
+    </testsuite>
+    <testsuite name="ConfigurableMarketV3Lazy Flow" package="ConfigurableMarketV3Lazy Flow" id="3"
+        time="171.684832463" timestamp="2024-07-23T16:03:10.776444234Z" hostname="localhost"
+        tests="8" failures="0" errors="0" skipped="0">
+        <properties />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="150"
+            name="Should buy 1 token from sale with reference script"
+            classname="ConfigurableMarketV3Lazy Flow" time="22.190094986" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="142"
+            name="Should buy 1 token from sale" classname="ConfigurableMarketV3Lazy Flow"
+            time="36.269831560" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="134"
+            name="Should withdraw 1 token from sale with reference script"
+            classname="ConfigurableMarketV3Lazy Flow" time="34.271563081" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="129"
+            name="Should withdraw 1 token from sale" classname="ConfigurableMarketV3Lazy Flow"
+            time="4.156173936" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="122"
+            name="Should create market configuration" classname="ConfigurableMarketV3Lazy Flow"
+            time="14.141435475" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="115"
+            name="Should place 4 tokens on sale" classname="ConfigurableMarketV3Lazy Flow"
+            time="10.157309231" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="109"
+            name="Should create reference script UTxO" classname="ConfigurableMarketV3Lazy Flow"
+            time="8.160642500" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="97"
+            name="Should mint  4 Native Assets" classname="ConfigurableMarketV3Lazy Flow"
+            time="42.337781694" />
+    </testsuite>
+    <testsuite name="ConfigurableMarketV3SuperLazy Flow"
+        package="ConfigurableMarketV3SuperLazy Flow" id="4" time="125.502262493"
+        timestamp="2024-07-23T16:03:10.776444234Z" hostname="localhost" tests="8" failures="0"
+        errors="0" skipped="0">
+        <properties />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="150"
+            name="Should buy 1 token from sale with reference script"
+            classname="ConfigurableMarketV3SuperLazy Flow" time="12.184017543" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="142"
+            name="Should buy 1 token from sale" classname="ConfigurableMarketV3SuperLazy Flow"
+            time="6.192728285" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="134"
+            name="Should withdraw 1 token from sale with reference script"
+            classname="ConfigurableMarketV3SuperLazy Flow" time="26.202427125" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="129"
+            name="Should withdraw 1 token from sale" classname="ConfigurableMarketV3SuperLazy Flow"
+            time="18.202074444" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="122"
+            name="Should create market configuration" classname="ConfigurableMarketV3SuperLazy Flow"
+            time="18.164049769" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="115"
+            name="Should place 4 tokens on sale" classname="ConfigurableMarketV3SuperLazy Flow"
+            time="6.129689599" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="109"
+            name="Should create reference script UTxO"
+            classname="ConfigurableMarketV3SuperLazy Flow" time="10.180020434" />
+        <testcase file="test/Test/TestStoryConfigurableMarket.hs" line="97"
+            name="Should mint  4 Native Assets" classname="ConfigurableMarketV3SuperLazy Flow"
+            time="28.247255294" />
+    </testsuite>
+    <testsuite name="SimpleMarketV2 Flow" package="SimpleMarketV2 Flow" id="5" time="135.336927184"
+        timestamp="2024-07-23T16:03:10.776444234Z" hostname="localhost" tests="7" failures="0"
+        errors="0" skipped="0">
+        <properties />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="120"
+            name="Should buy 1 token from sale with reference script"
+            classname="SimpleMarketV2 Flow" time="8.169608269" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="115"
+            name="Should withdraw 1 token from sale with reference script"
+            classname="SimpleMarketV2 Flow" time="6.174600342" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="110"
+            name="Should buy 1 token from sale" classname="SimpleMarketV2 Flow" time="6.130239699" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="105"
+            name="Should withdraw 1 token from sale" classname="SimpleMarketV2 Flow"
+            time="4.133216443" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="98"
+            name="Should place 4 tokens on sale" classname="SimpleMarketV2 Flow" time="28.175942922" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="92"
+            name="Should create reference script UTxO" classname="SimpleMarketV2 Flow"
+            time="36.250786614" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="79"
+            name="Should mint  4 Native Assets" classname="SimpleMarketV2 Flow" time="46.302532895" />
+    </testsuite>
+    <testsuite name="SimpleMarketV2SuperLazy Flow" package="SimpleMarketV2SuperLazy Flow" id="6"
+        time="86.981642204" timestamp="2024-07-23T16:03:10.776444234Z" hostname="localhost"
+        tests="7" failures="0" errors="0" skipped="0">
+        <properties />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="120"
+            name="Should buy 1 token from sale with reference script"
+            classname="SimpleMarketV2SuperLazy Flow" time="6.134915643" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="115"
+            name="Should withdraw 1 token from sale with reference script"
+            classname="SimpleMarketV2SuperLazy Flow" time="18.145573628" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="110"
+            name="Should buy 1 token from sale" classname="SimpleMarketV2SuperLazy Flow"
+            time="10.132000222" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="105"
+            name="Should withdraw 1 token from sale" classname="SimpleMarketV2SuperLazy Flow"
+            time="18.144828860" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="98"
+            name="Should place 4 tokens on sale" classname="SimpleMarketV2SuperLazy Flow"
+            time="22.147287697" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="92"
+            name="Should create reference script UTxO" classname="SimpleMarketV2SuperLazy Flow"
+            time="6.131259995" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="79"
+            name="Should mint  4 Native Assets" classname="SimpleMarketV2SuperLazy Flow"
+            time="6.145776159" />
+    </testsuite>
+    <testsuite name="SimpleMarketV3 Flow" package="SimpleMarketV3 Flow" id="7" time="161.120338359"
+        timestamp="2024-07-23T16:03:10.776444234Z" hostname="localhost" tests="7" failures="0"
+        errors="0" skipped="0">
+        <properties />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="120"
+            name="Should buy 1 token from sale with reference script"
+            classname="SimpleMarketV3 Flow" time="8.131156116" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="115"
+            name="Should withdraw 1 token from sale with reference script"
+            classname="SimpleMarketV3 Flow" time="44.173798359" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="110"
+            name="Should buy 1 token from sale" classname="SimpleMarketV3 Flow" time="16.141402626" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="105"
+            name="Should withdraw 1 token from sale" classname="SimpleMarketV3 Flow"
+            time="10.143977256" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="98"
+            name="Should place 4 tokens on sale" classname="SimpleMarketV3 Flow" time="12.136421046" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="92"
+            name="Should create reference script UTxO" classname="SimpleMarketV3 Flow"
+            time="32.169433329" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="79"
+            name="Should mint  4 Native Assets" classname="SimpleMarketV3 Flow" time="38.224149627" />
+    </testsuite>
+    <testsuite name="SimpleMarketV3Lazy Flow" package="SimpleMarketV3Lazy Flow" id="8"
+        time="183.463059063" timestamp="2024-07-23T16:03:10.776444234Z" hostname="localhost"
+        tests="7" failures="0" errors="0" skipped="0">
+        <properties />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="120"
+            name="Should buy 1 token from sale with reference script"
+            classname="SimpleMarketV3Lazy Flow" time="74.379753354" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="115"
+            name="Should withdraw 1 token from sale with reference script"
+            classname="SimpleMarketV3Lazy Flow" time="24.206470185" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="110"
+            name="Should buy 1 token from sale" classname="SimpleMarketV3Lazy Flow"
+            time="12.165645760" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="105"
+            name="Should withdraw 1 token from sale" classname="SimpleMarketV3Lazy Flow"
+            time="12.181993258" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="98"
+            name="Should place 4 tokens on sale" classname="SimpleMarketV3Lazy Flow"
+            time="8.139918796" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="92"
+            name="Should create reference script UTxO" classname="SimpleMarketV3Lazy Flow"
+            time="46.237658775" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="79"
+            name="Should mint  4 Native Assets" classname="SimpleMarketV3Lazy Flow"
+            time="6.151618935" />
+    </testsuite>
+    <testsuite name="SimpleMarketV3SuperLazy Flow" package="SimpleMarketV3SuperLazy Flow" id="9"
+        time="149.364985284" timestamp="2024-07-23T16:03:10.776444234Z" hostname="localhost"
+        tests="7" failures="0" errors="0" skipped="0">
+        <properties />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="120"
+            name="Should buy 1 token from sale with reference script"
+            classname="SimpleMarketV3SuperLazy Flow" time="68.300908452" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="115"
+            name="Should withdraw 1 token from sale with reference script"
+            classname="SimpleMarketV3SuperLazy Flow" time="18.211164166" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="110"
+            name="Should buy 1 token from sale" classname="SimpleMarketV3SuperLazy Flow"
+            time="14.182246246" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="105"
+            name="Should withdraw 1 token from sale" classname="SimpleMarketV3SuperLazy Flow"
+            time="12.149766034" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="98"
+            name="Should place 4 tokens on sale" classname="SimpleMarketV3SuperLazy Flow"
+            time="8.171950667" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="92"
+            name="Should create reference script UTxO" classname="SimpleMarketV3SuperLazy Flow"
+            time="18.193172273" />
+        <testcase file="test/Test/TestStorySimpleMarket.hs" line="79"
+            name="Should mint  4 Native Assets" classname="SimpleMarketV3SuperLazy Flow"
+            time="10.155777446" />
+    </testsuite>
+</testsuites>
