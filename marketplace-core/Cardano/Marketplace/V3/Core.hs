@@ -18,22 +18,58 @@ import Plutus.Contracts.V3.SimpleMarketplace (simpleMarketplacePlutusV3, simpleM
 import PlutusTx
 import Cardano.Kuber.Util (toPlutusAddress, addrInEraToPlutusAddress)
 import Cardano.Marketplace.ConfigurableMarketplace
+import qualified Plutus.Contracts.V3.SimpleMarketplace as Marketplace
 import qualified Plutus.Contracts.V3.ConfigurableMarketplace as V3ConfigurableMarketplace
 import qualified Plutus.Contracts.V3.MarketplaceConfig as V3MarketConfig
 import qualified PlutusLedgerApi.V3 as PlutusV3
+import Cardano.Marketplace.Common.TransactionUtils (resolveTxIn)
 
-simpleMarketV3Helper' :: PlutusScript PlutusScriptV3 -> SimpleMarketHelper
+simpleMarketV3Helper' :: (HasChainQueryAPI api) => PlutusScript PlutusScriptV3 -> SimpleMarketHelper api w
 simpleMarketV3Helper' script = SimpleMarketHelper {
     simpleMarketScript = toTxPlutusScript script
-  , makeSaleDatum = createV3SaleDatum
-  , withdrawRedeemer  = unsafeHashableScriptData $ fromPlutusData$ toData Withdraw
-  , buyRedeemer = unsafeHashableScriptData $ fromPlutusData$ toData Buy
+  , sell = placeOnSell
+  , buy = buyf
+  , buyWithRefScript = buyFromMarketWithRefScript
+  , withdraw = withdrawf
+  , withdrawWithRefScript = withdrawFromMarketWithRefScript
 }
+  where 
+    buyf buyTxIn =  buyFromMarket buyTxIn script
+    withdrawf withdrawTxIn = withdrawFromMarket withdrawTxIn script
 
+buyRedeemer :: HashableScriptData
+buyRedeemer = unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Buy
+
+withdrawRedeemer :: HashableScriptData
+withdrawRedeemer = unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Withdraw
+
+-- buyFromMarket :: IsPlutusScript sc => TxIn -> sc -> TxBuilder
+buyFromMarket spendTxIn script = do
+  (tin, tout) <- resolveTxIn spendTxIn
+  pure $ buyFromMarket' tin tout script buyRedeemer
+
+withdrawFromMarket withdrawTxIn script = do
+  (tin, tout) <- resolveTxIn withdrawTxIn
+  kWrapParser $ Right $ withdrawFromMarket' tin tout script withdrawRedeemer
+
+placeOnSell marketAddr saleItem cost sellerAddress = do 
+  kWrapParser $ Right $ placeOnSell' marketAddr saleItem (createV3SaleDatum sellerAddress cost)
+
+buyFromMarketWithRefScript spendTxIn refTxIn = do 
+  (tin, tout) <- resolveTxIn spendTxIn
+  kWrapParser $ Right $ buyFromMarketWithRefScript' tin refTxIn tout buyRedeemer
+
+withdrawFromMarketWithRefScript withdrawTxIn refTxIn = do
+  (tin, tout) <- resolveTxIn withdrawTxIn
+  kWrapParser $ Right $ withdrawFromMarketWithRefScript' tin refTxIn tout withdrawRedeemer 
+
+simpleMarketV3Helper :: SimpleMarketHelper ChainConnectInfo w 
 simpleMarketV3Helper = simpleMarketV3Helper' simpleMarketplacePlutusV3
 
+simpleMarketV3HelperLazy :: SimpleMarketHelper ChainConnectInfo w 
 simpleMarketV3HelperLazy = simpleMarketV3Helper' simpleMarketplacePlutusV3Lazy
 
+simpleMarketV3HelperSuperLazy :: SimpleMarketHelper ChainConnectInfo w 
 simpleMarketV3HelperSuperLazy = simpleMarketV3Helper' simpleMarketplacePlutusV3SuperLazy
 
 makeConfigurableMarketV3Helper' :: 

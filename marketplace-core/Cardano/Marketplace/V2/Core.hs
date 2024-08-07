@@ -25,7 +25,6 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TLE
 import Plutus.Contracts.V2.SimpleMarketplace hiding (Withdraw)
-import qualified Plutus.Contracts.V2.SimpleMarketplace as SMP
 import qualified Plutus.Contracts.V2.ConfigurableMarketplace as Config
 import qualified Debug.Trace as Debug
 import Data.Functor ((<&>))
@@ -39,16 +38,48 @@ import Cardano.Marketplace.SimpleMarketplace
 import qualified PlutusLedgerApi.V2 as PlutusV2
 import Cardano.Marketplace.ConfigurableMarketplace
 
-simpleMarketV2Helper' :: PlutusScript PlutusScriptV2 -> SimpleMarketHelper
+simpleMarketV2Helper' :: (HasChainQueryAPI api) => PlutusScript PlutusScriptV2 -> SimpleMarketHelper api w 
 simpleMarketV2Helper' script = SimpleMarketHelper {
     simpleMarketScript = toTxPlutusScript script
-  , makeSaleDatum = createV2SaleDatum
-  , withdrawRedeemer  = unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Withdraw
-  , buyRedeemer = unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Buy
+  , sell = placeOnSell
+  , buy = buyf
+  , buyWithRefScript = buyFromMarketWithRefScript
+  , withdraw = withdrawf
+  , withdrawWithRefScript = withdrawFromMarketWithRefScript
 }
+  where 
+    buyf buyTxIn =  buyFromMarket buyTxIn script
+    withdrawf withdrawTxIn = withdrawFromMarket withdrawTxIn script
 
+buyRedeemer :: HashableScriptData
+buyRedeemer = unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Buy
+
+withdrawRedeemer :: HashableScriptData
+withdrawRedeemer = unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Withdraw
+
+buyFromMarket spendTxIn script = do
+  (tin, tout) <- resolveTxIn spendTxIn 
+  kWrapParser $ Right $ buyFromMarket' tin tout script buyRedeemer
+
+withdrawFromMarket withdrawTxIn script = do
+  (tin, tout) <- resolveTxIn withdrawTxIn
+  kWrapParser $ Right $ withdrawFromMarket' tin tout script withdrawRedeemer
+
+placeOnSell marketAddr saleItem cost sellerAddress = 
+  kWrapParser $ Right $ placeOnSell' marketAddr saleItem (createV2SaleDatum sellerAddress cost)
+
+buyFromMarketWithRefScript spendTxIn refTxIn = do
+  (tin, tout) <- resolveTxIn spendTxIn 
+  kWrapParser $ Right $ buyFromMarketWithRefScript' tin refTxIn tout buyRedeemer
+
+withdrawFromMarketWithRefScript withdrawTxIn refTxIn = do
+  (tin, tout) <- resolveTxIn withdrawTxIn 
+  kWrapParser $ Right $ withdrawFromMarketWithRefScript' tin refTxIn tout withdrawRedeemer 
+
+simpleMarketV2Helper :: SimpleMarketHelper ChainConnectInfo w 
 simpleMarketV2Helper = simpleMarketV2Helper' simpleMarketplacePlutusV2
 
+simpleMarketV2HelperSuperLazy :: SimpleMarketHelper ChainConnectInfo w 
 simpleMarketV2HelperSuperLazy = simpleMarketV2Helper' simpleMarketplacePlutusV2SuperLazy
 
 makeConfigurableMarketV2Helper' :: 
