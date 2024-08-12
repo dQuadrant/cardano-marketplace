@@ -47,8 +47,7 @@ import Text.Read (readMaybe)
 import qualified Data.ByteString.Char8 as BS8
 import Control.Concurrent.Async (forConcurrently_)
 import Cardano.Ledger.Coin
-import Cardano.Marketplace.SimpleMarketplace (SimpleMarketHelper, sellBuilder, buyTokenBuilder)
-import Cardano.Marketplace.SimpleMarketplace (SimpleMarketHelper(simpleMarketScript), withdrawTokenBuilder)
+import Cardano.Marketplace.SimpleMarketplace (SimpleMarketHelper(..))
 import Cardano.Marketplace.Common.TransactionUtils (getTxIdFromTx)
 import qualified GHC.Conc as Control
 import PlutusLedgerApi.V1 (POSIXTime (getPOSIXTime))
@@ -182,14 +181,14 @@ monitoredSubmitTx  index txName wallet  txBuilder =
 
 
 runOperations ::  (HasChainQueryAPI api, HasKuberAPI api, HasSubmitApi api) =>
-  Integer -> TxIn -> SimpleMarketHelper ->  AssetId -> (ShelleyWallet,ShelleyWallet) ->
+  Integer -> TxIn -> SimpleMarketHelper api w ->  AssetId -> (ShelleyWallet,ShelleyWallet) ->
   Kontract api w FrameworkError BenchRun
 runOperations index refScriptUtxo  marketHelper  sellAsset (sellerWallet,buyerWallet) = do
   startTime <- liftIO getCurrentTime
 
   netId <- kGetNetworkId
-  let merketAddrInEra =  plutusScriptAddr  (simpleMarketScript marketHelper) netId
-  let primarySaleBuilder = sellBuilder marketHelper merketAddrInEra (valueFromList [(sellAsset,1)] ) 2_000_000 (wAddress sellerWallet)
+  let marketAddrInEra =  plutusScriptAddr  (simpleMarketScript marketHelper) netId
+  let primarySaleBuilder = (sell marketHelper) marketAddrInEra (valueFromList [(sellAsset,1)] ) 2_000_000 (wAddress sellerWallet)
   results <- liftIO $ newTVarIO [ ]
   let recordAndGetTxId t = do
         liftIO $ atomically $ do 
@@ -207,23 +206,22 @@ runOperations index refScriptUtxo  marketHelper  sellAsset (sellerWallet,buyerWa
   -- perform primary sale.
   catchError ( do 
       primarySale  <- monitoredSubmitTx index "Primary Sale" sellerWallet
-            $ pure primarySaleBuilder
+            $ primarySaleBuilder
       saleTxId <- recordAndGetTxId primarySale
 
       --  perform buy
       primaryBuy <- monitoredSubmitTx  index "Primary Buy" buyerWallet
-            $  buyTokenBuilder marketHelper (Just refScriptUtxo) (TxIn saleTxId (TxIx 0))  Nothing
+            $  (buyWithRefScript marketHelper) (TxIn saleTxId (TxIx 0)) refScriptUtxo 
       recordAndGetTxId primaryBuy
 
       -- perform secondary sale
       secondarySale <- monitoredSubmitTx index "Secondary Sale"  buyerWallet
-            $  pure  $ sellBuilder marketHelper merketAddrInEra (valueFromList [(sellAsset,1)] ) 2_000_000 (wAddress buyerWallet)
+            $  (sell marketHelper) marketAddrInEra (valueFromList [(sellAsset,1)] ) 2_000_000 (wAddress buyerWallet)
       secondarySaleTxId <- recordAndGetTxId secondarySale
-
 
       -- perform withdraw
       withdraw <- monitoredSubmitTx index "Withdraw" buyerWallet
-            $ withdrawTokenBuilder marketHelper (Just refScriptUtxo)  (TxIn secondarySaleTxId (TxIx 0))
+            $ (withdrawWithRefScript marketHelper) (TxIn secondarySaleTxId (TxIx 0)) refScriptUtxo
       recordAndGetTxId withdraw
       extractResults
     )

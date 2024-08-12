@@ -38,7 +38,7 @@ import GHC.Word (Word32)
 
 
 main' = do
-  wallets<- mapM genWallet [0.. (25*5)]
+  wallets<- mapM genWallet [0.. 99]
   let addrs =  map (\(ShelleyWallet pskey sskey addr)->
              addressInEraToAddressAny addr
         ) wallets
@@ -99,10 +99,10 @@ main= do
       Left e -> throwError e
       Right v -> do
         let refTxId = getTxId $ getTxBody $ v
-        batches <- mapM (\i ->  setupBenchBatch i simpleMarketV3Helper (TxIn refTxId (TxIx 0)) sKey walletAddr ) [0..4]
+        batches <- mapM (\i ->  setupBenchBatch i simpleMarketV3Helper (TxIn refTxId (TxIx 0)) sKey walletAddr ) [0..3]
         let runBatch batch = do
               task <- kAsync batch
-              liftIO $ threadDelay 15_000_000
+              liftIO $ threadDelay 0
               pure task
         taskList <- mapM runBatch batches
         resultList <- mapM kWait taskList
@@ -131,7 +131,7 @@ kWait results = do
 
 
 
-setupBenchBatch :: (HasChainQueryAPI api, HasKuberAPI api, HasSubmitApi api) => Integer -> SimpleMarketHelper -> TxIn  -> SigningKey PaymentKey ->
+setupBenchBatch :: (HasChainQueryAPI api, HasKuberAPI api, HasSubmitApi api) => Integer -> SimpleMarketHelper api w -> TxIn  -> SigningKey PaymentKey ->
    AddressInEra ConwayEra -> Kontract api w FrameworkError (Kontract api w FrameworkError [Either FrameworkError BenchRun])
 setupBenchBatch  _batchNo marketHelper refScriptTxin sKey walletAddress   = do
   let walletCount ::Word32 = 25
