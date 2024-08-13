@@ -85,12 +85,12 @@ buyRedeemer = unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Buy
 withdrawRedeemer :: HashableScriptData
 withdrawRedeemer = unsafeHashableScriptData $ fromPlutusData$ toData Marketplace.Withdraw
 
-parseAssetInfo :: HashableScriptData -> (AddressInEra ConwayEra, Integer)
+parseAssetInfo :: HashableScriptData -> (AddressInEra BabbageEra, Integer)
 parseAssetInfo sd = 
   case PlutusV1.fromBuiltinData $ PlutusV1.dataToBuiltinData $ toPlutusData $ getScriptData sd of
             Just (Marketplace.SimpleSale seller price) ->  
               (
-                  AddressInEra (ShelleyAddressInEra ShelleyBasedEraConway) 
+                  AddressInEra (ShelleyAddressInEra ShelleyBasedEraBabbage) 
                   (fromJust $ fromPlutusAddress (Testnet (NetworkMagic 4)) seller)
                 
                 , price
@@ -98,32 +98,32 @@ parseAssetInfo sd =
 
 buyFromMarket spendTxIn script datum = do 
   (tin, tout)<- resolveTxIn spendTxIn
-  kWrapParser $ Right $ txRedeemUtxoWithDatum tin tout script (fromJust datum) buyRedeemer  Nothing
-    <> txPayTo (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)]) 
+  kWrapParser $ Right $ txRedeemUtxoWithDatum_ tin tout script (fromJust datum) buyRedeemer  maybeExUnits
+    <> txPayTo_ (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)]) 
   where 
     (sellerAddr, price) = parseAssetInfo (fromJust datum)
 
 withdrawFromMarket withdrawTxIn script datum = do
   (tin, tout) <- resolveTxIn (withdrawTxIn)
-  kWrapParser $ Right $ txRedeemUtxoWithDatum tin tout script (v1SaleDatumInline datum) withdrawRedeemer  Nothing
-    <> txSignBy (sellerAddr)
+  kWrapParser $ Right $ txRedeemUtxoWithDatum_ tin tout script (v1SaleDatumInline datum) withdrawRedeemer  maybeExUnits
+    <> txSignBy_ (sellerAddr)
   where 
     (sellerAddr, _) = parseAssetInfo (fromJust datum)
 
 placeOnSell marketAddr saleItem cost sellerAddress = 
-  kWrapParser $ Right $ txPayToScript marketAddr saleItem (v1SaleDatumHash (sellerAddress, cost))
+  kWrapParser $ Right $ txPayToScript_ marketAddr saleItem (v1SaleDatumHash (sellerAddress, cost))
 
 buyFromMarketWithRefScript spendTxIn refTxIn datum = do
   (tin, tout) <- resolveTxIn spendTxIn
-  kWrapParser $ Right $ txRedeemUtxoWithDatumAndReferenceScript refTxIn tin tout (v1SaleDatumInline datum) buyRedeemer  Nothing
-      <> txPayTo (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
+  kWrapParser $ Right $ txRedeemUtxoWithDatumAndReferenceScript_ refTxIn tin tout (v1SaleDatumInline datum) buyRedeemer  maybeExUnits
+      <> txPayTo_ (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
   where 
     (sellerAddr, price) = parseAssetInfo (fromJust datum)
 
 withdrawFromMarketWithRefScript withdrawTxIn refTxIn datum = do 
   (tin, tout) <- resolveTxIn withdrawTxIn
-  kWrapParser $ Right $ txRedeemUtxoWithDatumAndReferenceScript refTxIn tin tout (v1SaleDatumInline datum) withdrawRedeemer Nothing 
-    <> txSignBy (sellerAddr)  
+  kWrapParser $ Right $ txRedeemUtxoWithDatumAndReferenceScript_ refTxIn tin tout (v1SaleDatumInline datum) withdrawRedeemer maybeExUnits 
+    <> txSignBy_ (sellerAddr)  
   where 
     (sellerAddr, price) = parseAssetInfo (fromJust datum)
 
@@ -137,7 +137,7 @@ v1SaleDatumInline datum = (snd $ createV1SaleDatum (parseAssetInfo (fromJust dat
 
 v1SaleDatumHash sellerAndCost = (fst $ createV1SaleDatum sellerAndCost)
 
-createV1SaleDatum :: (AddressInEra ConwayEra, Integer) -> (Hash ScriptData, HashableScriptData)
+createV1SaleDatum :: (AddressInEra BabbageEra, Integer) -> (Hash ScriptData, HashableScriptData)
 createV1SaleDatum (sellerAddr, costOfAsset) =
   unsafePerformIO $ do
     let plutusAddr = addrInEraToPlutusAddress sellerAddr

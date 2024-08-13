@@ -17,7 +17,9 @@ repository cardano-haskell-packages
     d4a35cd3121aa00d18544bb0ac01c3e1691d618f462c46129271bccf39f7e8ee
 
 packages:
+  . /home/reeshav/dQuadrant/dum/kuber
   .
+
   
 -- You never, ever, want this.
 write-ghc-environment-files: never
@@ -36,10 +38,10 @@ package cryptonite
   flags: -support_rdrand
 
 
-source-repository-package
-  type: git
-  location: https://github.com/dquadrant/kuber
-  tag: b9d4fee95570830b2dc13d454c2b169635a464ac
+--source-repository-package
+ -- type: git
+ -- location: https://github.com/dquadrant/kuber
+ -- tag: 102551731b95bed465ddc6e56e28635c8eeb8f65
 
 
 source-repository-package

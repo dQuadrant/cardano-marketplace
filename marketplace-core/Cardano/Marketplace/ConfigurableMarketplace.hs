@@ -40,7 +40,7 @@ import GHC.Generics (Generic)
 data ConfigurableMarketHelper = ConfigurableMarketHelper {
     cmMarketScript :: !TxPlutusScript
   , cmConfigScript :: !TxPlutusScript
-  , cmMakeSaleDatum :: AddressInEra ConwayEra -> Integer -> HashableScriptData
+  , cmMakeSaleDatum :: AddressInEra BabbageEra -> Integer -> HashableScriptData
   , cmWithdrawRedeemer :: HashableScriptData
   , cmBuyRedeemer :: HashableScriptData
   , cmConfigDatum :: HashableScriptData
@@ -57,22 +57,22 @@ instance Show ConfigurableMarketHelper where
         "  cmConfigDatum = " ++ show configDatum ++ "\n" ++
         "}"
 
-sellBuilder :: ConfigurableMarketHelper -> AddressInEra ConwayEra ->  Value -> Integer -> AddressInEra  ConwayEra  -> TxBuilder
+sellBuilder :: ConfigurableMarketHelper -> AddressInEra BabbageEra ->  Value -> Integer -> AddressInEra  BabbageEra  -> TxBuilder_ BabbageEra
 sellBuilder smHelper marketAddr saleItem cost  sellerAddr 
-  = txPayToScriptWithData marketAddr saleItem (cmMakeSaleDatum smHelper sellerAddr cost)
+  = txPayToScriptWithData_ marketAddr saleItem (cmMakeSaleDatum smHelper sellerAddr cost)
 
 buyTokenBuilder ::  HasChainQueryAPI api => 
   ConfigurableMarketHelper ->
   Maybe TxIn -> 
   TxIn -> 
-  Maybe (AddressInEra ConwayEra, Integer, TxIn) -> 
-  Kontract api w FrameworkError TxBuilder
+  Maybe (AddressInEra BabbageEra, Integer, TxIn) -> 
+  Kontract api w FrameworkError (TxBuilder_ BabbageEra)
 buyTokenBuilder mHelper refTxIn txin  feeInfo = do
   netid<- kGetNetworkId
   (tin, tout) <- resolveTxIn txin
   kWrapParser $ buyTokenBuilder' (cmMarketScript mHelper ) (cmBuyRedeemer mHelper )  netid refTxIn txin tout feeInfo
 
-withdrawTokenBuilder ::  HasChainQueryAPI api => ConfigurableMarketHelper -> Maybe TxIn -> TxIn  -> Kontract api w FrameworkError TxBuilder
+withdrawTokenBuilder ::  HasChainQueryAPI api => ConfigurableMarketHelper -> Maybe TxIn -> TxIn  -> Kontract api w FrameworkError (TxBuilder_ BabbageEra)
 withdrawTokenBuilder mHelper refTxIn txin  = do
   netid<- kGetNetworkId
   (tin, tout) <- resolveTxIn txin

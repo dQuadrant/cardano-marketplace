@@ -113,7 +113,7 @@ makeConfigurableMarketV3HelperSuperLazy operatorAddr fee =
   V3MarketConfig.marketConfigPlutusScriptSuperLazy 
   V3ConfigurableMarketplace.configurableMarketPlutusScriptSuperLazy  
 
-createV3SaleDatum :: AddressInEra ConwayEra -> Integer -> HashableScriptData
+createV3SaleDatum :: AddressInEra BabbageEra -> Integer -> HashableScriptData
 createV3SaleDatum sellerAddr costOfAsset =
   -- Convert AddressInEra to Plutus.Address
   let plutusAddr =  toPlutusAddress sellerAddrShelley

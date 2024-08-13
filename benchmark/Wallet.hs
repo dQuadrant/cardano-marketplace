@@ -5,7 +5,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 module Wallet where
-import Cardano.Api (SigningKey (..), AsType (..), serialiseToRawBytesHex, SerialiseAddress (serialiseAddress), AddressInEra)
+import Cardano.Api (SigningKey (..), AsType (..), serialiseToRawBytesHex, SerialiseAddress (serialiseAddress), AddressInEra, ShelleyBasedEra (..))
 import qualified Cardano.Address.Style.Shelley as Shelley 
 import Cardano.Mnemonic (Mnemonic, mkSomeMnemonic, SomeMnemonic (..), MkMnemonicError(..))
 import Data.ByteArray (convert, ScrubbedBytes)
@@ -23,7 +23,7 @@ import Cardano.Address.Style.Shelley (paymentAddress,Credential(..))
 import Cardano.Address (unAddress, bech32)
 import Cardano.Kuber.Util (toHexString)
 import Cardano.Kuber.Data.Parsers (parseAddressBinary, parseSignKey, parseAddressRaw)
-import Cardano.Api (ConwayEra, SerialiseAsRawBytes (deserialiseFromRawBytes))
+import Cardano.Api (BabbageEra, SerialiseAsRawBytes (deserialiseFromRawBytes))
 import Control.Exception (throwIO)
 import Cardano.Api (StakeKey, AddressInEra (AddressInEra), ShelleyBasedEra (ShelleyBasedEraConway), makeShelleyAddress, NetworkId (Testnet), NetworkMagic (NetworkMagic), PaymentCredential (PaymentCredentialByKey), Key (verificationKeyHash, getVerificationKey), StakeAddressReference (StakeAddressByValue), AddressTypeInEra (ShelleyAddressInEra))
 import Cardano.Ledger.Address (serialiseAddr)
@@ -38,7 +38,7 @@ seedWords =
 data ShelleyWallet = ShelleyWallet {
       wPaymentSkey :: SigningKey PaymentKey
     , wStakeSkey :: SigningKey StakeKey
-    , wAddress :: AddressInEra ConwayEra
+    , wAddress :: AddressInEra BabbageEra
 } deriving (Show)
 
 
@@ -81,7 +81,7 @@ genWallet index =  do
                     let paymentCred = PaymentCredentialByKey (verificationKeyHash $ getVerificationKey psKey)
                         stakeCred = StakeCredentialByKey (verificationKeyHash $ getVerificationKey ssKey)
                         walletAddress = makeShelleyAddress (Testnet $ NetworkMagic 1) paymentCred (StakeAddressByValue stakeCred)
-                    pure $ ShelleyWallet psKey ssKey (AddressInEra (ShelleyAddressInEra ShelleyBasedEraConway) walletAddress  )
+                    pure $ ShelleyWallet psKey ssKey (AddressInEra (ShelleyAddressInEra ShelleyBasedEraBabbage) walletAddress  )
 
 
 errorOnLeft (Left e) = error $ show e

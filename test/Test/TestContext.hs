@@ -19,7 +19,7 @@ data TestReport = TestReport {
 
 data TxDetail = TxDetail {
     tdTestName :: String
-  , td:: Tx ConwayEra
+  , td:: Tx BabbageEra
 } deriving Show
 
 
@@ -28,7 +28,7 @@ data TestContext a= TestContext{
     tcChainInfo:: a
   , tcNetworkId :: NetworkId
   , tcSignKey :: SigningKey PaymentKey
-  , tcWalletAddr :: AddressInEra ConwayEra
+  , tcWalletAddr :: AddressInEra BabbageEra
   , tcReports :: TVar [TestReport]
   , tcTempReport :: TVar [TxDetail]
   , tcTagMetrics :: TVar [TagMetric]

@@ -36,42 +36,42 @@ import PlutusLedgerApi.V2 (toData, dataToBuiltinData, FromData (fromBuiltinData)
 
 data SimpleMarketHelper api w = SimpleMarketHelper {
     simpleMarketScript :: TxPlutusScript
-  , sell :: AddressInEra ConwayEra -> Value -> Integer -> AddressInEra ConwayEra -> Kontract api w FrameworkError TxBuilder
-  , buy :: TxIn -> Kontract api w FrameworkError TxBuilder
-  , buyWithRefScript :: TxIn -> TxIn -> Kontract api w FrameworkError TxBuilder
-  , withdraw :: TxIn -> Kontract api w FrameworkError TxBuilder
-  , withdrawWithRefScript :: TxIn -> TxIn -> Kontract api w FrameworkError TxBuilder
+  , sell :: AddressInEra BabbageEra -> Value -> Integer -> AddressInEra BabbageEra -> Kontract api w FrameworkError (TxBuilder_ BabbageEra)
+  , buy :: TxIn -> Kontract api w FrameworkError (TxBuilder_ BabbageEra)
+  , buyWithRefScript :: TxIn -> TxIn -> Kontract api w FrameworkError (TxBuilder_ BabbageEra)
+  , withdraw :: TxIn -> Kontract api w FrameworkError (TxBuilder_ BabbageEra)
+  , withdrawWithRefScript :: TxIn -> TxIn -> Kontract api w FrameworkError (TxBuilder_ BabbageEra)
 }
 
-assetInfo :: TxOut CtxUTxO ConwayEra -> (AddressInEra ConwayEra, Integer)
+assetInfo :: TxOut CtxUTxO BabbageEra -> (AddressInEra BabbageEra, Integer)
 assetInfo assetUTxO = do 
   case getSimpleSaleInfo (Testnet (NetworkMagic 4)) assetUTxO of 
     Right sellerAndPrice -> sellerAndPrice
     Left str -> error (str)
 
 placeOnSell' marketAddr saleItem datum = 
-  txPayToScriptWithData marketAddr saleItem datum
+  txPayToScriptWithData_ marketAddr saleItem datum
 
 buyFromMarket' spendTxIn buyUtxo script buyRedeemer = 
-  txRedeemUtxo spendTxIn buyUtxo script buyRedeemer  Nothing
-  <> txPayTo   (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
+  txRedeemUtxo_ spendTxIn buyUtxo script buyRedeemer maybeExUnits
+  <> txPayTo_   (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
   where 
     (sellerAddr, price) = assetInfo buyUtxo
 
 withdrawFromMarket' withdrawTxIn withdrawUTxO script withdrawRedeemer = 
-  txRedeemUtxo withdrawTxIn withdrawUTxO script withdrawRedeemer  Nothing
-  <> txSignBy (sellerAddr)
+  txRedeemUtxo_ withdrawTxIn withdrawUTxO script withdrawRedeemer maybeExUnits
+  <> txSignBy_ (sellerAddr)
   where 
     (sellerAddr, _) = assetInfo withdrawUTxO
 
 buyFromMarketWithRefScript' spendTxIn refTxIn buyUtxo buyRedeemer =
-  txRedeemUtxoWithReferenceScript refTxIn spendTxIn buyUtxo buyRedeemer  Nothing
-  <> txPayTo (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
+  txRedeemUtxoWithReferenceScript_ refTxIn spendTxIn buyUtxo buyRedeemer  maybeExUnits
+  <> txPayTo_ (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
   where 
     (sellerAddr, price) = assetInfo buyUtxo
 
 withdrawFromMarketWithRefScript' withdrawTxIn refTxIn withdrawUTxO withdrawRedeemer = 
-  txRedeemUtxoWithReferenceScript refTxIn withdrawTxIn withdrawUTxO withdrawRedeemer Nothing 
-  <> txSignBy (sellerAddr)  
+  txRedeemUtxoWithReferenceScript_ refTxIn withdrawTxIn withdrawUTxO withdrawRedeemer maybeExUnits 
+  <> txSignBy_ (sellerAddr)  
   where 
     (sellerAddr, price) = assetInfo withdrawUTxO

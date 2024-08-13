@@ -15,7 +15,8 @@ import qualified Data.Set as Set
 import Cardano.Kuber.Console.ConsoleWritable (toConsoleText)
 import Wallet (genWallet, ShelleyWallet (..))
 import ParallelUtils (runOperations, runBuildAndSubmit, waitTxConfirmation, BenchRun, monitoredSubmitTx, monitoredSubmitTx', TransactionTime (ttTx))
-import Cardano.Marketplace.V3.Core (simpleMarketV3Helper)
+-- import Cardano.Marketplace.V3.Core (simpleMarketV3Helper)
+import Cardano.Marketplace.V2.Core (simpleMarketV2Helper)
 import Cardano.Marketplace.SimpleMarketplace (SimpleMarketHelper(..))
 import qualified Data.ByteString.Char8 as BS8
 import Control.Concurrent.Async (forConcurrently, async, Async, wait)
@@ -73,22 +74,22 @@ main= do
   networkId <- evaluateKontract chainInfo  kGetNetworkId >>= throwFrameworkError
   sKey <-  getEnv "SIGNKEY_FILE" >>= getSignKey
   walletAddr <- Blank.getEnv "WALLET_ADDRESS" >>= (\case
-        Just addrStr -> parseAddress @ConwayEra $ T.pack addrStr
+        Just addrStr -> parseAddress @BabbageEra $ T.pack addrStr
         Nothing -> pure ( skeyToAddrInEra sKey networkId)
       )
 
 
-  let marketHelper = simpleMarketV3Helper
+  let marketHelper = simpleMarketV2Helper
       walletBuilder =
-            txWalletSignKey sKey
-        <>  txWalletAddress walletAddr
+            txWalletSignKey_ sKey
+        <>  txWalletAddress_ walletAddr
 
       refScriptBuilder =
         createReferenceScript (simpleMarketScript marketHelper) (plutusScriptAddr  (simpleMarketScript marketHelper) networkId )
         <> walletBuilder
 
   result <- evaluateKontract chainInfo $ do
-    walletUtxo :: UTxO ConwayEra <- kQueryUtxoByAddress $ Set.singleton (addressInEraToAddressAny walletAddr)
+    walletUtxo :: UTxO BabbageEra <- kQueryUtxoByAddress $ Set.singleton (addressInEraToAddressAny walletAddr)
     liftIO $ do
       putStrLn $ "WalletAddress  : " ++ T.unpack (serialiseAddress walletAddr)
       putStrLn $ "Wallet Balance :" ++ toConsoleText "  " (utxoSum walletUtxo)
@@ -99,7 +100,7 @@ main= do
       Left e -> throwError e
       Right v -> do
         let refTxId = getTxId $ getTxBody $ v
-        batches <- mapM (\i ->  setupBenchBatch i simpleMarketV3Helper (TxIn refTxId (TxIx 0)) sKey walletAddr ) [0..3]
+        batches <- mapM (\i ->  setupBenchBatch i simpleMarketV2Helper (TxIn refTxId (TxIx 0)) sKey walletAddr ) [0..3]
         let runBatch batch = do
               task <- kAsync batch
               liftIO $ threadDelay 0
@@ -132,7 +133,7 @@ kWait results = do
 
 
 setupBenchBatch :: (HasChainQueryAPI api, HasKuberAPI api, HasSubmitApi api) => Integer -> SimpleMarketHelper api w -> TxIn  -> SigningKey PaymentKey ->
-   AddressInEra ConwayEra -> Kontract api w FrameworkError (Kontract api w FrameworkError [Either FrameworkError BenchRun])
+   AddressInEra BabbageEra -> Kontract api w FrameworkError (Kontract api w FrameworkError [Either FrameworkError BenchRun])
 setupBenchBatch  _batchNo marketHelper refScriptTxin sKey walletAddress   = do
   let walletCount ::Word32 = 25
   let startIndex = fromInteger $  _batchNo *  (toInteger walletCount * 2)
@@ -149,24 +150,24 @@ setupBenchBatch  _batchNo marketHelper refScriptTxin sKey walletAddress   = do
   let fundWallet =
         createReferenceScript (simpleMarketScript marketHelper) (plutusScriptAddr  (simpleMarketScript marketHelper) networkId )
         <> foldMap
-            (\w ->  txPayTo  (wAddress w)  (valueFromList [(AdaAssetId,2_000_000),(mintedAsset, 1)])
-                  <> txPayTo  (wAddress w)  (valueFromList [(AdaAssetId,5_000_000)]))
+            (\w ->  txPayTo_  (wAddress w)  (valueFromList [(AdaAssetId,2_000_000),(mintedAsset, 1)])
+                  <> txPayTo_  (wAddress w)  (valueFromList [(AdaAssetId,5_000_000)]))
             sellers
         <>foldMap
-              (\w ->  txPayTo  (wAddress w)  (valueFromList [(AdaAssetId,5_000_000)])
-                    <> txPayTo  (wAddress w)  (valueFromList [(AdaAssetId,5_000_000)])
+              (\w ->  txPayTo_  (wAddress w)  (valueFromList [(AdaAssetId,5_000_000)])
+                    <> txPayTo_  (wAddress w)  (valueFromList [(AdaAssetId,5_000_000)])
           )
             buyers
         <> mintBuilder
-        <> txWalletAddress walletAddress
-        <> txWalletSignKey sKey
+        <> txWalletAddress_ walletAddress
+        <> txWalletSignKey_ sKey
   monitoredSubmitTx'  _batchNo "Fund Wallets" (pure fundWallet)
 
   let
       evaluator (index, wallets) =
         evaluateKontract backend  (runOperations index  refScriptTxin marketHelper mintedAsset wallets)
-      refund = foldMap (\w -> txWalletAddress (wAddress w) <> txWalletSignKey (wPaymentSkey w)) (buyers <> sellers)
-                <> txChangeAddress walletAddress
+      refund = foldMap (\w -> txWalletAddress_ (wAddress w) <> txWalletSignKey_ (wPaymentSkey w)) (buyers <> sellers)
+                <> txChangeAddress_ walletAddress
   return $ do
     result <- liftIO $
       forConcurrently  ( zip [(_batchNo * toInteger  walletCount)..] $ zip  sellers buyers)  evaluator

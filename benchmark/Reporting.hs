@@ -197,7 +197,7 @@ renderDetailedReportRow (index,txTime) =
                 ]
 
 
-getTxMetrics :: Tx ConwayEra -> TxMetrics
+getTxMetrics :: Tx BabbageEra -> TxMetrics
 getTxMetrics tx = case tx of
   ShelleyTx era ledgerTx -> let
     txWitnesses = ledgerTx ^. L.witsTxL

@@ -43,7 +43,7 @@ import PlutusLedgerApi.V1.Value
 import PlutusLedgerApi.V3.Contexts
 import Cardano.Api (ShelleyBasedEra(ShelleyBasedEraBabbage))
 import Plutus.Contracts.V3.MarketplaceConfig (MarketConfig(..))
-import Cardano.Api (ConwayEra)
+import Cardano.Api (BabbageEra)
 
 
 

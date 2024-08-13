@@ -96,7 +96,7 @@ simpleMarketSpecs testIndex scriptName marketHelper context@(TestContext chainIn
       before ioAction $ do
         it "Should mint  4 Native Assets" $ \(configTx,saleTx, refUtxo) -> do
           runTest_ 1 Nothing "Mint Native Asset"  (do
-              (UTxO utxos) ::UTxO ConwayEra <- kQueryUtxoByAddress (Set.singleton $ addressInEraToAddressAny walletAddr)
+              (UTxO utxos) ::UTxO BabbageEra <- kQueryUtxoByAddress (Set.singleton $ addressInEraToAddressAny walletAddr)
               pure $     mintBuilder
                       <> txConsumeUtxos (UTxO $ Map.fromList $ take 100  $ Map.toList utxos)
                       <> txPayTo walletAddr (valueFromList [(AdaAssetId,5_000_000)])

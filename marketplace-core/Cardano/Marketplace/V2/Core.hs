@@ -117,7 +117,7 @@ makeConfigurableMarketV2HelperSuperLazy operatorAddr fee =
   V2MarketConfig.marketConfigPlutusScriptSuperLazy 
   V2ConfigurableMarketplace.configurableMarketPlutusScriptSuperLazy
 
-createV2SaleDatum :: AddressInEra ConwayEra -> Integer -> HashableScriptData
+createV2SaleDatum :: AddressInEra BabbageEra -> Integer -> HashableScriptData
 createV2SaleDatum sellerAddr costOfAsset =
   -- Convert  to Plutus.Address
   let plutusAddr =  addrInEraToPlutusAddress sellerAddr

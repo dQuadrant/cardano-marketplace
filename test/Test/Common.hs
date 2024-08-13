@@ -46,7 +46,7 @@ testContextFromEnv = do
         Nothing -> pure ( skeyToAddrInEra sKey networkId)
       )
 
-  walletUtxo :: UTxO ConwayEra <- evaluateKontract chainInfo (kQueryUtxoByAddress $ Set.singleton (addressInEraToAddressAny walletAddr)) >>= throwFrameworkError
+  walletUtxo :: UTxO BabbageEra <- evaluateKontract chainInfo (kQueryUtxoByAddress $ Set.singleton (addressInEraToAddressAny walletAddr)) >>= throwFrameworkError
   putStrLn $ "WalletAddress  : " ++ T.unpack (serialiseAddress walletAddr)
   putStrLn $ "Wallet Balance :" ++ (toConsoleText "  "  $ utxoSum walletUtxo)
   report <- newTVarIO mempty
@@ -122,14 +122,14 @@ performTransactionAndReport :: (HasKuberAPI api,HasSubmitApi api,HasChainQueryAP
   String ->
   TxBuilder ->
   Kontract api w FrameworkError TxBuilder ->
-  Kontract api w FrameworkError (Tx ConwayEra)
+  Kontract api w FrameworkError (Tx BabbageEra)
 performTransactionAndReport action wallet = performTransactionAndReport' action (pure wallet)
 
 performTransactionAndReport' :: (HasKuberAPI api,HasSubmitApi api,HasChainQueryAPI api) =>
   String ->
   Kontract api w FrameworkError TxBuilder ->
   Kontract api w FrameworkError TxBuilder ->
-  Kontract api w FrameworkError (Tx ConwayEra)
+  Kontract api w FrameworkError (Tx BabbageEra)
 performTransactionAndReport' action walletKontract builderKontract = do
   wallet <- walletKontract
   builder <- builderKontract
@@ -142,7 +142,7 @@ performTransactionAndReport' action walletKontract builderKontract = do
 
   tx <- catchError  (do
       tx<- kBuildTx txBuilder
-      kSubmitTx (InAnyCardanoEra ConwayEra tx)
+      kSubmitTx (InAnyCardanoEra BabbageEra tx)
       liftIO $ putStrLn $ "Tx Submitted :" ++  (getTxIdFromTx tx)
       pure tx
     )
@@ -157,14 +157,14 @@ performTransactionAndReport' action walletKontract builderKontract = do
   liftIO $ do putStrLn $ action ++ " Tx Confirmed: " ++ (show $ getTxId (getTxBody tx))
   pure (tx)
 
-runBuildAndSubmit :: (HasKuberAPI api, HasSubmitApi api) => TxBuilder -> Kontract api w FrameworkError (Tx ConwayEra)
+runBuildAndSubmit :: (HasKuberAPI api, HasSubmitApi api) => TxBuilder -> Kontract api w FrameworkError (Tx BabbageEra)
 runBuildAndSubmit txBuilder =  do
         tx<- kBuildTx txBuilder
-        kSubmitTx (InAnyCardanoEra ConwayEra tx)
+        kSubmitTx (InAnyCardanoEra BabbageEra tx)
         liftIO $ putStrLn $ "Tx Submitted :" ++  (getTxIdFromTx tx)
         pure tx
 
-reportExUnitsandFee:: Tx ConwayEra -> IO ()
+reportExUnitsandFee:: Tx BabbageEra -> IO ()
 reportExUnitsandFee tx = case tx of
   ShelleyTx era ledgerTx -> let
     txWitnesses = ledgerTx ^. L.witsTxL
@@ -191,7 +191,7 @@ reportExUnitsandFee tx = case tx of
 
 
 
-waitTxConfirmation :: HasChainQueryAPI a => Tx ConwayEra -> Integer
+waitTxConfirmation :: HasChainQueryAPI a => Tx BabbageEra -> Integer
       -> Kontract a w FrameworkError ()
 waitTxConfirmation tx totalWaitSecs =
     let txId = getTxId$ getTxBody tx
@@ -201,7 +201,7 @@ waitTxConfirmation tx totalWaitSecs =
       if remainingSecs < 0
         then kError TxSubmissionError $ "Transaction not confirmed after  " ++ show totalWaitSecs ++ " secs"
         else do
-          (UTxO uMap):: UTxO ConwayEra <- kQueryUtxoByTxin $  Set.singleton (TxIn txId (TxIx 0))
+          (UTxO uMap):: UTxO BabbageEra <- kQueryUtxoByTxin $  Set.singleton (TxIn txId (TxIx 0))
           liftIO $ Control.threadDelay 2_000_000
           case Map.toList uMap of
             [] -> waitTxId txId (remainingSecs - 2)

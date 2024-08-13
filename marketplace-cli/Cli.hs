@@ -200,7 +200,7 @@ runCli = do
           else putStrLn $ "Market utxos:\n - " 
             ++  intercalate 
                 "\n - "  
-                (map (\(txin,cost,val :: TxOutValue ConwayEra )-> T.unpack (renderTxIn txin)  
+                (map (\(txin,cost,val :: TxOutValue BabbageEra )-> T.unpack (renderTxIn txin)  
                            ++ "\t [Cost " ++ show (fromInteger cost/1e6) ++ "Ada] " ++  showVal (txOutValueToValue val)) vals)
       where
         showVal val= intercalate " +" $ map (\(AssetId pol (AssetName a),Quantity v) -> (if v>1 then show v ++ " " else "") ++ T.unpack (serialiseToRawBytesHexText pol) ++ "." ++ BS8.unpack a ) filtered
@@ -275,7 +275,7 @@ runCli = do
         runBuildAndSubmit txOperations
  
     Balance sKeyFile addrStr -> do
-      walletAddr :: AddressInEra ConwayEra <- case addrStr of 
+      walletAddr :: AddressInEra BabbageEra <- case addrStr of 
           Nothing ->  do 
             if null sKeyFile
               then fail "Missing filename"
@@ -287,12 +287,12 @@ runCli = do
 
       putStrLn $ "Wallet Address: " ++ T.unpack (serialiseAddress walletAddr)
       runKontract chainInfo $ do 
-          utxos :: UTxO ConwayEra <- kQueryUtxoByAddress (Set.singleton $ addressInEraToAddressAny walletAddr)
+          utxos :: UTxO BabbageEra <- kQueryUtxoByAddress (Set.singleton $ addressInEraToAddressAny walletAddr)
           liftIO $ putStrLn $ toConsoleText " - " utxos
 
 
 
-getAddress ::MonadFail m => NetworkId ->  SigningKey PaymentKey -> Maybe Text -> m (AddressInEra ConwayEra)
+getAddress ::MonadFail m => NetworkId ->  SigningKey PaymentKey -> Maybe Text -> m (AddressInEra BabbageEra)
 getAddress netId skey mAddr = case mAddr of 
   Just addrTxt -> parseAddress addrTxt
   Nothing -> pure $ skeyToAddrInEra skey netId

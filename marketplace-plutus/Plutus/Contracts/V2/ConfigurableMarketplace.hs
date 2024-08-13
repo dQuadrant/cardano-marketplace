@@ -43,7 +43,7 @@ import PlutusCore.Version (plcVersion100)
 import PlutusLedgerApi.V1.Value
 import PlutusLedgerApi.V2.Contexts
 import Cardano.Api (ShelleyBasedEra(ShelleyBasedEraConway))
-import Cardano.Api (ConwayEra)
+import Cardano.Api (BabbageEra)
 import PlutusTx.Prelude (BuiltinUnit)
 import Cardano.Ledger.Alonzo.TxBody (inputs', outputs')
 

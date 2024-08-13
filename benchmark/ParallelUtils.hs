@@ -63,7 +63,7 @@ import qualified Debug.Trace as Debug
 
 data TransactionTime = TransactionTime {
     ttTxName :: String
-  , ttTx :: Either FrameworkError (Tx ConwayEra)
+  , ttTx :: Either FrameworkError (Tx BabbageEra)
   , ttStartTime :: UTCTime
   , ttEndTime :: UTCTime
 } deriving (Show)
@@ -80,7 +80,7 @@ instance ToJSON TransactionTime where
         "name" A..=  txName
       , case eTx of
         Left e ->  "error"  A..=  e
-        Right tx ->  "tx"  A..=  TxModal ( InAnyCardanoEra ConwayEra tx)
+        Right tx ->  "tx"  A..=  TxModal ( InAnyCardanoEra BabbageEra tx)
       , "startTime" A..= startTime
       , "endTime" A..= endTime
     ]
@@ -90,7 +90,7 @@ instance FromJSON TransactionTime where
       fmError<- v A..:? "error"
       eTx <- case fmError of
         Nothing ->  do
-          (TxModal (InAnyCardanoEra ConwayEra tx))<- v A..: "tx"
+          (TxModal (InAnyCardanoEra BabbageEra tx))<- v A..: "tx"
           pure $ Right tx
         Just e -> pure $ Left e
 
@@ -120,14 +120,14 @@ instance FromJSON BenchRun where
 
   parseJSON _ = fail "Expected BenchRun Object got something else"
 
-monitoredSubmitTx' ::(HasKuberAPI api, HasSubmitApi api, HasChainQueryAPI api) =>Integer -> String ->   Kontract api w FrameworkError TxBuilder ->  Kontract api w FrameworkError TransactionTime
+monitoredSubmitTx' ::(HasKuberAPI api, HasSubmitApi api, HasChainQueryAPI api) =>Integer -> String ->   Kontract api w FrameworkError (TxBuilder_ BabbageEra) ->  Kontract api w FrameworkError TransactionTime
 monitoredSubmitTx'  index txName  txBuilder = do
   startTime <- liftIO getCurrentTime
   catchError ( do 
       builder <- loopedAction True "setup" txBuilder
       tx <- loopedAction True  "buildAndSubmit" $  do
           tx <- kBuildTx builder
-          kSubmitTx (InAnyCardanoEra ConwayEra tx)
+          kSubmitTx (InAnyCardanoEra BabbageEra tx)
           pure tx
       loopedWaitTxConfirmation tx
       endTime <- liftIO getCurrentTime
@@ -163,7 +163,7 @@ monitoredSubmitTx'  index txName  txBuilder = do
               then kError TxSubmissionError $ "Transaction not confirmed after  " ++ show totalWaitSecs ++ " secs"
               else do
                 startTime <- liftIO getCurrentTime
-                (UTxO uMap):: UTxO ConwayEra <- loopedAction False "waitTxConfirmation" $ kQueryUtxoByTxin $  Set.singleton (TxIn txId (TxIx 0))
+                (UTxO uMap):: UTxO BabbageEra <- loopedAction False "waitTxConfirmation" $ kQueryUtxoByTxin $  Set.singleton (TxIn txId (TxIx 0))
                 liftIO $ Control.threadDelay 2_000_000
                 endTime <- liftIO getCurrentTime
                 case Map.toList uMap of
@@ -172,11 +172,10 @@ monitoredSubmitTx'  index txName  txBuilder = do
 
 
 
-monitoredSubmitTx ::(HasKuberAPI api, HasSubmitApi api, HasChainQueryAPI api) =>Integer -> String ->ShelleyWallet->   Kontract api w FrameworkError TxBuilder ->  Kontract api w FrameworkError TransactionTime
 monitoredSubmitTx  index txName wallet  txBuilder =
   monitoredSubmitTx' index txName (do
      builder <- txBuilder
-     pure$ builder <> txWalletSignKey (wPaymentSkey wallet) <> txWalletAddress (wAddress wallet)
+     pure$ builder <> txWalletSignKey_ (wPaymentSkey wallet) <> txWalletAddress_ (wAddress wallet)
   )
 
 
@@ -231,10 +230,10 @@ runOperations index refScriptUtxo  marketHelper  sellAsset (sellerWallet,buyerWa
 
     
 
-runBuildAndSubmit :: (HasKuberAPI api, HasSubmitApi api) => TxBuilder -> Kontract api w FrameworkError (Tx ConwayEra)
+runBuildAndSubmit :: (HasKuberAPI api, HasSubmitApi api) => (TxBuilder_ BabbageEra) -> Kontract api w FrameworkError (Tx BabbageEra)
 runBuildAndSubmit txBuilder =  do
         tx<- kBuildTx txBuilder
-        kSubmitTx (InAnyCardanoEra ConwayEra tx)
+        kSubmitTx (InAnyCardanoEra BabbageEra tx)
         liftIO $ putStrLn $ "Tx Submitted :" ++  (getTxIdFromTx tx)
         pure tx
 
@@ -247,13 +246,13 @@ waitTxIdConfirmation txId totalWaitSecs =
       if remainingSecs < 0
         then kError TxSubmissionError $ "Transaction not confirmed after  " ++ show totalWaitSecs ++ " secs"
         else do
-          (UTxO uMap):: UTxO ConwayEra <- kQueryUtxoByTxin $  Set.singleton (TxIn txId (TxIx 0))
+          (UTxO uMap):: UTxO BabbageEra <- kQueryUtxoByTxin $  Set.singleton (TxIn txId (TxIx 0))
           liftIO $ Control.threadDelay 2_000_000
           case Map.toList uMap of
             [] -> waitTxId txId (remainingSecs - 2)
             _ -> pure ()
 
 
-waitTxConfirmation :: HasChainQueryAPI a => Tx ConwayEra -> Integer
+waitTxConfirmation :: HasChainQueryAPI a => Tx BabbageEra -> Integer
       -> Kontract a w FrameworkError ()
 waitTxConfirmation tx  =  waitTxIdConfirmation (getTxId$ getTxBody tx)

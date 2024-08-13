@@ -37,7 +37,7 @@ import qualified Data.Bifunctor
 import qualified Data.ByteString.Short as SBS
 import qualified Data.ByteString.Lazy  as LBS
 import Codec.Serialise ( serialise )
-import Cardano.Api (IsCardanoEra,NetworkId, AddressInEra, ShelleyAddr, Script (PlutusScript), PlutusScriptVersion (PlutusScriptV3), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress, ConwayEra)
+import Cardano.Api (IsCardanoEra,NetworkId, AddressInEra, ShelleyAddr, Script (PlutusScript), PlutusScriptVersion (PlutusScriptV3), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress, BabbageEra)
 import qualified Cardano.Api.Shelley
 import PlutusLedgerApi.V3
 import PlutusLedgerApi.V3.Contexts
