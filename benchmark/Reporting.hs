@@ -46,10 +46,10 @@ renderBenchmarkReports benchRuns =
         , "</style>"
         ]
         ++ ["### Transaction times\n"]
-        ++ renderStats averages stdDevs testNames
+        ++ renderStats averages stdDevs (testNames++ ["Total Time"])
         ++ ["\n### Time Details\n"]
         ++ ["<table border=\"1\">"]
-        ++ tableHeaderBenchmark testNames
+        ++ tableHeaderBenchmark (testNames)
         ++ concatMap (renderReportRowBenchmark testNames averages) benchRuns
         ++ ["</table>"]
 
@@ -57,12 +57,13 @@ calculateStats :: [BenchRun] -> [String] -> ([(String, Double)], [(String, Doubl
 calculateStats benchRuns testNames =
     let
         allTimings = concatMap brTimings benchRuns
-
         timingByName name = filter ((== name) . ttTxName) allTimings
-
+        totalTestTimes = map (\x -> do  
+            (brEndTime x) `diffUTCTime` (brStartTime x) ) benchRuns
+        totalTime = [("Total Time", V.fromList $ map realToFrac totalTestTimes)]
         timingsMap = map (\name -> (name, V.fromList $ map (realToFrac . diffUTCTime' ) $ timingByName name)) testNames
-        means = map (second mean) timingsMap
-        stdDevs = map (second stdDev) timingsMap
+        means = map (second mean) (timingsMap ++ totalTime)
+        stdDevs = map (second stdDev) (timingsMap ++ totalTime)
     in
         (means, stdDevs)
   where

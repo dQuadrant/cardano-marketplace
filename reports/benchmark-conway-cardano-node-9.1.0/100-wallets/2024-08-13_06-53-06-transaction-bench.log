@@ -1,0 +1,1396 @@
+WalletAddress  : addr_test1qp444s0a5p2t225f3urwwfpyx7v7u9zg0aevtkt05rptkv5l636vkjjyt545wg3dagvzrv23ckltwlr4pzmsrw88jqpssa7hl0
+Wallet Balance :  8.99999274522572e8 Ada
+0 : Create Ref Script: setup = Finalied
+0 : Create Ref Script: buildAndSubmit = Finalied
+0 : Create Ref Script-confirmation : Confirmed "ca899a8ddbb8e5438dec97bc0a275afe0be8bb550300babb2a061d64f344dd2d"
+0 Generated wallets for batch  buyers : 0-24 sellers : 25-49
+0 : Fund Wallets: setup = Finalied
+0 : Fund Wallets: buildAndSubmit = Finalied
+0 : Fund Wallets-confirmation : Confirmed "270df51729b43d1560f979e84fb641dd19ece7c3c4703c8bb7a479829c868f69"
+1 Generated wallets for batch  buyers : 50-74 sellers : 75-99
+1 : Fund Wallets: setup = Finalied
+1 : Fund Wallets: buildAndSubmit = Finalied
+1 : Fund Wallets-confirmation : Confirmed "e68e0a16778c687608f29184244ed08d60a8e259218fe6a6d4dce9048e67e33e"
+2 Generated wallets for batch  buyers : 100-124 sellers : 125-149
+2 : Fund Wallets: setup = Finalied
+2 : Fund Wallets: buildAndSubmit = Finalied
+2 : Fund Wallets-confirmation : Confirmed "4fbfb54a000e7504c6b6bb1ba2dba6c0f5d7342c576c78b0ee71bb4a038f3b38"
+3 Generated wallets for batch  buyers : 150-174 sellers : 175-199
+3 : Fund Wallets: setup = Finalied
+3 : Fund Wallets: buildAndSubmit = Finalied
+3 : Fund Wallets-confirmation : Confirmed "3a3b5a86abaea064d24b320b1f74fcefa7127df3496eecc23de405913bdc4b77"
+1 : Primary Sale: setup = Finalied
+26 : Primary Sale: setup = Finalied
+51 : Primary Sale: setup = Finalied
+76 : Primary Sale: setup = Finalied
+2 : Primary Sale: setup = Finalied
+25 : Primary Sale: setup = Finalied
+27 : Primary Sale: setup = Finalied
+50 : Primary Sale: setup = Finalied
+52 : Primary Sale: setup = Finalied
+75 : Primary Sale: setup = Finalied
+77 : Primary Sale: setup = Finalied
+0 : Primary Sale: setup = Finalied
+3 : Primary Sale: setup = Finalied
+28 : Primary Sale: setup = Finalied
+53 : Primary Sale: setup = Finalied
+78 : Primary Sale: setup = Finalied
+4 : Primary Sale: setup = Finalied
+4 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 20>: resource exhausted (Resource temporarily unavailable)"
+29 : Primary Sale: setup = Finalied
+29 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 20>: resource exhausted (Resource temporarily unavailable)"
+54 : Primary Sale: setup = Finalied
+54 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 20>: resource exhausted (Resource temporarily unavailable)"
+79 : Primary Sale: setup = Finalied
+5 : Primary Sale: setup = Finalied
+5 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 21>: resource exhausted (Resource temporarily unavailable)"
+30 : Primary Sale: setup = Finalied
+30 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 21>: resource exhausted (Resource temporarily unavailable)"
+55 : Primary Sale: setup = Finalied
+80 : Primary Sale: setup = Finalied
+6 : Primary Sale: setup = Finalied
+6 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 23>: resource exhausted (Resource temporarily unavailable)"
+31 : Primary Sale: setup = Finalied
+56 : Primary Sale: setup = Finalied
+81 : Primary Sale: setup = Finalied
+7 : Primary Sale: setup = Finalied
+32 : Primary Sale: setup = Finalied
+57 : Primary Sale: setup = Finalied
+57 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 28>: resource exhausted (Resource temporarily unavailable)"
+82 : Primary Sale: setup = Finalied
+8 : Primary Sale: setup = Finalied
+8 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 29>: resource exhausted (Resource temporarily unavailable)"
+33 : Primary Sale: setup = Finalied
+33 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 29>: resource exhausted (Resource temporarily unavailable)"
+58 : Primary Sale: setup = Finalied
+58 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 29>: resource exhausted (Resource temporarily unavailable)"
+34 : Primary Sale: setup = Finalied
+83 : Primary Sale: setup = Finalied
+9 : Primary Sale: setup = Finalied
+35 : Primary Sale: setup = Finalied
+59 : Primary Sale: setup = Finalied
+84 : Primary Sale: setup = Finalied
+36 : Primary Sale: setup = Finalied
+10 : Primary Sale: setup = Finalied
+37 : Primary Sale: setup = Finalied
+60 : Primary Sale: setup = Finalied
+85 : Primary Sale: setup = Finalied
+11 : Primary Sale: setup = Finalied
+38 : Primary Sale: setup = Finalied
+61 : Primary Sale: setup = Finalied
+86 : Primary Sale: setup = Finalied
+12 : Primary Sale: setup = Finalied
+39 : Primary Sale: setup = Finalied
+62 : Primary Sale: setup = Finalied
+87 : Primary Sale: setup = Finalied
+13 : Primary Sale: setup = Finalied
+63 : Primary Sale: setup = Finalied
+88 : Primary Sale: setup = Finalied
+64 : Primary Sale: setup = Finalied
+14 : Primary Sale: setup = Finalied
+15 : Primary Sale: setup = Finalied
+40 : Primary Sale: setup = Finalied
+41 : Primary Sale: setup = Finalied
+65 : Primary Sale: setup = Finalied
+89 : Primary Sale: setup = Finalied
+42 : Primary Sale: setup = Finalied
+66 : Primary Sale: setup = Finalied
+90 : Primary Sale: setup = Finalied
+16 : Primary Sale: setup = Finalied
+43 : Primary Sale: setup = Finalied
+67 : Primary Sale: setup = Finalied
+91 : Primary Sale: setup = Finalied
+17 : Primary Sale: setup = Finalied
+44 : Primary Sale: setup = Finalied
+92 : Primary Sale: setup = Finalied
+18 : Primary Sale: setup = Finalied
+45 : Primary Sale: setup = Finalied
+69 : Primary Sale: setup = Finalied
+68 : Primary Sale: setup = Finalied
+93 : Primary Sale: setup = Finalied
+19 : Primary Sale: setup = Finalied
+46 : Primary Sale: setup = Finalied
+70 : Primary Sale: setup = Finalied
+94 : Primary Sale: setup = Finalied
+20 : Primary Sale: setup = Finalied
+95 : Primary Sale: setup = Finalied
+47 : Primary Sale: setup = Finalied
+48 : Primary Sale: setup = Finalied
+71 : Primary Sale: setup = Finalied
+72 : Primary Sale: setup = Finalied
+96 : Primary Sale: setup = Finalied
+21 : Primary Sale: setup = Finalied
+22 : Primary Sale: setup = Finalied
+49 : Primary Sale: setup = Finalied
+73 : Primary Sale: setup = Finalied
+97 : Primary Sale: setup = Finalied
+23 : Primary Sale: setup = Finalied
+74 : Primary Sale: setup = Finalied
+98 : Primary Sale: setup = Finalied
+24 : Primary Sale: setup = Finalied
+99 : Primary Sale: setup = Finalied
+95 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 67>: resource exhausted (Resource temporarily unavailable)"
+59 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySubmitTx: IOError :Network.Socket.connect: <socket: 24>: resource exhausted (Resource temporarily unavailable)"
+48 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 24>: resource exhausted (Resource temporarily unavailable)"
+21 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 24>: resource exhausted (Resource temporarily unavailable)"
+71 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 24>: resource exhausted (Resource temporarily unavailable)"
+17 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryUtxo: IOError :Network.Socket.connect: <socket: 17>: resource exhausted (Resource temporarily unavailable)"
+51 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySubmitTx: IOError :Network.Socket.connect: <socket: 17>: resource exhausted (Resource temporarily unavailable)"
+75 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySubmitTx: IOError :Network.Socket.connect: <socket: 17>: resource exhausted (Resource temporarily unavailable)"
+23 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 24>: resource exhausted (Resource temporarily unavailable)"
+72 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 17>: resource exhausted (Resource temporarily unavailable)"
+35 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySubmitTx: IOError :Network.Socket.connect: <socket: 17>: resource exhausted (Resource temporarily unavailable)"
+34 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySubmitTx: IOError :Network.Socket.connect: <socket: 17>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySubmitTx: IOError :Network.Socket.connect: <socket: 17>: resource exhausted (Resource temporarily unavailable)"
+66 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySubmitTx: IOError :Network.Socket.connect: <socket: 17>: resource exhausted (Resource temporarily unavailable)"
+3 : Primary Sale: buildAndSubmit = Finalied
+1 : Primary Sale: buildAndSubmit = Finalied
+26 : Primary Sale: buildAndSubmit = Finalied
+2 : Primary Sale: buildAndSubmit = Finalied
+31 : Primary Sale: buildAndSubmit = Finalied
+28 : Primary Sale: buildAndSubmit = Finalied
+27 : Primary Sale: buildAndSubmit = Finalied
+78 : Primary Sale: buildAndSubmit = Finalied
+82 : Primary Sale: buildAndSubmit = Finalied
+55 : Primary Sale: buildAndSubmit = Finalied
+81 : Primary Sale: buildAndSubmit = Finalied
+9 : Primary Sale: buildAndSubmit = Finalied
+25 : Primary Sale: buildAndSubmit = Finalied
+53 : Primary Sale: buildAndSubmit = Finalied
+52 : Primary Sale: buildAndSubmit = Finalied
+38 : Primary Sale: buildAndSubmit = Finalied
+56 : Primary Sale: buildAndSubmit = Finalied
+83 : Primary Sale: buildAndSubmit = Finalied
+32 : Primary Sale: buildAndSubmit = Finalied
+86 : Primary Sale: buildAndSubmit = Finalied
+84 : Primary Sale: buildAndSubmit = Finalied
+39 : Primary Sale: buildAndSubmit = Finalied
+39 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 25>: resource exhausted (Resource temporarily unavailable)"
+36 : Primary Sale: buildAndSubmit = Finalied
+64 : Primary Sale: buildAndSubmit = Finalied
+50 : Primary Sale: buildAndSubmit = Finalied
+42 : Primary Sale: buildAndSubmit = Finalied
+61 : Primary Sale: buildAndSubmit = Finalied
+15 : Primary Sale: buildAndSubmit = Finalied
+0 : Primary Sale: buildAndSubmit = Finalied
+13 : Primary Sale: buildAndSubmit = Finalied
+79 : Primary Sale: buildAndSubmit = Finalied
+77 : Primary Sale: buildAndSubmit = Finalied
+65 : Primary Sale: buildAndSubmit = Finalied
+62 : Primary Sale: buildAndSubmit = Finalied
+80 : Primary Sale: buildAndSubmit = Finalied
+12 : Primary Sale: buildAndSubmit = Finalied
+76 : Primary Sale: buildAndSubmit = Finalied
+85 : Primary Sale: buildAndSubmit = Finalied
+10 : Primary Sale: buildAndSubmit = Finalied
+11 : Primary Sale: buildAndSubmit = Finalied
+14 : Primary Sale: buildAndSubmit = Finalied
+63 : Primary Sale: buildAndSubmit = Finalied
+41 : Primary Sale: buildAndSubmit = Finalied
+60 : Primary Sale: buildAndSubmit = Finalied
+40 : Primary Sale: buildAndSubmit = Finalied
+87 : Primary Sale: buildAndSubmit = Finalied
+16 : Primary Sale: buildAndSubmit = Finalied
+89 : Primary Sale: buildAndSubmit = Finalied
+88 : Primary Sale: buildAndSubmit = Finalied
+90 : Primary Sale: buildAndSubmit = Finalied
+37 : Primary Sale: buildAndSubmit = Finalied
+43 : Primary Sale: buildAndSubmit = Finalied
+67 : Primary Sale: buildAndSubmit = Finalied
+91 : Primary Sale: buildAndSubmit = Finalied
+18 : Primary Sale: buildAndSubmit = Finalied
+92 : Primary Sale: buildAndSubmit = Finalied
+44 : Primary Sale: buildAndSubmit = Finalied
+44 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 35>: resource exhausted (Resource temporarily unavailable)"
+47 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySubmitTx: IOError :Network.Socket.connect: <socket: 35>: resource exhausted (Resource temporarily unavailable)"
+96 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySubmitTx: IOError :Network.Socket.connect: <socket: 35>: resource exhausted (Resource temporarily unavailable)"
+68 : Primary Sale: buildAndSubmit = Finalied
+97 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySubmitTx: IOError :Network.Socket.connect: <socket: 35>: resource exhausted (Resource temporarily unavailable)"
+69 : Primary Sale: buildAndSubmit = Finalied
+73 : Primary Sale: buildAndSubmit = Finalied
+20 : Primary Sale: buildAndSubmit = Finalied
+70 : Primary Sale: buildAndSubmit = Finalied
+93 : Primary Sale: buildAndSubmit = Finalied
+19 : Primary Sale: buildAndSubmit = Finalied
+45 : Primary Sale: buildAndSubmit = Finalied
+98 : Primary Sale: buildAndSubmit = Finalied
+99 : Primary Sale: buildAndSubmit = Finalied
+46 : Primary Sale: buildAndSubmit = Finalied
+22 : Primary Sale: buildAndSubmit = Finalied
+24 : Primary Sale: buildAndSubmit = Finalied
+94 : Primary Sale: buildAndSubmit = Finalied
+74 : Primary Sale: buildAndSubmit = Finalied
+49 : Primary Sale: buildAndSubmit = Finalied
+33 : Primary Sale: buildAndSubmit = Finalied
+30 : Primary Sale: buildAndSubmit = Finalied
+29 : Primary Sale: buildAndSubmit = Finalied
+21 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 36>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 17>: resource exhausted (Resource temporarily unavailable)"
+54 : Primary Sale: buildAndSubmit = Finalied
+54 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 10>: resource exhausted (Resource temporarily unavailable)"
+57 : Primary Sale: buildAndSubmit = Finalied
+34 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 11>: resource exhausted (Resource temporarily unavailable)"
+48 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 17>: resource exhausted (Resource temporarily unavailable)"
+4 : Primary Sale: buildAndSubmit = Finalied
+4 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 17>: resource exhausted (Resource temporarily unavailable)"
+72 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 17>: resource exhausted (Resource temporarily unavailable)"
+8 : Primary Sale: buildAndSubmit = Finalied
+8 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 6>: resource exhausted (Resource temporarily unavailable)"
+58 : Primary Sale: buildAndSubmit = Finalied
+58 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 6>: resource exhausted (Resource temporarily unavailable)"
+6 : Primary Sale: buildAndSubmit = Finalied
+5 : Primary Sale: buildAndSubmit = Finalied
+75 : Primary Sale: buildAndSubmit = Finalied
+23 : Primary Sale: buildAndSubmit = Finalied
+35 : Primary Sale: buildAndSubmit = Finalied
+59 : Primary Sale: buildAndSubmit = Finalied
+51 : Primary Sale: buildAndSubmit = Finalied
+95 : Primary Sale: buildAndSubmit = Finalied
+17 : Primary Sale: buildAndSubmit = Finalied
+66 : Primary Sale: buildAndSubmit = Finalied
+71 : Primary Sale: buildAndSubmit = Finalied
+26 : Primary Sale-confirmation : Confirmed "552fe5e45bd4c142b1fdce230fef0038b449a095e009d5301c2e1dad041afa0e"
+1 : Primary Sale-confirmation : Confirmed "3d622686c707d928cb38b818276c40b2d342c5d7a895355cde5fb57265e8dee9"
+1 : Primary Buy: setup = Finalied
+26 : Primary Buy: setup = Finalied
+26 : Primary Buy: buildAndSubmit = Finalied
+1 : Primary Buy: buildAndSubmit = Finalied
+77 : Primary Sale-confirmation : Confirmed "1689d49272685d884baa1262d681833c5fe3ee2646acee0a5d565b74f9f679a4"
+38 : Primary Sale-confirmation : Confirmed "1d5be8e6113c7809764c58ab4e8b833266052410db1408a9b333b40faeceba14"
+25 : Primary Sale-confirmation : Confirmed "691ad48423f69e3ed5947f598510997884794af8e6a170aa2f14eefea3f8d1e6"
+50 : Primary Sale-confirmation : Confirmed "cb373e75ce9a812885e3202d1a4d98ad0b6f92734ac264b270e7c9b882e7520a"
+9 : Primary Sale-confirmation : Confirmed "dd30225527f57f268fdb3c3755cca1c7949d5e74d55e901316bf4fdd4b792dfe"
+82 : Primary Sale-confirmation : Confirmed "38ce698a9acbebb5b5ab7336bfd0beae913235bcc922cbb25763be896011c62f"
+55 : Primary Sale-confirmation : Confirmed "4e5b680eedd24bac9187746e6d1bd30a84dca4dd58b63b83fe159e7c76c4c138"
+84 : Primary Sale-confirmation : Confirmed "04843d4dd1bc02a30c9df73f1a571c74df713a80127b8cb436e8eda988344960"
+32 : Primary Sale-confirmation : Confirmed "fa2f6be797235cdb4c384c588ff064e83cc33a8d28d701439a94ba12bf23c14c"
+31 : Primary Sale-confirmation : Confirmed "32f945dd3cbeb09b33d03fcf2ebcb38c0742df0e21cddd4d111e1aa3aa5f8ab8"
+56 : Primary Sale-confirmation : Confirmed "b51527ce9dc31a3d3de97884917c798efabcbabe6c624c1860be21d71f61c812"
+56 : Primary Buy-setup : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 14>: resource exhausted (Resource temporarily unavailable)"
+13 : Primary Sale-confirmation : Confirmed "810b3bef1d593415cc5a564d5b4b1e16a9b8687f14e8c462554ee3e02c24795f"
+83 : Primary Sale-confirmation : Confirmed "08a5064de2a4983833a749c07df743e5c14f3320873dd66cdd55e7c16999a0b5"
+11 : Primary Sale-confirmation : Confirmed "1527c27aff98d6e991f6d78d2fa5824fca497a70e21aa0f6778b7a60fad1b140"
+62 : Primary Sale-confirmation : Confirmed "9b302752870b9842b12177eaca9b2b3533e1366e9d6ee5c900a6cf417a94c0b7"
+85 : Primary Sale-confirmation : Confirmed "9623cbef38268bf229db9e4fa7568d5ede826e01245c2115528262fcdf0eef1a"
+85 : Primary Buy-setup : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 18>: resource exhausted (Resource temporarily unavailable)"
+53 : Primary Sale-confirmation : Confirmed "21c6f730e7575ab3adaaf32d001d3c1faf6ef38c71ab250dd01514ad462f59eb"
+53 : Primary Buy-setup : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 18>: resource exhausted (Resource temporarily unavailable)"
+52 : Primary Sale-confirmation : Confirmed "bc743de0341b0ece0a8ff7908095883fe97ddb916dd92c127af3b3a3b343ca47"
+2 : Primary Sale-confirmation : Confirmed "736b912a62931f1a91c1d62989e4671cf02d0a08eac16363910e8af445dc6e40"
+42 : Primary Sale-confirmation : Confirmed "237e6f85dbb98ca3b91ae25d1891a54fa3dd9d8661a82d27217520e1ddc7a694"
+42 : Primary Buy-setup : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 20>: resource exhausted (Resource temporarily unavailable)"
+27 : Primary Sale-confirmation : Confirmed "c6e09f3c8243489af18c96c853f595bbde3d06a2bb3d2fc5c1aa3fba8431ee15"
+27 : Primary Buy-setup : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 20>: resource exhausted (Resource temporarily unavailable)"
+65 : Primary Sale-confirmation : Confirmed "2fd1c3b37b85b357d8fb21a1fe8d9baa8b89bc22f6a6c19c10b65229d65be05b"
+80 : Primary Sale-confirmation : Confirmed "2d835e7845923b9be0ef461ab4b5e631a42d0e57380c40d89c82022bb51c5c70"
+0 : Primary Sale-confirmation : Confirmed "0d7e5eefd941eff0eeafcb1af9379411a47b04c3cc465b2ec34009a3515a4932"
+79 : Primary Sale-confirmation : Confirmed "c5fdf3ee5ceae4bb1fc7e079966874ee9f281b13654838a4259e611afab1e3e8"
+61 : Primary Sale-confirmation : Confirmed "e4fb906ce76d69f8035ba0c4fb4179df79e1cf85798c9bcb70dc5b1cc0e604f8"
+61 : Primary Buy-setup : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 24>: resource exhausted (Resource temporarily unavailable)"
+64 : Primary Sale-confirmation : Confirmed "cff4d241c6b7ee1dd930ffbeea88c6bee2c370106330ba8b54cae2f3e5e0a4d3"
+87 : Primary Sale-confirmation : Confirmed "9ccd920ed59ce062fec177cf754e17f51bf9bc253cbc6e55797230591cedee22"
+10 : Primary Sale-confirmation : Confirmed "aa5e2ff4834954b6c14f636aa18439bb24cc9e0597c08383556ff8876f470f2a"
+15 : Primary Sale-confirmation : Confirmed "1eb9d94c62aa763b828038f82385771f68d8b87774feacbb58772eb04c9228da"
+76 : Primary Sale-confirmation : Confirmed "15b7372ee87eb870be91aadb4a41369d051c76c06b963a949ad106d192bfb65b"
+12 : Primary Sale-confirmation : Confirmed "bdb9aadca40ead6ec522ac3d68b5d94e946571c564625a367cfbe01b4d696c63"
+86 : Primary Sale-confirmation : Confirmed "8936e0b5917cbf47cae72976e42874e08b01d03f26b91af7105bf60cea355e7f"
+78 : Primary Sale-confirmation : Confirmed "bfe87cce4197de374f9ce9315f6b33a4b8e47c0d05cd82b1818c32b50156a521"
+28 : Primary Sale-confirmation : Confirmed "0157e0dd40d658be0b0dbd01e903f9e7c0b740a01bf75a6766cf9c29a2f67d21"
+81 : Primary Sale-confirmation : Confirmed "7e4fda2a4efe1b3a7e3cb733d48ae902e86b95538d0115fc8376c8da8ea35f15"
+41 : Primary Sale-confirmation : Confirmed "48625cccd06220de068074b729016e6c5e80e6308985940392d0d25eb307e90f"
+36 : Primary Sale-confirmation : Confirmed "d958a4b529581dbd55ad7be7412a27b8eb6db91904a65fad49a9c7623a37f6f4"
+60 : Primary Sale-confirmation : Confirmed "b9b732ad4ab20e2daac27968398103511086e4142361309319b67cd3c8eebe0e"
+77 : Primary Buy: setup = Finalied
+25 : Primary Buy: setup = Finalied
+89 : Primary Sale-confirmation : Confirmed "d3c56d98106307a782230e2eecc35d291545f88684f251947a955c0645f7c472"
+14 : Primary Sale-confirmation : Confirmed "aa197ff0d471f330896e94a99eb0059b8317aa840a95241ceb90973ff28a7b0f"
+9 : Primary Buy: setup = Finalied
+82 : Primary Buy: setup = Finalied
+55 : Primary Buy: setup = Finalied
+31 : Primary Buy: setup = Finalied
+83 : Primary Buy: setup = Finalied
+38 : Primary Buy: setup = Finalied
+50 : Primary Buy: setup = Finalied
+84 : Primary Buy: setup = Finalied
+32 : Primary Buy: setup = Finalied
+11 : Primary Buy: setup = Finalied
+13 : Primary Buy: setup = Finalied
+2 : Primary Buy: setup = Finalied
+76 : Primary Buy: setup = Finalied
+10 : Primary Buy: setup = Finalied
+52 : Primary Buy: setup = Finalied
+15 : Primary Buy: setup = Finalied
+65 : Primary Buy: setup = Finalied
+87 : Primary Buy: setup = Finalied
+62 : Primary Buy: setup = Finalied
+41 : Primary Buy: setup = Finalied
+79 : Primary Buy: setup = Finalied
+79 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 23>: resource exhausted (Resource temporarily unavailable)"
+47 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 21>: resource exhausted (Resource temporarily unavailable)"
+36 : Primary Buy: setup = Finalied
+0 : Primary Buy: setup = Finalied
+78 : Primary Buy: setup = Finalied
+78 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 31>: resource exhausted (Resource temporarily unavailable)"
+80 : Primary Buy: setup = Finalied
+63 : Primary Sale-confirmation : Confirmed "788c8c2b275dbe7b52757f8403830675466f454f9322c39b22c665ffee2d2691"
+63 : Primary Buy-setup : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 35>: resource exhausted (Resource temporarily unavailable)"
+40 : Primary Sale-confirmation : Confirmed "99fb1e12f466e32cf522accf19faba169d1598378a589f3fb4d34de5bb9e0493"
+81 : Primary Buy: setup = Finalied
+81 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 34>: resource exhausted (Resource temporarily unavailable)"
+64 : Primary Buy: setup = Finalied
+64 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 24>: resource exhausted (Resource temporarily unavailable)"
+86 : Primary Buy: setup = Finalied
+16 : Primary Sale-confirmation : Confirmed "e54c5631aa89ecd0071552d2c17b942738ef295b2d3453b1cea98a61793cef04"
+28 : Primary Buy: setup = Finalied
+12 : Primary Buy: setup = Finalied
+60 : Primary Buy: setup = Finalied
+89 : Primary Buy: setup = Finalied
+14 : Primary Buy: setup = Finalied
+43 : Primary Sale-confirmation : Confirmed "279700d4303769de923c4866e39046dd5374c190130c992e203a0fce0df687cd"
+67 : Primary Sale-confirmation : Confirmed "511f41224659c2bea6d50d2e6a216390f2eebf17f221c51cd4856c7a49cc59b4"
+90 : Primary Sale-confirmation : Confirmed "715170928a65ab908a9bfeb73678989949f126153be5642967382f72039c4369"
+37 : Primary Sale-confirmation : Confirmed "41f28a46a619b4499a66ac37afc65a337f4c2e7c5818c30049b35f2581b86d0c"
+91 : Primary Sale-confirmation : Confirmed "39db4932b7e41aa14205ba5652e648e0ce6fda4f0d09488fe61a0e7108d565eb"
+39 : Primary Sale-confirmation : Confirmed "064a046d249fc1f233f6a1328ea85a5f834169d791fac8be6b1108f2189225aa"
+16 : Primary Buy: setup = Finalied
+40 : Primary Buy: setup = Finalied
+67 : Primary Buy: setup = Finalied
+37 : Primary Buy: setup = Finalied
+43 : Primary Buy: setup = Finalied
+90 : Primary Buy: setup = Finalied
+39 : Primary Buy: setup = Finalied
+91 : Primary Buy: setup = Finalied
+91 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 47>: resource exhausted (Resource temporarily unavailable)"
+21 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 47>: resource exhausted (Resource temporarily unavailable)"
+2 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 19>: resource exhausted (Resource temporarily unavailable)"
+65 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 19>: resource exhausted (Resource temporarily unavailable)"
+52 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 18>: resource exhausted (Resource temporarily unavailable)"
+76 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 18>: resource exhausted (Resource temporarily unavailable)"
+3 : Primary Sale-confirmation : Confirmed "232e2ce971a82263f20ea6b06961b1038f5d2a0325dbd8b15f8932ab6f074463"
+88 : Primary Sale-confirmation : Confirmed "e67a33c50a4e6001f183f2381efc4b5764e5f26f0c3a0c74bd25b32fc6f64782"
+99 : Primary Sale-confirmation : Confirmed "cf5cee7092a2f47bae928d69fac15875bca6e48441a658f0467f531868bc109f"
+19 : Primary Sale-confirmation : Confirmed "0a0030edc81cacc23a11045cb309431e6511538f6b96bd22e92529bfe0dbb750"
+93 : Primary Sale-confirmation : Confirmed "21f85da398bfb8129ab31ec63e5348647c5ff350ed4b729d73abe8c6e72873b5"
+92 : Primary Sale-confirmation : Confirmed "87ef2bd3d20bb0e41c0af2d241d20f33ece8f08f692a4ea623ec3f5fbc4160dc"
+33 : Primary Sale-confirmation : Confirmed "0e26272eb525ec28b81e1bd6906afad667f7728cd15e4263543d5ac8af53628d"
+68 : Primary Sale-confirmation : Confirmed "e40cc06659bd838fcca3623a8b00e5526e1122b782eff4e5fd2ea00c19096d67"
+29 : Primary Sale-confirmation : Confirmed "534f05ceb949e74b813ea1186c9b2cb3f0930e961fed068cd1ea013155cbc6d6"
+98 : Primary Sale-confirmation : Confirmed "daa1d0faf4475296cb12e3482b5008443fe86b3b0272c7ea4425a64cbeec8995"
+8 : Primary Sale-confirmation : Confirmed "0d1f3ff5115364f5e33941dd810f457963c570e7e64ae8f2ab9985eccced3b0c"
+94 : Primary Sale-confirmation : Confirmed "be78ba7077151c79ae5f5bf6159c11752ec083b546a737cbf58cc0982b8e14ea"
+18 : Primary Sale-confirmation : Confirmed "01b00ec86b9677bbb81278e55755c9e562031c5ebc6f7ccf1fc068fcb09ffee0"
+30 : Primary Sale-confirmation : Confirmed "06cda678fa7392ac6e0d9dcbbb62710f167c699c6dfb20c2900c196a98706fc9"
+20 : Primary Sale-confirmation : Confirmed "9d18f4ae45ce9a8a4ab642c3aeb228a004848532f387dc7bab8d85928a933a9a"
+70 : Primary Sale-confirmation : Confirmed "9fd2501a122a82171fb6508ad83c66ba9d1e0217def1c709d534b4fb6260959e"
+4 : Primary Sale-confirmation : Confirmed "37a7d619cbaebb83b7b076dd698445a8ee5b6695b6b6c1584ab702b6c3e30632"
+54 : Primary Sale-confirmation : Confirmed "a6db5a85767c4c6c36a71e2c92d5cdb70704839ceb8a82be1056857efa52f72a"
+73 : Primary Sale-confirmation : Confirmed "81bcfae97a15c967d0ee3a1538d02f295aa834787da00523fe20bba8da291cd5"
+22 : Primary Sale-confirmation : Confirmed "ff235bad928c60abf7af00335d3d9471ff8ebe9dbc4721de6451007f7a9d0ee6"
+69 : Primary Sale-confirmation : Confirmed "d8e90daf81f84e8720d4db47c146a376bbadc89c72670638ee2427a3b4361848"
+24 : Primary Sale-confirmation : Confirmed "617b4a08f9faf88c0c175b0fd5cd7e5e7ebf465ac625d73cc7ad5d43ea3326a7"
+5 : Primary Sale-confirmation : Confirmed "53d2c4787480c9c296e56af064b9864752bf3ed99fc9343997ce30a9fa310024"
+74 : Primary Sale-confirmation : Confirmed "a3db4ad4da4e77b7eb2153ca9fe147710480c204a9d78cdb916829e539b69609"
+74 : Primary Buy-setup : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 91>: resource exhausted (Resource temporarily unavailable)"
+6 : Primary Sale-confirmation : Confirmed "43e8941a3610c10c1715b9cf9874a221a983bf53a14a10b62b4a0c829d53072c"
+49 : Primary Sale-confirmation : Confirmed "13dabaa7fb681fb459db005de8101f617fefdd19034f77f41b5bd69de63888bf"
+58 : Primary Sale-confirmation : Confirmed "6b53b8c95e92749bf25bfbe28aad803e7d46ad5e27f53ee711e81dedc4fb6212"
+45 : Primary Sale-confirmation : Confirmed "a699b26d3cc25a9a4d51509b5f57781cf3f26b4fcc6909ee0e9882a04deaae57"
+57 : Primary Sale-confirmation : Confirmed "eadfdc244a0d23621294c7f6701c4f9660995c42a18d4b4eb4ff86d70c1cb7a6"
+46 : Primary Sale-confirmation : Confirmed "bd2d8579df16b6d208ec35a7bea9c29694e9dbcae9f1f3f955fb8428d68eea74"
+3 : Primary Buy: setup = Finalied
+53 : Primary Buy: setup = Finalied
+61 : Primary Buy: setup = Finalied
+42 : Primary Buy: setup = Finalied
+88 : Primary Buy: setup = Finalied
+63 : Primary Buy: setup = Finalied
+56 : Primary Buy: setup = Finalied
+27 : Primary Buy: setup = Finalied
+85 : Primary Buy: setup = Finalied
+23 : Primary Sale-confirmation : Confirmed "117c48d7016c2548bee9113576afe661eb9e4ba785e2f309e0d470023c97921f"
+95 : Primary Sale-confirmation : Confirmed "55602d0c239737488b9dd366994cdf74ffd3056d3181ac5bfb34d3aaf4a3faae"
+71 : Primary Sale-confirmation : Confirmed "f840f636eb9b6bb8de84e3f886e5acd2a6c4275e0550fededb8a7b38f33b8a78"
+51 : Primary Sale-confirmation : Confirmed "34d8279da60a7edf43b87bd74f622e9b923bbef226d32eab04124cef2c8a4d26"
+68 : Primary Buy: setup = Finalied
+92 : Primary Buy: setup = Finalied
+19 : Primary Buy: setup = Finalied
+29 : Primary Buy: setup = Finalied
+58 : Primary Buy: setup = Finalied
+6 : Primary Buy: setup = Finalied
+18 : Primary Buy: setup = Finalied
+30 : Primary Buy: setup = Finalied
+46 : Primary Buy: setup = Finalied
+70 : Primary Buy: setup = Finalied
+54 : Primary Buy: setup = Finalied
+98 : Primary Buy: setup = Finalied
+69 : Primary Buy: setup = Finalied
+94 : Primary Buy: setup = Finalied
+73 : Primary Buy: setup = Finalied
+20 : Primary Buy: setup = Finalied
+99 : Primary Buy: setup = Finalied
+8 : Primary Buy: setup = Finalied
+24 : Primary Buy: setup = Finalied
+45 : Primary Buy: setup = Finalied
+33 : Primary Buy: setup = Finalied
+22 : Primary Buy: setup = Finalied
+93 : Primary Buy: setup = Finalied
+49 : Primary Buy: setup = Finalied
+5 : Primary Buy: setup = Finalied
+4 : Primary Buy: setup = Finalied
+57 : Primary Buy: setup = Finalied
+28 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 32>: resource exhausted (Resource temporarily unavailable)"
+85 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 62>: resource exhausted (Resource temporarily unavailable)"
+36 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 21>: resource exhausted (Resource temporarily unavailable)"
+81 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 21>: resource exhausted (Resource temporarily unavailable)"
+71 : Primary Buy: setup = Finalied
+71 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 21>: resource exhausted (Resource temporarily unavailable)"
+23 : Primary Buy: setup = Finalied
+23 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 21>: resource exhausted (Resource temporarily unavailable)"
+95 : Primary Buy: setup = Finalied
+75 : Primary Sale-confirmation : Confirmed "52340350d089b3953a2bed8ee48e57d6550afd86dd5b7ab44a39b3bd5f18b3a7"
+51 : Primary Buy: setup = Finalied
+66 : Primary Sale-confirmation : Confirmed "cfd93288658c9f1b72019aabdf94a0e1d12fd698f42328cf663580cc1be15bff"
+59 : Primary Sale-confirmation : Confirmed "d2734e823d5a6f6c2e5eedfcb3a2ed990d130b906a8cf0d417a2d477a0a46737"
+17 : Primary Sale-confirmation : Confirmed "5ad95141f50a83ae55125af967bc598b55a86b50efb4628b1cfef0d15c9561c4"
+26 : Primary Buy-confirmation : Confirmed "d7a6438f6ff1bf967a187723d9898d46ebcdde8e0db4af2acb43c10310f7cf6a"
+26 : Secondary Sale: setup = Finalied
+1 : Primary Buy-confirmation : Confirmed "a9120903b928b34e9c4ff8c89dd31a5322ab900ab4648b4fcc1a245f4db9ca0b"
+1 : Secondary Sale: setup = Finalied
+35 : Primary Sale-confirmation : Confirmed "8586c707274591116cdbe41a459fae0fd171b38abda5d401193dceb77b861fb3"
+96 : Primary Sale: buildAndSubmit = Finalied
+97 : Primary Sale: buildAndSubmit = Finalied
+48 : Primary Sale: buildAndSubmit = Finalied
+7 : Primary Sale: buildAndSubmit = Finalied
+25 : Primary Buy: buildAndSubmit = Finalied
+74 : Primary Buy: setup = Finalied
+82 : Primary Buy: buildAndSubmit = Finalied
+35 : Primary Buy: setup = Finalied
+59 : Primary Buy: setup = Finalied
+66 : Primary Buy: setup = Finalied
+75 : Primary Buy: setup = Finalied
+56 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 60>: resource exhausted (Resource temporarily unavailable)"
+32 : Primary Buy: buildAndSubmit = Finalied
+38 : Primary Buy: buildAndSubmit = Finalied
+13 : Primary Buy: buildAndSubmit = Finalied
+13 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 8>: resource exhausted (Resource temporarily unavailable)"
+17 : Primary Buy: setup = Finalied
+72 : Primary Sale: buildAndSubmit = Finalied
+50 : Primary Buy: buildAndSubmit = Finalied
+83 : Primary Buy: buildAndSubmit = Finalied
+84 : Primary Buy: buildAndSubmit = Finalied
+80 : Primary Buy: buildAndSubmit = Finalied
+55 : Primary Buy: buildAndSubmit = Finalied
+77 : Primary Buy: buildAndSubmit = Finalied
+34 : Primary Sale: buildAndSubmit = Finalied
+11 : Primary Buy: buildAndSubmit = Finalied
+86 : Primary Buy: buildAndSubmit = Finalied
+31 : Primary Buy: buildAndSubmit = Finalied
+9 : Primary Buy: buildAndSubmit = Finalied
+10 : Primary Buy: buildAndSubmit = Finalied
+62 : Primary Buy: buildAndSubmit = Finalied
+15 : Primary Buy: buildAndSubmit = Finalied
+0 : Primary Buy: buildAndSubmit = Finalied
+87 : Primary Buy: buildAndSubmit = Finalied
+41 : Primary Buy: buildAndSubmit = Finalied
+12 : Primary Buy: buildAndSubmit = Finalied
+89 : Primary Buy: buildAndSubmit = Finalied
+44 : Primary Sale-confirmation : Confirmed "e1a9f57d677c93525b9c0f1fb3bc80a528e76d5ca269ee1072d0a398f1666935"
+16 : Primary Buy: buildAndSubmit = Finalied
+60 : Primary Buy: buildAndSubmit = Finalied
+14 : Primary Buy: buildAndSubmit = Finalied
+40 : Primary Buy: buildAndSubmit = Finalied
+70 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 75>: resource exhausted (Resource temporarily unavailable)"
+19 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 28>: resource exhausted (Resource temporarily unavailable)"
+65 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryUtxo: IOError :Network.Socket.connect: <socket: 28>: resource exhausted (Resource temporarily unavailable)"
+54 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 28>: resource exhausted (Resource temporarily unavailable)"
+46 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 28>: resource exhausted (Resource temporarily unavailable)"
+3 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryUtxo: IOError :Network.Socket.connect: <socket: 19>: resource exhausted (Resource temporarily unavailable)"
+76 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryUtxo: IOError :Network.Socket.connect: <socket: 19>: resource exhausted (Resource temporarily unavailable)"
+33 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 19>: resource exhausted (Resource temporarily unavailable)"
+93 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 19>: resource exhausted (Resource temporarily unavailable)"
+21 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryUtxo: IOError :Network.Socket.connect: <socket: 19>: resource exhausted (Resource temporarily unavailable)"
+92 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 23>: resource exhausted (Resource temporarily unavailable)"
+2 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryUtxo: IOError :Network.Socket.connect: <socket: 18>: resource exhausted (Resource temporarily unavailable)"
+8 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 18>: resource exhausted (Resource temporarily unavailable)"
+91 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryUtxo: IOError :Network.Socket.connect: <socket: 18>: resource exhausted (Resource temporarily unavailable)"
+98 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 19>: resource exhausted (Resource temporarily unavailable)"
+69 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 19>: resource exhausted (Resource temporarily unavailable)"
+39 : Primary Buy: buildAndSubmit = Finalied
+90 : Primary Buy: buildAndSubmit = Finalied
+44 : Primary Buy: setup = Finalied
+37 : Primary Buy: buildAndSubmit = Finalied
+67 : Primary Buy: buildAndSubmit = Finalied
+43 : Primary Buy: buildAndSubmit = Finalied
+47 : Primary Sale: buildAndSubmit = Finalied
+79 : Primary Buy: buildAndSubmit = Finalied
+78 : Primary Buy: buildAndSubmit = Finalied
+64 : Primary Buy: buildAndSubmit = Finalied
+26 : Secondary Sale: buildAndSubmit = Finalied
+52 : Primary Buy: buildAndSubmit = Finalied
+1 : Secondary Sale: buildAndSubmit = Finalied
+42 : Primary Buy: buildAndSubmit = Finalied
+73 : Primary Buy: buildAndSubmit = Finalied
+49 : Primary Buy: buildAndSubmit = Finalied
+6 : Primary Buy: buildAndSubmit = Finalied
+94 : Primary Buy: buildAndSubmit = Finalied
+61 : Primary Buy: buildAndSubmit = Finalied
+16 : Primary Buy-confirmation : Confirmed "c24bf0f4a8e6bfba7f3e37f3b2070564c51e5dfd88bf735b75152fbf3d6126e3"
+16 : Secondary Sale: setup = Finalied
+30 : Primary Buy: buildAndSubmit = Finalied
+22 : Primary Buy: buildAndSubmit = Finalied
+14 : Primary Buy-confirmation : Confirmed "17f9b67ca97b697f31103fec89855a535d8be0508afcc4b713ab0f84ba66e0c1"
+14 : Secondary Sale: setup = Finalied
+58 : Primary Buy: buildAndSubmit = Finalied
+57 : Primary Buy: buildAndSubmit = Finalied
+88 : Primary Buy: buildAndSubmit = Finalied
+4 : Primary Buy: buildAndSubmit = Finalied
+63 : Primary Buy: buildAndSubmit = Finalied
+29 : Primary Buy: buildAndSubmit = Finalied
+24 : Primary Buy: buildAndSubmit = Finalied
+99 : Primary Buy: buildAndSubmit = Finalied
+45 : Primary Buy: buildAndSubmit = Finalied
+27 : Primary Buy: buildAndSubmit = Finalied
+18 : Primary Buy: buildAndSubmit = Finalied
+60 : Primary Buy-confirmation : Confirmed "e00535596883c8ee56fa019d308c040d681962a22c8e19263717654ecf42721d"
+60 : Secondary Sale: setup = Finalied
+68 : Primary Buy: buildAndSubmit = Finalied
+53 : Primary Buy: buildAndSubmit = Finalied
+35 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 20>: resource exhausted (Resource temporarily unavailable)"
+5 : Primary Buy: buildAndSubmit = Finalied
+20 : Primary Buy: buildAndSubmit = Finalied
+51 : Primary Buy: buildAndSubmit = Finalied
+95 : Primary Buy: buildAndSubmit = Finalied
+40 : Primary Buy-confirmation : Confirmed "402d005b899d0d11d9a6379b39c4b06a3ff60a90ee936e96e5d646cc35d2f87c"
+40 : Secondary Sale: setup = Finalied
+39 : Primary Buy-confirmation : Confirmed "0f3f0cea8610dd8273ee30fefb86ba711ecbbe7dd5141c0a4657538b2f1fc165"
+39 : Secondary Sale: setup = Finalied
+90 : Primary Buy-confirmation : Confirmed "ba9735535e636c518728e752c1fcca8350920fcfcc23102ebebbc5de9a4fd246"
+90 : Secondary Sale: setup = Finalied
+9 : Primary Buy-confirmation : Confirmed "1f8c4c8c027eaf9d2444e3394b7d5fecb8cb922e9f9f1b831d8445f64e5f313b"
+9 : Secondary Sale: setup = Finalied
+84 : Primary Buy-confirmation : Confirmed "03578dbcc1fb9d08d53d56017b12b306d88846169b7fcfc508803c967cbe06b0"
+84 : Secondary Sale: setup = Finalied
+34 : Primary Sale-confirmation : Confirmed "dff4cb73ddfaf5e344a5dc61dc5761ccc59a71c52aaa7404337fa91c19cec27a"
+77 : Primary Buy-confirmation : Confirmed "08435e4cfc0cbe140b251126cb86082585b964effdb1bf6359281e0261734708"
+77 : Secondary Sale: setup = Finalied
+80 : Primary Buy-confirmation : Confirmed "9b27d240fe8f433aa62d221603f18e542b36ecae1d681a0a8d150ed677ffed65"
+80 : Secondary Sale: setup = Finalied
+82 : Primary Buy-confirmation : Confirmed "6fe1406d4c2a5cdf969e4e344223373177214706a088eaa11ade710d5764a725"
+82 : Secondary Sale: setup = Finalied
+86 : Primary Buy-confirmation : Confirmed "0c2e25736310b76d7f1051e1f7d804025bf1110c3fe1b4c6dff3caebfacadcd5"
+86 : Secondary Sale: setup = Finalied
+96 : Primary Sale-confirmation : Confirmed "85668d5f12019f2e409ad7ff074aea2a274e331f1153f93b1ce6f0a060940a7e"
+50 : Primary Buy-confirmation : Confirmed "2479e1cce351e129fe0435c77d5f86266d7d979067beb752e71d740b08b478cf"
+50 : Secondary Sale: setup = Finalied
+13 : Primary Buy-confirmation : Confirmed "dcbf64b2acd898052ed6568501593772ff6a686dc403412174a71c2495fcd534"
+13 : Secondary Sale: setup = Finalied
+97 : Primary Sale-confirmation : Confirmed "a9feee8d5516fe19116227af49c23134f30ab5f7046c1d3638bdaa1ab8b66555"
+62 : Primary Buy-confirmation : Confirmed "b73a4a470708f5ab9248e5700585dd7ac1e3b2e6b4e616069e475e275d9c757a"
+62 : Secondary Sale: setup = Finalied
+62 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 73>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Sale-confirmation : Confirmed "e6778f92638cbc70451b8346e6cda7df66ae42b1c1f319454a217377f59562cd"
+48 : Primary Sale-confirmation : Confirmed "8d77c9a7dbbed5f432679b13454e6f6fc21fd0cee95c3b2a3bb2c290edaca0d8"
+48 : Primary Buy-setup : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 74>: resource exhausted (Resource temporarily unavailable)"
+25 : Primary Buy-confirmation : Confirmed "f711cab51036819f19074db11fed1acdf2ead2ec87d97991c2f39194c864996d"
+25 : Secondary Sale: setup = Finalied
+25 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 74>: resource exhausted (Resource temporarily unavailable)"
+43 : Primary Buy-confirmation : Confirmed "9fe07ed0eb81983e737a8f206e1b4a03a0f9eb0a7e6f154a30989e5e5cabd520"
+43 : Secondary Sale: setup = Finalied
+55 : Primary Buy-confirmation : Confirmed "fa8ad78bf2c7a76246a2757edf7b090ab9caf04978c1b5b1c47838cd9d22313b"
+55 : Secondary Sale: setup = Finalied
+11 : Primary Buy-confirmation : Confirmed "e4bdf3740141d7840e83905d44ab27cc7814519ebd20dbc7a2cad7698addb441"
+11 : Secondary Sale: setup = Finalied
+10 : Primary Buy-confirmation : Confirmed "7a81984e4c129290ee27b32a165bff76b89867beedf4b6a0cb505ccf59c9d0be"
+10 : Secondary Sale: setup = Finalied
+83 : Primary Buy-confirmation : Confirmed "9bb9716f645bacb0538c50cc59632c2408f1ffdbeae7da1156ed36fbbd4ed2d9"
+83 : Secondary Sale: setup = Finalied
+72 : Primary Sale-confirmation : Confirmed "47079ffe5e9e4ac7187dbf2b98266392a0a2c8568c21a481dca92e35c03ede49"
+38 : Primary Buy-confirmation : Confirmed "60a0bfa7618341dea9101ee1b7df02add9a91c8452ef5a257be431fb33836401"
+38 : Secondary Sale: setup = Finalied
+31 : Primary Buy-confirmation : Confirmed "7e253110875029d9c00b4a5945a6ea64386742d9658156ef42ea7e65dbc17b81"
+31 : Secondary Sale: setup = Finalied
+32 : Primary Buy-confirmation : Confirmed "e9d5d5ba73334fbf140e9b38280e6f389bdeead3b04265cb1af8698de8f7cc5e"
+32 : Secondary Sale: setup = Finalied
+67 : Primary Buy-confirmation : Confirmed "6837d4da4520d816955c22bc0aa38c1913e4b6766b631bce2aeee4a1cfc58e4d"
+67 : Secondary Sale: setup = Finalied
+37 : Primary Buy-confirmation : Confirmed "276842c996826ab80d33a53990633dc38c6eb23be0f40fc72d20937a560d28c2"
+37 : Secondary Sale: setup = Finalied
+0 : Primary Buy-confirmation : Confirmed "e7e3dcd8734b466c11f04098e92bf135173986409a0a18aeb4dcdc4ce743eb7d"
+0 : Secondary Sale: setup = Finalied
+15 : Primary Buy-confirmation : Confirmed "f6aa6d6aec3ae3a1a494e1221b4bcb77315136761750b8c88e2323a0af58f870"
+15 : Secondary Sale: setup = Finalied
+89 : Primary Buy-confirmation : Confirmed "c6ba41d94db2959f19f97583ce7942f720068c696bdca77f8bc91ae7da79b27c"
+89 : Secondary Sale: setup = Finalied
+12 : Primary Buy-confirmation : Confirmed "cf586ed3c8d7c9d0120ee0ff4d88cf15ef144512987d8325d6aacfc5cdd93815"
+12 : Secondary Sale: setup = Finalied
+41 : Primary Buy-confirmation : Confirmed "d9058256cf25f54172df014e8a01bb852de0be4608521475417d329638e9f36a"
+41 : Secondary Sale: setup = Finalied
+87 : Primary Buy-confirmation : Confirmed "5178ba4c4d52165c58dedb4246233a0fd7d1ceeb76eb5d684066fcd679ae2edb"
+87 : Secondary Sale: setup = Finalied
+74 : Primary Buy: buildAndSubmit = Finalied
+75 : Primary Buy: buildAndSubmit = Finalied
+70 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryUtxo: IOError :Network.Socket.connect: <socket: 37>: resource exhausted (Resource temporarily unavailable)"
+23 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 26>: resource exhausted (Resource temporarily unavailable)"
+19 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryUtxo: IOError :Network.Socket.connect: <socket: 26>: resource exhausted (Resource temporarily unavailable)"
+46 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryUtxo: IOError :Network.Socket.connect: <socket: 26>: resource exhausted (Resource temporarily unavailable)"
+59 : Primary Buy: buildAndSubmit = Finalied
+17 : Primary Buy: buildAndSubmit = Finalied
+66 : Primary Buy: buildAndSubmit = Finalied
+7 : Primary Buy: setup = Finalied
+72 : Primary Buy: setup = Finalied
+97 : Primary Buy: setup = Finalied
+9 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 48>: resource exhausted (Resource temporarily unavailable)"
+14 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 16>: resource exhausted (Resource temporarily unavailable)"
+60 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 7>: resource exhausted (Resource temporarily unavailable)"
+12 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 7>: resource exhausted (Resource temporarily unavailable)"
+41 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 16>: resource exhausted (Resource temporarily unavailable)"
+34 : Primary Buy: setup = Finalied
+34 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 59>: resource exhausted (Resource temporarily unavailable)"
+43 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 59>: resource exhausted (Resource temporarily unavailable)"
+83 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 59>: resource exhausted (Resource temporarily unavailable)"
+86 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 59>: resource exhausted (Resource temporarily unavailable)"
+96 : Primary Buy: setup = Finalied
+96 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 59>: resource exhausted (Resource temporarily unavailable)"
+50 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 59>: resource exhausted (Resource temporarily unavailable)"
+77 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 59>: resource exhausted (Resource temporarily unavailable)"
+38 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 59>: resource exhausted (Resource temporarily unavailable)"
+85 : Primary Buy: buildAndSubmit = Finalied
+71 : Primary Buy: buildAndSubmit = Finalied
+36 : Primary Buy: buildAndSubmit = Finalied
+28 : Primary Buy: buildAndSubmit = Finalied
+44 : Primary Buy: buildAndSubmit = Finalied
+21 : Primary Sale: buildAndSubmit = Finalied
+81 : Primary Buy: buildAndSubmit = Finalied
+3 : Primary Buy: buildAndSubmit = Finalied
+56 : Primary Buy: buildAndSubmit = Finalied
+2 : Primary Buy: buildAndSubmit = Finalied
+65 : Primary Buy: buildAndSubmit = Finalied
+69 : Primary Buy: buildAndSubmit = Finalied
+40 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 9>: resource exhausted (Resource temporarily unavailable)"
+76 : Primary Buy: buildAndSubmit = Finalied
+33 : Primary Buy: buildAndSubmit = Finalied
+8 : Primary Buy: buildAndSubmit = Finalied
+92 : Primary Buy: buildAndSubmit = Finalied
+91 : Primary Buy: buildAndSubmit = Finalied
+98 : Primary Buy: buildAndSubmit = Finalied
+93 : Primary Buy: buildAndSubmit = Finalied
+54 : Primary Buy: buildAndSubmit = Finalied
+48 : Primary Buy: setup = Finalied
+16 : Secondary Sale: buildAndSubmit = Finalied
+55 : Secondary Sale: buildAndSubmit = Finalied
+90 : Secondary Sale: buildAndSubmit = Finalied
+89 : Secondary Sale: buildAndSubmit = Finalied
+1 : Secondary Sale-confirmation : Confirmed "74acf79ff3f3afffcee193a6f156d24f1312612cd4e276537f193010187ea785"
+80 : Secondary Sale: buildAndSubmit = Finalied
+24 : Primary Buy-confirmation : Confirmed "3f426b0055b0392ea0199735b2a393df694f66d6a30d95f95f325ba807f0b75b"
+24 : Secondary Sale: setup = Finalied
+73 : Primary Buy-confirmation : Confirmed "6bd9269c212cb05b2bcd8a854f4fdec429732465c8da8d949e173b867eded88f"
+73 : Secondary Sale: setup = Finalied
+49 : Primary Buy-confirmation : Confirmed "75b06eafa0c58b17938657be499352a6dcf9e1b34ed88377fd95824c774b0111"
+49 : Secondary Sale: setup = Finalied
+61 : Primary Buy-confirmation : Confirmed "4f88e989ad3b151ef0c2b559d9b8d811103987685e04af4fe701edc415faa5d6"
+61 : Secondary Sale: setup = Finalied
+42 : Primary Buy-confirmation : Confirmed "96ae0a3b88afdd27107969a9630275b2a73cddbfd7652eca7b9c3df4c2a3705f"
+42 : Secondary Sale: setup = Finalied
+45 : Primary Buy-confirmation : Confirmed "0c97ca078179db6f24b35e76c6ae08423f20b9d025017d2fec1581bb2b87ecab"
+45 : Secondary Sale: setup = Finalied
+39 : Secondary Sale: buildAndSubmit = Finalied
+37 : Secondary Sale: buildAndSubmit = Finalied
+82 : Secondary Sale: buildAndSubmit = Finalied
+11 : Secondary Sale: buildAndSubmit = Finalied
+13 : Secondary Sale: buildAndSubmit = Finalied
+87 : Secondary Sale: buildAndSubmit = Finalied
+0 : Secondary Sale: buildAndSubmit = Finalied
+15 : Secondary Sale: buildAndSubmit = Finalied
+10 : Secondary Sale: buildAndSubmit = Finalied
+67 : Secondary Sale: buildAndSubmit = Finalied
+32 : Secondary Sale: buildAndSubmit = Finalied
+31 : Secondary Sale: buildAndSubmit = Finalied
+84 : Secondary Sale: buildAndSubmit = Finalied
+1 : Withdraw: setup = Finalied
+97 : Primary Buy: buildAndSubmit = Finalied
+72 : Primary Buy: buildAndSubmit = Finalied
+7 : Primary Buy: buildAndSubmit = Finalied
+4 : Primary Buy-confirmation : Confirmed "6e62c3fab01fb04f083076a24504e7801decba93193f1def99744ae99cc3859f"
+4 : Secondary Sale: setup = Finalied
+62 : Secondary Sale: buildAndSubmit = Finalied
+20 : Primary Buy-confirmation : Confirmed "c543c86a068123501632c6b477067c8f9a7127c5bddf3c197274df8b3616a546"
+20 : Secondary Sale: setup = Finalied
+18 : Primary Buy-confirmation : Confirmed "d32f91ef8033ba7e96c06b045e40764f5c18f9d61def87deb2b72cdbdfcb1930"
+18 : Secondary Sale: setup = Finalied
+94 : Primary Buy-confirmation : Confirmed "de1f8076af7e2e31e9ed063d1c72957e434cffad7e98799914123837574754ec"
+94 : Secondary Sale: setup = Finalied
+99 : Primary Buy-confirmation : Confirmed "f2c7cedc1877c32ad61a0631dd136c3993ac26c1ed18ad08bd49dc005f80b2ec"
+99 : Secondary Sale: setup = Finalied
+63 : Primary Buy-confirmation : Confirmed "ef9022dd740f5a8e9fd7b98576b8b15fa49b30e9e9eefdba780a4e64e0252952"
+63 : Secondary Sale: setup = Finalied
+58 : Primary Buy-confirmation : Confirmed "43bb0c9e96ad6193a530504733aa83a4aa10f9af607053c50bcca3b8f516b51f"
+58 : Secondary Sale: setup = Finalied
+6 : Primary Buy-confirmation : Confirmed "1ee85d9b5481f5a28302b5b629798668d40e6a37a4fb933647f9e17526010fc2"
+6 : Secondary Sale: setup = Finalied
+30 : Primary Buy-confirmation : Confirmed "7abc24bd326280198ca9ac6bc16c896bc5e57650ea4c924f6edea3dbfd194d52"
+30 : Secondary Sale: setup = Finalied
+29 : Primary Buy-confirmation : Confirmed "36395f0a8879551f9d7cb2ce754bb5f1d16acd8480e002805bfb34a846cbd501"
+29 : Secondary Sale: setup = Finalied
+27 : Primary Buy-confirmation : Confirmed "04f287c61754dd8fd2816117a7e1d09d22c3cc71be8d2f130d758a171807d834"
+27 : Secondary Sale: setup = Finalied
+88 : Primary Buy-confirmation : Confirmed "7e6388751726996fd6d9fdfde41ae5b5ea50a9e4c664062c787c765fdcc71990"
+88 : Secondary Sale: setup = Finalied
+57 : Primary Buy-confirmation : Confirmed "3252534c2a7a97eb8f5528a0df0934bd88fc94edef2674fe1d4c596e727300ec"
+57 : Secondary Sale: setup = Finalied
+51 : Primary Buy-confirmation : Confirmed "d8abb871085d130af47049f8b33203a4caffc7d23b8d6427d4281620ebe0d955"
+51 : Secondary Sale: setup = Finalied
+68 : Primary Buy-confirmation : Confirmed "455e256701f81b7b5e0bd67cb52d1b00722c81ea934cb1578f952a15fe458e33"
+68 : Secondary Sale: setup = Finalied
+22 : Primary Buy-confirmation : Confirmed "591b4a7d4912286af6ac596eb16f99450e1a395f3e59a6563be6154c16c8e84a"
+22 : Secondary Sale: setup = Finalied
+53 : Primary Buy-confirmation : Confirmed "ff3d991f3593812b1ac8be3111a7a2fae57e45131f52ba638ffe2041e2778d2d"
+53 : Secondary Sale: setup = Finalied
+5 : Primary Buy-confirmation : Confirmed "15d7897fcb38cc45b7d53444c701b9971f9e2e96f9fd4fb63fb4a3b473b4ce25"
+5 : Secondary Sale: setup = Finalied
+95 : Primary Buy-confirmation : Confirmed "719a9d5d335a3e7286a7b1dc46158eb15c4298e5eaf9e6ef943f64664fb976fc"
+95 : Secondary Sale: setup = Finalied
+47 : Primary Sale-confirmation : Confirmed "577d56787866e2f7ef063944c3a33518732bfa226b4adcec4ab3e2ea1bdec807"
+75 : Primary Buy-confirmation : Confirmed "e34e9f076de0ea5a45dc00e3b7c0def7e7ff74b3c7ab47fc1011cc480c67ffe7"
+75 : Secondary Sale: setup = Finalied
+74 : Primary Buy-confirmation : Confirmed "728ff698ca07bf34cc685800a5ef9bdb65a9d0f84929b8484142e49cbec439bf"
+74 : Secondary Sale: setup = Finalied
+79 : Primary Buy-confirmation : Confirmed "64212ae7bd200f1b919bcb5ef6d3c00e0605e2e97bdaf602c6113da5b8fb65cc"
+79 : Secondary Sale: setup = Finalied
+17 : Primary Buy-confirmation : Confirmed "ca1cd77299894c8219881e3e1e614fa36a012fd740009804c8e489a56809fcf5"
+17 : Secondary Sale: setup = Finalied
+26 : Secondary Sale-confirmation : Confirmed "fd1959046edfebc7106125d9013f46f61db0bb2d5d7ad3225ba9478750111fb4"
+52 : Primary Buy-confirmation : Confirmed "94e9e34bad05361e9ee18ec9f5f5cd0332ed99f0b16b9b8a528e7030dbea6408"
+52 : Secondary Sale: setup = Finalied
+59 : Primary Buy-confirmation : Confirmed "1d0b717e4f10fb5f736fd0f07f5a8e0ca68d7d1a7696e270dc2707529dfa29c6"
+59 : Secondary Sale: setup = Finalied
+78 : Primary Buy-confirmation : Confirmed "72ed8127c0d43a51b3c4f7beb8f0abb3a4215468d48a2a39045f8e2367dc1487"
+78 : Secondary Sale: setup = Finalied
+66 : Primary Buy-confirmation : Confirmed "603ac690e505db905448a1e86ece10f57291f8a6903e11d88ff9e63609228461"
+66 : Secondary Sale: setup = Finalied
+90 : Secondary Sale-confirmation : Confirmed "f6c4cb1e9840a0fa2f5cf839c0ab99fd723a3277cd857921be6d0a9697cba259"
+64 : Primary Buy-confirmation : Confirmed "d3abbaf5d1c5debfc0912334320b14535c782270be6adecf852e007c050ee0b9"
+64 : Secondary Sale: setup = Finalied
+89 : Secondary Sale-confirmation : Confirmed "2e43bc0ddd2228c4bc4c18bba6e0cc37e0a8a789148e6d8708c27c8f65d81274"
+55 : Secondary Sale-confirmation : Confirmed "374d09e59f25ecf61b4e499e50aabbb9ab075f0a948a30c91b0988ee1cf9accf"
+71 : Primary Buy-confirmation : Confirmed "c133e2f4fe4b41880e5ba2e80059c3e40647199964f62d05b3d27da9ca57e651"
+71 : Secondary Sale: setup = Finalied
+36 : Primary Buy-confirmation : Confirmed "70e8dee21918a9305d2c1e2163ee0347505fac454c5ab3a4ba5a14ca00b1604c"
+36 : Secondary Sale: setup = Finalied
+80 : Secondary Sale-confirmation : Confirmed "e5a6c454612ef307350a14c121fe90da8a6c2f0fae7e367d6c52b89a81ac727a"
+85 : Primary Buy-confirmation : Confirmed "945b78b52282a9d855cbcd338a375b763746b356821eb4a945950ac515dca893"
+85 : Secondary Sale: setup = Finalied
+39 : Secondary Sale-confirmation : Confirmed "7fd61724ba6a7650c395d0727bf7838c2c9f6cebad8ed563517c6b1a9cdff312"
+82 : Secondary Sale-confirmation : Confirmed "14545bb2e4c6a7dad5aa6ac9e7ae4e09fcd0849a678206df0735bf6c9635a73c"
+44 : Primary Buy-confirmation : Confirmed "29068cfbeecfdbe3be0cbf223306f0fa05527618f374cc92f352e393b81370ab"
+44 : Secondary Sale: setup = Finalied
+28 : Primary Buy-confirmation : Confirmed "2423d8be171b0c86ab7bc3064948b761537716a02d9533af44c775b414c2fafb"
+28 : Secondary Sale: setup = Finalied
+21 : Primary Sale-confirmation : Confirmed "ae46f7765f529ef972eb248fcd541ad445a7dc10fd4c3ff1789a07aa26a22b75"
+10 : Secondary Sale-confirmation : Confirmed "491bcd6750afbca8465c61bbf9980a16f2b5b89804c0ffefb93d0aab783e53aa"
+31 : Secondary Sale-confirmation : Confirmed "a387b1b24dfc2b7aa7cc16e9e67b35998265ec7ff7635b18599ca097d61b5a45"
+32 : Secondary Sale-confirmation : Confirmed "2eb8690a5d1f8a232ee2c3e23c251dc247e9e08af0ddecab5747486cce7cdadd"
+0 : Secondary Sale-confirmation : Confirmed "414b1a1c11adc9839397ce4150839cd63bfb5861cde9f842bfd5444ddfffd41e"
+67 : Secondary Sale-confirmation : Confirmed "8ccd5855021918907c6cb1e262438aa8e6d3f0064e1da8db457d716ae2ce055f"
+13 : Secondary Sale-confirmation : Confirmed "eff5c066c787c1cc220761cde2dfeb9e456e4b26b31d1d8d1ce569c06b83e137"
+87 : Secondary Sale-confirmation : Confirmed "8842758829678d393be80fedf670f5802fad1e86d02b75c809f42a336280053c"
+11 : Secondary Sale-confirmation : Confirmed "63663a19e62de843b8c7b100a36b081a040aa25f7dcad902d3de149b70915caf"
+84 : Secondary Sale-confirmation : Confirmed "24a4368ea6de04f3702ca1441215b906f906c36cfae361db847008cc7d0512d0"
+37 : Secondary Sale-confirmation : Confirmed "eff39d9223a9b06f72c057bc63229c1e737b9522443eb469d0ec9fddd59004e0"
+15 : Secondary Sale-confirmation : Confirmed "4f0c8d4ef7c4fcf77ab463cef1570de2ec560b50b724b9d238c6ed54b3842b9b"
+35 : Primary Buy: buildAndSubmit = Finalied
+25 : Secondary Sale: buildAndSubmit = Finalied
+47 : Primary Buy: setup = Finalied
+26 : Withdraw: setup = Finalied
+55 : Withdraw: setup = Finalied
+90 : Withdraw: setup = Finalied
+37 : Withdraw: setup = Finalied
+21 : Primary Buy: setup = Finalied
+84 : Withdraw: setup = Finalied
+87 : Withdraw: setup = Finalied
+80 : Withdraw: setup = Finalied
+39 : Withdraw: setup = Finalied
+11 : Withdraw: setup = Finalied
+13 : Withdraw: setup = Finalied
+0 : Withdraw: setup = Finalied
+15 : Withdraw: setup = Finalied
+67 : Withdraw: setup = Finalied
+89 : Withdraw: setup = Finalied
+10 : Withdraw: setup = Finalied
+82 : Withdraw: setup = Finalied
+31 : Withdraw: setup = Finalied
+32 : Withdraw: setup = Finalied
+9 : Secondary Sale: buildAndSubmit = Finalied
+14 : Secondary Sale: buildAndSubmit = Finalied
+19 : Primary Buy: buildAndSubmit = Finalied
+70 : Primary Buy: buildAndSubmit = Finalied
+83 : Secondary Sale: buildAndSubmit = Finalied
+46 : Primary Buy: buildAndSubmit = Finalied
+46 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 14>: resource exhausted (Resource temporarily unavailable)"
+12 : Secondary Sale: buildAndSubmit = Finalied
+42 : Secondary Sale: buildAndSubmit = Finalied
+60 : Secondary Sale: buildAndSubmit = Finalied
+23 : Primary Buy: buildAndSubmit = Finalied
+86 : Secondary Sale: buildAndSubmit = Finalied
+43 : Secondary Sale: buildAndSubmit = Finalied
+41 : Secondary Sale: buildAndSubmit = Finalied
+50 : Secondary Sale: buildAndSubmit = Finalied
+48 : Primary Buy: buildAndSubmit = Finalied
+77 : Secondary Sale: buildAndSubmit = Finalied
+38 : Secondary Sale: buildAndSubmit = Finalied
+61 : Secondary Sale: buildAndSubmit = Finalied
+49 : Secondary Sale: buildAndSubmit = Finalied
+45 : Secondary Sale: buildAndSubmit = Finalied
+65 : Primary Buy-confirmation : Confirmed "4292efd2805d2ca0fa978843b088f848fc013687ba2149822b538dfd8059afe7"
+65 : Secondary Sale: setup = Finalied
+3 : Primary Buy-confirmation : Confirmed "c2c431cb2cf66afeea5a522ec597e465ae56c949c1e8a9f959a17474cd5a4c30"
+3 : Secondary Sale: setup = Finalied
+8 : Primary Buy-confirmation : Confirmed "0e64396adc10fb68c966bc97db1a61caf1210ed86d41fdf40f47e5cb2b99bda2"
+8 : Secondary Sale: setup = Finalied
+69 : Primary Buy-confirmation : Confirmed "fe23bb049ba17a0d1206d968e48aa0c443098f03b0358dfa30492636e3e8c5e4"
+69 : Secondary Sale: setup = Finalied
+92 : Primary Buy-confirmation : Confirmed "2b5a93a81f034e110ce746be7facbba681758fce04a9b1aa7bcfe121bf588dc9"
+92 : Secondary Sale: setup = Finalied
+81 : Primary Buy-confirmation : Confirmed "1793f1cbd22aa156f3430dee6ebd5c60e223b7a5479476ed568e356b10133af5"
+81 : Secondary Sale: setup = Finalied
+56 : Primary Buy-confirmation : Confirmed "e7758c2196ddd399d92ef6c4c4d082d6f9e4117d1b68cb3a26e463b6961380c3"
+56 : Secondary Sale: setup = Finalied
+33 : Primary Buy-confirmation : Confirmed "f3146e668f844bd9589f48b4c45a1b8c26640d7b63b735e9d988fd3306fe262f"
+33 : Secondary Sale: setup = Finalied
+76 : Primary Buy-confirmation : Confirmed "9df3f1ff540ca88a789681b6dfa672c94d4e8e92b12040636b6b18d2f134d03d"
+76 : Secondary Sale: setup = Finalied
+2 : Primary Buy-confirmation : Confirmed "8802b16680ff9808e5fa0b64da2832750c35beda49ebcf2a303592d0526c4b54"
+2 : Secondary Sale: setup = Finalied
+54 : Primary Buy-confirmation : Confirmed "a66a77c36fd4276a34d7521e6d36ed48a9a39a3499f211e8e3f2ff80494f1042"
+54 : Secondary Sale: setup = Finalied
+93 : Primary Buy-confirmation : Confirmed "f780713b3e93a2042f3583f988a9d12642a169ba849d241d894d9b4bf39a3d0a"
+93 : Secondary Sale: setup = Finalied
+98 : Primary Buy-confirmation : Confirmed "f29fcbc081c3ccd1a2d58b532507e7747154cf3e59ab1eb07ace0c2e261c5cb2"
+98 : Secondary Sale: setup = Finalied
+91 : Primary Buy-confirmation : Confirmed "9b95161029e2f2e72f9df2aeae6adc4c400c98eefcdec87a9ec4532fd89dc9c4"
+91 : Secondary Sale: setup = Finalied
+16 : Secondary Sale-confirmation : Confirmed "a1ed0f4e85295daecc69b7191cd06442d4c5b34df6eb2d0446851755dd2f4057"
+35 : Primary Buy-confirmation : Confirmed "076a2ab2ecd97c227a4b5c3e1c5da886fe2db293f22dea19e54121f6e964d161"
+35 : Secondary Sale: setup = Finalied
+25 : Secondary Sale-confirmation : Confirmed "b965483bbdcb0c3b70db09cd1b7cb0fce409447c2179480e7eecbd8ac82b5b42"
+97 : Primary Buy-confirmation : Confirmed "01746e22745b24b07e1741c01e23c0b10d5ef078819240dfcc380a18f8de9707"
+97 : Secondary Sale: setup = Finalied
+72 : Primary Buy-confirmation : Confirmed "151147a5c04d386bdc22c9e97e3e3e9b6435bcefe11ed2beefc1ebdf5c88a33b"
+72 : Secondary Sale: setup = Finalied
+14 : Secondary Sale-confirmation : Confirmed "bede08f93c41a04700879f399eabc1a303b87d5d9152493e170b9d68cef2ff99"
+9 : Secondary Sale-confirmation : Confirmed "ecf98497490b8752fe87b30e679bacdef7e27eea836f6c5aa9da63719a3dd21d"
+73 : Secondary Sale: buildAndSubmit = Finalied
+34 : Primary Buy: buildAndSubmit = Finalied
+24 : Secondary Sale: buildAndSubmit = Finalied
+40 : Secondary Sale: buildAndSubmit = Finalied
+39 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: MuxError MuxBearerClosed \"<socket: 74> closed when reading data, waiting on next header True\""
+96 : Primary Buy: buildAndSubmit = Finalied
+25 : Withdraw: setup = Finalied
+16 : Withdraw: setup = Finalied
+14 : Withdraw: setup = Finalied
+9 : Withdraw: setup = Finalied
+1 : Withdraw: buildAndSubmit = Finalied
+75 : Secondary Sale: buildAndSubmit = Finalied
+6 : Secondary Sale: buildAndSubmit = Finalied
+20 : Secondary Sale: buildAndSubmit = Finalied
+85 : Secondary Sale: buildAndSubmit = Finalied
+88 : Secondary Sale: buildAndSubmit = Finalied
+67 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryUtxo: IOError :Network.Socket.connect: <socket: 8>: resource exhausted (Resource temporarily unavailable)"
+58 : Secondary Sale: buildAndSubmit = Finalied
+58 : Secondary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 8>: resource exhausted (Resource temporarily unavailable)"
+26 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 8>: resource exhausted (Resource temporarily unavailable)"
+22 : Secondary Sale: buildAndSubmit = Finalied
+22 : Secondary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 8>: resource exhausted (Resource temporarily unavailable)"
+52 : Secondary Sale: buildAndSubmit = Finalied
+52 : Secondary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 8>: resource exhausted (Resource temporarily unavailable)"
+59 : Secondary Sale: buildAndSubmit = Finalied
+59 : Secondary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 8>: resource exhausted (Resource temporarily unavailable)"
+94 : Secondary Sale: buildAndSubmit = Finalied
+94 : Secondary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 8>: resource exhausted (Resource temporarily unavailable)"
+68 : Secondary Sale: buildAndSubmit = Finalied
+68 : Secondary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 8>: resource exhausted (Resource temporarily unavailable)"
+82 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryUtxo: IOError :Network.Socket.connect: <socket: 8>: resource exhausted (Resource temporarily unavailable)"
+15 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryUtxo: IOError :Network.Socket.connect: <socket: 8>: resource exhausted (Resource temporarily unavailable)"
+99 : Secondary Sale: buildAndSubmit = Finalied
+99 : Secondary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 8>: resource exhausted (Resource temporarily unavailable)"
+10 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryUtxo: IOError :Network.Socket.connect: <socket: 7>: resource exhausted (Resource temporarily unavailable)"
+27 : Secondary Sale: buildAndSubmit = Finalied
+66 : Secondary Sale: buildAndSubmit = Finalied
+51 : Secondary Sale: buildAndSubmit = Finalied
+17 : Secondary Sale: buildAndSubmit = Finalied
+95 : Secondary Sale: buildAndSubmit = Finalied
+29 : Secondary Sale: buildAndSubmit = Finalied
+53 : Secondary Sale: buildAndSubmit = Finalied
+4 : Secondary Sale: buildAndSubmit = Finalied
+79 : Secondary Sale: buildAndSubmit = Finalied
+78 : Secondary Sale: buildAndSubmit = Finalied
+5 : Secondary Sale: buildAndSubmit = Finalied
+64 : Secondary Sale: buildAndSubmit = Finalied
+18 : Secondary Sale: buildAndSubmit = Finalied
+74 : Secondary Sale: buildAndSubmit = Finalied
+71 : Secondary Sale: buildAndSubmit = Finalied
+71 : Secondary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 46>: resource exhausted (Resource temporarily unavailable)"
+57 : Secondary Sale: buildAndSubmit = Finalied
+63 : Secondary Sale: buildAndSubmit = Finalied
+30 : Secondary Sale: buildAndSubmit = Finalied
+36 : Secondary Sale: buildAndSubmit = Finalied
+28 : Secondary Sale: buildAndSubmit = Finalied
+13 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 55>: resource exhausted (Resource temporarily unavailable)"
+21 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 55>: resource exhausted (Resource temporarily unavailable)"
+44 : Secondary Sale: buildAndSubmit = Finalied
+44 : Secondary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 4>: resource exhausted (Resource temporarily unavailable)"
+98 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 4>: resource exhausted (Resource temporarily unavailable)"
+8 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 4>: resource exhausted (Resource temporarily unavailable)"
+2 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 4>: resource exhausted (Resource temporarily unavailable)"
+76 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 4>: resource exhausted (Resource temporarily unavailable)"
+14 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 4>: resource exhausted (Resource temporarily unavailable)"
+56 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 4>: resource exhausted (Resource temporarily unavailable)"
+80 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 4>: resource exhausted (Resource temporarily unavailable)"
+72 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 4>: resource exhausted (Resource temporarily unavailable)"
+69 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 4>: resource exhausted (Resource temporarily unavailable)"
+84 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 4>: resource exhausted (Resource temporarily unavailable)"
+97 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 4>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-confirmation : Confirmed "370a10e73f47869bfd00a43704f9ddc0eea55fd097f6255d65a8a24796c08195"
+7 : Secondary Sale: setup = Finalied
+62 : Secondary Sale-confirmation : Confirmed "ea4a1f58b62521b976d0c322e33d6abc1d629eb1be1d36afa55a3e07ffd9c36c"
+37 : Withdraw: buildAndSubmit = Finalied
+90 : Withdraw: buildAndSubmit = Finalied
+62 : Withdraw: setup = Finalied
+11 : Withdraw: buildAndSubmit = Finalied
+55 : Withdraw: buildAndSubmit = Finalied
+87 : Withdraw: buildAndSubmit = Finalied
+89 : Withdraw: buildAndSubmit = Finalied
+31 : Withdraw: buildAndSubmit = Finalied
+47 : Primary Buy: buildAndSubmit = Finalied
+0 : Withdraw: buildAndSubmit = Finalied
+81 : Secondary Sale: buildAndSubmit = Finalied
+92 : Secondary Sale: buildAndSubmit = Finalied
+33 : Secondary Sale: buildAndSubmit = Finalied
+35 : Secondary Sale: buildAndSubmit = Finalied
+65 : Secondary Sale: buildAndSubmit = Finalied
+3 : Secondary Sale: buildAndSubmit = Finalied
+32 : Withdraw: buildAndSubmit = Finalied
+93 : Secondary Sale: buildAndSubmit = Finalied
+54 : Secondary Sale: buildAndSubmit = Finalied
+91 : Secondary Sale: buildAndSubmit = Finalied
+16 : Withdraw: buildAndSubmit = Finalied
+9 : Withdraw: buildAndSubmit = Finalied
+25 : Withdraw: buildAndSubmit = Finalied
+39 : Withdraw: buildAndSubmit = Finalied
+7 : Secondary Sale: buildAndSubmit = Finalied
+62 : Withdraw: buildAndSubmit = Finalied
+77 : Secondary Sale-confirmation : Confirmed "fa460b3fcc35f21e23ae2041213ee9695f70dcc47b7dfbc2800a671397c87c72"
+48 : Primary Buy-confirmation : Confirmed "7ebe2ecb060caadf099c056a1ecfc447f4e88184347a6152b175a6c185f399ad"
+48 : Secondary Sale: setup = Finalied
+61 : Secondary Sale-confirmation : Confirmed "22231892a4e0f510997ddfe3f65d12781ca649a6f258fecb9f958412efd23ae6"
+49 : Secondary Sale-confirmation : Confirmed "89f46088e9c56a40c1ce4848ec77d40a18a7dc1d5ce2d06698111e043e94eb59"
+38 : Secondary Sale-confirmation : Confirmed "dcb58640baba9ab81502590c1dc300f819c0bb8bb76b61dcbcb0938ccc420678"
+45 : Secondary Sale-confirmation : Confirmed "86f64b0aa1302430162d1837223c6d9022b3d9c23c1660a6c07aa6e07f00721c"
+6 : Secondary Sale-confirmation : Confirmed "53ae7ca9ebea4068e961d7cde00eb6fd9c0320883e64c2e11154c6e129c01ced"
+20 : Secondary Sale-confirmation : Confirmed "018563b3cac862e72e8cd7e2cfb8f07e7a2c9028a3d036b9f3be211a9c2e89b3"
+1 : Withdraw-confirmation : Confirmed "b90a7551f5c26c27436b59dfd959d3cf07455af91231abac47b4300209b97fe7"
+85 : Secondary Sale-confirmation : Confirmed "0c411544e951d8201e7159899f5a461a4fc0b8deabc287636c2ccc33c63f9a70"
+88 : Secondary Sale-confirmation : Confirmed "c82495d3357a64f91711c871c6aa3fd38d578f8c7b9357f1b7254cd6903207ff"
+75 : Secondary Sale-confirmation : Confirmed "6cdd2204f8f21381b939c9a0b869a0ef603582854aeba6abb5577aba8d88d185"
+85 : Withdraw: setup = Finalied
+61 : Withdraw: setup = Finalied
+88 : Withdraw: setup = Finalied
+49 : Withdraw: setup = Finalied
+6 : Withdraw: setup = Finalied
+45 : Withdraw: setup = Finalied
+77 : Withdraw: setup = Finalied
+38 : Withdraw: setup = Finalied
+20 : Withdraw: setup = Finalied
+8 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 10>: resource exhausted (Resource temporarily unavailable)"
+76 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 10>: resource exhausted (Resource temporarily unavailable)"
+48 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 7>: resource exhausted (Resource temporarily unavailable)"
+97 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 15>: resource exhausted (Resource temporarily unavailable)"
+75 : Withdraw: setup = Finalied
+82 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 14>: resource exhausted (Resource temporarily unavailable)"
+14 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 14>: resource exhausted (Resource temporarily unavailable)"
+26 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 11>: resource exhausted (Resource temporarily unavailable)"
+38 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 13>: resource exhausted (Resource temporarily unavailable)"
+2 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 21>: resource exhausted (Resource temporarily unavailable)"
+56 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 21>: resource exhausted (Resource temporarily unavailable)"
+72 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 22>: resource exhausted (Resource temporarily unavailable)"
+80 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 13>: resource exhausted (Resource temporarily unavailable)"
+69 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 13>: resource exhausted (Resource temporarily unavailable)"
+40 : Secondary Sale-confirmation : Confirmed "bf8354a754787929d927eafb57fbc7de5f003a198925f4b9a6b2983fb56ef98b"
+96 : Primary Buy-confirmation : Confirmed "eff4bb349080fe9fc85651a33346b62e233156b4fa94b4ff64bf052b21fce5c1"
+96 : Secondary Sale: setup = Finalied
+34 : Primary Buy-confirmation : Confirmed "376702a4d0490e8ffe0567f62bccde317d6d1e8e902e270d916d6eda0988014d"
+34 : Secondary Sale: setup = Finalied
+73 : Secondary Sale-confirmation : Confirmed "a30eea5c247d1616968d43aa7cc9548fd70b955f42c87e54f420a98d2a4f406e"
+11 : Withdraw-confirmation : Confirmed "566b1a229cb6614e458c9f92aa31cebb98319db9c261d5bac94d06664efc204f"
+55 : Withdraw-confirmation : Confirmed "2194576cd131ec56baa466ceccfbbac35752a09a7663016ccaedbeef225a7a49"
+89 : Withdraw-confirmation : Confirmed "99f024e80159560065522bbd32e30b33c260633306e96a2c534a7a32e37bde4b"
+87 : Withdraw-confirmation : Confirmed "d37f3db68e5209a3d62a31d0270489dadd398daaa3e8e275ebd0c73b7fe95035"
+31 : Withdraw-confirmation : Confirmed "9798bce089374e2f9d7ed962ba0d58020d93ab00a4c3085c614fe903b780da51"
+47 : Primary Buy-confirmation : Confirmed "eb7965ba37f3fd75655a537071ad1c2ab24c43065737205bd1d9eb6053278fc4"
+47 : Secondary Sale: setup = Finalied
+0 : Withdraw-confirmation : Confirmed "62810759c65a1b7e15b8d3982e04d2ec2ad3073fb274dfdad1aab5359de09a43"
+46 : Primary Buy-confirmation : Confirmed "f370b4d963dd1f4c1cf013cd7307bb586d2b58fe6a8462428e82fba463d0b65e"
+46 : Secondary Sale: setup = Finalied
+24 : Secondary Sale-confirmation : Confirmed "e6f519bc2af09ea682769c4f01a9c54a5efc18730c10abb700f8e6c11a1865ae"
+42 : Secondary Sale-confirmation : Confirmed "1012db48bd7ac5d7662f001e4f646e0f8f156ca699acccab7dc1152f832e16c2"
+40 : Withdraw: setup = Finalied
+73 : Withdraw: setup = Finalied
+24 : Withdraw: setup = Finalied
+42 : Withdraw: setup = Finalied
+86 : Secondary Sale-confirmation : Confirmed "ad4d2644b22cdf16a27f88f1f63ab6793bac56097dc9f9e010b7ab43052d006c"
+23 : Primary Buy-confirmation : Confirmed "9dc14f2d1d0d6194f0b48b12372f076f2dd0c68d8eb5ff4bf79562b58dcf930b"
+23 : Secondary Sale: setup = Finalied
+19 : Primary Buy-confirmation : Confirmed "0c53ab43c7d5fff11851f3fbe4b8a339c5065c7941a4648589b8e2270faaeebe"
+19 : Secondary Sale: setup = Finalied
+70 : Primary Buy-confirmation : Confirmed "d7127d933c7293f998e88f11f6c3800012bb4e484f54734bd513decccbc902a0"
+70 : Secondary Sale: setup = Finalied
+43 : Secondary Sale-confirmation : Confirmed "25010cdc684c340da5557a9325869e4f72f3493024419020839ac5e1f693db70"
+60 : Secondary Sale-confirmation : Confirmed "cb86286a3815b02292888adc4a72de56ff0b4af746dbb0593746101790ac0795"
+12 : Secondary Sale-confirmation : Confirmed "afff14d477518d6b03d6c4b0860aef69e331a33065a2acc9573d66f02ac23e60"
+41 : Secondary Sale-confirmation : Confirmed "684a6c628a8448044d2c5de572bdf9ea105ef012625b7c7b4d01f201235e1732"
+83 : Secondary Sale-confirmation : Confirmed "9a1ff2c8de86e90fa289310a2e630c998446291fafa94e6be63267ccb2096e8e"
+68 : Secondary Sale-confirmation : Confirmed "b827421dc7e6d7d94671b193033d63b8cfea63b6304743320ad076c472347d35"
+50 : Secondary Sale-confirmation : Confirmed "a387845c1a525e6e6b0339ad026ec3c6bf3852802dd1d71a7edc21b0fe1f207a"
+22 : Secondary Sale-confirmation : Confirmed "8cb5618b58ae8fa2769970b83ff4db84314efe4a1d2f48e98daf00f1198b808c"
+58 : Secondary Sale-confirmation : Confirmed "ba629f9f987f648813fac8ec7a9de014d3b0e1d185cac5e5dff6d93009a5578d"
+94 : Secondary Sale-confirmation : Confirmed "a971e2a6233b0424417ab2ea45d630e513ce8e870a649f2a0c62ae372a1c4e01"
+59 : Secondary Sale-confirmation : Confirmed "beb6a92f7541755a58f62e9bd3c312a530a3937f78a69fcdc058487fd98f0330"
+52 : Secondary Sale-confirmation : Confirmed "af2582417ec1e8a3733d2b03a9e127749cbf95ebc6261036891705205ade4583"
+99 : Secondary Sale-confirmation : Confirmed "e38d52cbe01180ce75c74a33edd23acec9ebae4b7df6bc9e90a1dfb0bd1a2906"
+67 : Withdraw: buildAndSubmit = Finalied
+86 : Withdraw: setup = Finalied
+41 : Withdraw: setup = Finalied
+43 : Withdraw: setup = Finalied
+50 : Withdraw: setup = Finalied
+99 : Withdraw: setup = Finalied
+94 : Withdraw: setup = Finalied
+60 : Withdraw: setup = Finalied
+68 : Withdraw: setup = Finalied
+52 : Withdraw: setup = Finalied
+22 : Withdraw: setup = Finalied
+12 : Withdraw: setup = Finalied
+59 : Withdraw: setup = Finalied
+58 : Withdraw: setup = Finalied
+13 : Withdraw: buildAndSubmit = Finalied
+83 : Withdraw: setup = Finalied
+98 : Secondary Sale: buildAndSubmit = Finalied
+84 : Withdraw: buildAndSubmit = Finalied
+15 : Withdraw: buildAndSubmit = Finalied
+10 : Withdraw: buildAndSubmit = Finalied
+79 : Secondary Sale-confirmation : Confirmed "e9ba1d4d284819a77cf9ce92a4c06ce45964f0ec8462bf4528ebbc8cf1b84b0a"
+4 : Secondary Sale-confirmation : Confirmed "3ecc98b1322b8abf73a5cb82b4e6a14e22d5a615a29b44cccda4b1ac569ee139"
+51 : Secondary Sale-confirmation : Confirmed "c5e14a70848d407c5c3fab0664fa045d27d73c5e28ecde3989fbf6f8945a228d"
+71 : Secondary Sale-confirmation : Confirmed "a1cc426071baabe853049bb8c2a26d7e95c4204e6c964a1d5c32c12bb88b7244"
+17 : Secondary Sale-confirmation : Confirmed "0e999aabc4b6d7bda05d36db45b59618be3f70741f2db61833b735b7cdd35408"
+78 : Secondary Sale-confirmation : Confirmed "6e8d8dd26e9732f143c0de3d43c7d3d010de6ea08bd2c92d2f849560ffa70cce"
+44 : Secondary Sale-confirmation : Confirmed "60100a3fdb2c72cbede1dfd87799eeadba51a25fe4c4926fbfdff32ec8716e80"
+53 : Secondary Sale-confirmation : Confirmed "785d83265c6bf0fd49fafe911dda3ae48dd2d237cf263c8ac3263f7f64276381"
+29 : Secondary Sale-confirmation : Confirmed "62d90b38dec1da90474c762dfd01123a9f9d1484931ff52478bff4776b3ce62a"
+27 : Secondary Sale-confirmation : Confirmed "c90535a8332620233629020a454e7ac0fbd2918fe1ff5654be3bdda8fae4b2df"
+66 : Secondary Sale-confirmation : Confirmed "9dddeb447093c2255dc1279d915103d420f2bad30685dee7360c8c00306fd717"
+95 : Secondary Sale-confirmation : Confirmed "2a803483d5e8833d1d5e701023254b3c52b5f97a215d56c1a980644fe78d7167"
+5 : Secondary Sale-confirmation : Confirmed "a3e07ce43e9a9517c0722ace4edb580f2da994167a0566c400a28d4ffd0e9755"
+77 : Withdraw: buildAndSubmit = Finalied
+85 : Withdraw: buildAndSubmit = Finalied
+75 : Withdraw: buildAndSubmit = Finalied
+21 : Primary Buy: buildAndSubmit = Finalied
+45 : Withdraw: buildAndSubmit = Finalied
+61 : Withdraw: buildAndSubmit = Finalied
+49 : Withdraw: buildAndSubmit = Finalied
+27 : Withdraw: setup = Finalied
+17 : Withdraw: setup = Finalied
+4 : Withdraw: setup = Finalied
+5 : Withdraw: setup = Finalied
+79 : Withdraw: setup = Finalied
+29 : Withdraw: setup = Finalied
+44 : Withdraw: setup = Finalied
+71 : Withdraw: setup = Finalied
+78 : Withdraw: setup = Finalied
+51 : Withdraw: setup = Finalied
+95 : Withdraw: setup = Finalied
+53 : Withdraw: setup = Finalied
+66 : Withdraw: setup = Finalied
+88 : Withdraw: buildAndSubmit = Finalied
+83 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 28>: resource exhausted (Resource temporarily unavailable)"
+58 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 15>: resource exhausted (Resource temporarily unavailable)"
+94 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 15>: resource exhausted (Resource temporarily unavailable)"
+24 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryUtxo: IOError :Network.Socket.connect: <socket: 15>: resource exhausted (Resource temporarily unavailable)"
+6 : Withdraw: buildAndSubmit = Finalied
+6 : Withdraw-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 15>: resource exhausted (Resource temporarily unavailable)"
+47 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QuerySubmitTx: IOError :Network.Socket.connect: <socket: 5>: resource exhausted (Resource temporarily unavailable)"
+30 : Secondary Sale-confirmation : Confirmed "02665894c2b119a74f8521f9127dd2c3d2b4ceb51fc37514ca72cc3f29f4aac2"
+18 : Secondary Sale-confirmation : Confirmed "7e5058ddc8dca9db5b8cafcf4e0a5259be7df36b61f01b86bfea3f1b21eeba07"
+57 : Secondary Sale-confirmation : Confirmed "bf5574e4687f32b7ade37cd3ce95aaec1ffdbac81aa94813f86c364b012892e6"
+36 : Secondary Sale-confirmation : Confirmed "8539ed7764305325fa4183133f0f8dd228335e3284125d706b98d92eac78701b"
+74 : Secondary Sale-confirmation : Confirmed "7b6fbebd24851624ebe947d0ce5471541d55857a6ea0d60334135dc3dcfe5532"
+64 : Secondary Sale-confirmation : Confirmed "2992402ceee30622d00dbaf50306e9e820087040e1c8ea64d4a1c9e7e931f385"
+63 : Secondary Sale-confirmation : Confirmed "b34f5c824d4e68910559c5551048552416a65e215cd9759ec6acb222ed49acc8"
+28 : Secondary Sale-confirmation : Confirmed "dfc6d6e1e139f2ab43f38422de94a7e0b24da8d052c7f08d30ac6338e6ff704f"
+35 : Secondary Sale-confirmation : Confirmed "04ed76f054e1f09d78dbcb87de0f3a4412592ed27817e31463b0a89dea024229"
+91 : Secondary Sale-confirmation : Confirmed "342a53770b4f1235d14dd707a725172bef0c4b4a9bbc87955a2df6809943a43f"
+33 : Secondary Sale-confirmation : Confirmed "d336eee8e41f4d53346909e97c476aea0b9a155f300d5df8a1d662eef34313be"
+93 : Secondary Sale-confirmation : Confirmed "67ea0a308894e0345d2480eefe8f5dc149e674b9b211e83499f1f21e4a075d09"
+54 : Secondary Sale-confirmation : Confirmed "ac744db706dae507b2bfd5f1f61b83b35243d51e67f946394b5adca262043fc1"
+81 : Secondary Sale-confirmation : Confirmed "cfa3872155b12d318b93a35d23d7d38e2d08f36f9e734ee5c1dec9467a08d106"
+65 : Secondary Sale-confirmation : Confirmed "38f71f52a5ec960651d23d880d31611944763fe3b97224fa02972c2886ffa257"
+37 : Withdraw-confirmation : Confirmed "dff1157cd69fdc4db698d2112ea3d8aa8959c70a969ba003b012cafc435b85a4"
+92 : Secondary Sale-confirmation : Confirmed "3a582a38909a2392d33812f8bc583a1dea0e9a572ad59de2c1736d26d01495ba"
+16 : Withdraw-confirmation : Confirmed "c6870320afeba971401f4928d4ebbecc29fe53d6d00bdd712be9eadadb26ab58"
+7 : Secondary Sale-confirmation : Confirmed "aeaca151d2035d1771bba481fb3845a72cef8afd2d5116efdec0bd83e27e3361"
+9 : Withdraw-confirmation : Confirmed "40a3b4118a91231195fca891e5b112b5c14ea31d5c6b3588c2c404fbec81488d"
+39 : Withdraw-confirmation : Confirmed "734e74d4c646f463f6b71da414b5a5b7de33c796fc41795a8dbad5ada8a344ef"
+62 : Withdraw-confirmation : Confirmed "92c106a616bf9d91b5cf4dd38e7e912fa4c2a2442ecb6bfe345c5e841744fd0b"
+25 : Withdraw-confirmation : Confirmed "b1486f19a1a73450531c8c80be010379a906707db44d0637c901631f95c7c70f"
+32 : Withdraw-confirmation : Confirmed "c9613b5a1a2440d79f0b3ab43f49e555bd997fb4f794df90f5f94b992a39969f"
+20 : Withdraw: buildAndSubmit = Finalied
+90 : Withdraw-confirmation : Confirmed "a6e7b884fa5c6d010e3cd5c51461da60327ffccf05ec23a8590e0439cc2b8e84"
+3 : Secondary Sale-confirmation : Confirmed "064f2258ebb620648a507c207402606fc06c08117e92ae6ddddc5bda74bc2087"
+18 : Withdraw: setup = Finalied
+36 : Withdraw: setup = Finalied
+64 : Withdraw: setup = Finalied
+63 : Withdraw: setup = Finalied
+30 : Withdraw: setup = Finalied
+28 : Withdraw: setup = Finalied
+57 : Withdraw: setup = Finalied
+74 : Withdraw: setup = Finalied
+46 : Secondary Sale: buildAndSubmit = Finalied
+91 : Withdraw: setup = Finalied
+7 : Withdraw: setup = Finalied
+93 : Withdraw: setup = Finalied
+81 : Withdraw: setup = Finalied
+54 : Withdraw: setup = Finalied
+92 : Withdraw: setup = Finalied
+96 : Secondary Sale: buildAndSubmit = Finalied
+65 : Withdraw: setup = Finalied
+3 : Withdraw: setup = Finalied
+35 : Withdraw: setup = Finalied
+34 : Secondary Sale: buildAndSubmit = Finalied
+33 : Withdraw: setup = Finalied
+44 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 50>: resource exhausted (Resource temporarily unavailable)"
+43 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 50>: resource exhausted (Resource temporarily unavailable)"
+54 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 50>: resource exhausted (Resource temporarily unavailable)"
+95 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 37>: resource exhausted (Resource temporarily unavailable)"
+65 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 30>: resource exhausted (Resource temporarily unavailable)"
+19 : Secondary Sale: buildAndSubmit = Finalied
+19 : Secondary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 30>: resource exhausted (Resource temporarily unavailable)"
+80 : Withdraw-buildAndSubmit : FrameworkError: ConnectionError: "QueryGovState: IOError :Network.Socket.connect: <socket: 30>: resource exhausted (Resource temporarily unavailable)"
+70 : Secondary Sale: buildAndSubmit = Finalied
+23 : Secondary Sale: buildAndSubmit = Finalied
+20 : Withdraw-confirmation : Confirmed "eb80ae91f4218be491f7c43ae3f6e1000284a18f4f09d1b46a2321b2db15e446"
+73 : Withdraw: buildAndSubmit = Finalied
+42 : Withdraw: buildAndSubmit = Finalied
+40 : Withdraw: buildAndSubmit = Finalied
+99 : Withdraw: buildAndSubmit = Finalied
+68 : Withdraw: buildAndSubmit = Finalied
+41 : Withdraw: buildAndSubmit = Finalied
+48 : Secondary Sale: buildAndSubmit = Finalied
+8 : Secondary Sale: buildAndSubmit = Finalied
+50 : Withdraw: buildAndSubmit = Finalied
+52 : Withdraw: buildAndSubmit = Finalied
+60 : Withdraw: buildAndSubmit = Finalied
+12 : Withdraw: buildAndSubmit = Finalied
+97 : Secondary Sale: buildAndSubmit = Finalied
+76 : Secondary Sale: buildAndSubmit = Finalied
+82 : Withdraw: buildAndSubmit = Finalied
+86 : Withdraw: buildAndSubmit = Finalied
+59 : Withdraw: buildAndSubmit = Finalied
+56 : Secondary Sale: buildAndSubmit = Finalied
+69 : Secondary Sale: buildAndSubmit = Finalied
+67 : Withdraw-confirmation : Confirmed "b1b739555b9851750c64127d3fa7a3258dc1eb0508ad03c9d43eac6ef16ab2c8"
+22 : Withdraw: buildAndSubmit = Finalied
+2 : Secondary Sale: buildAndSubmit = Finalied
+14 : Withdraw: buildAndSubmit = Finalied
+98 : Secondary Sale-confirmation : Confirmed "03b11cde82aba6498200af5423fad7c657aeb2279679b830d6d2af3ecbdea267"
+13 : Withdraw-confirmation : Confirmed "9cc09b07e6a661898b49a3bc05b49263313dc7456f28d124dbc4e7752ffcbcf6"
+84 : Withdraw-confirmation : Confirmed "e344fabb05bc499995e8028b53d2c93034af0a208d8ba70e738ba66eee430481"
+85 : Withdraw-confirmation : Confirmed "accff41c043ece637cce616bdaab2dd26d4744e3d5fe610904e62ee156374928"
+10 : Withdraw-confirmation : Confirmed "3e3bff5d26b2985e0ba9e750b84cba78cbd88a4863f4721dbf71f8b579ec3a1a"
+15 : Withdraw-confirmation : Confirmed "9b00871f9c224b4899e0385819ef5d9bec30933f2d8929dfcc6ec56e2aa80ebe"
+75 : Withdraw-confirmation : Confirmed "54da4bf9cfd7c8222db7ce78a7313c07742e8eb7d3fde54fcc7cd51d8084a0d9"
+77 : Withdraw-confirmation : Confirmed "ff41817ac92150594473bf26155a196f83b490785c23421522515a2e016e89e4"
+61 : Withdraw-confirmation : Confirmed "cdcb64ce03811aab8015b072e96c6daab26e57b4dc30817ea7aa19d78f525a2a"
+26 : Withdraw: buildAndSubmit = Finalied
+72 : Secondary Sale: buildAndSubmit = Finalied
+38 : Withdraw: buildAndSubmit = Finalied
+29 : Withdraw: buildAndSubmit = Finalied
+53 : Withdraw: buildAndSubmit = Finalied
+5 : Withdraw: buildAndSubmit = Finalied
+4 : Withdraw: buildAndSubmit = Finalied
+51 : Withdraw: buildAndSubmit = Finalied
+51 : Withdraw-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 11>: resource exhausted (Resource temporarily unavailable)"
+66 : Withdraw: buildAndSubmit = Finalied
+66 : Withdraw-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 11>: resource exhausted (Resource temporarily unavailable)"
+78 : Withdraw: buildAndSubmit = Finalied
+78 : Withdraw-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 11>: resource exhausted (Resource temporarily unavailable)"
+71 : Withdraw: buildAndSubmit = Finalied
+98 : Withdraw: setup = Finalied
+27 : Withdraw: buildAndSubmit = Finalied
+79 : Withdraw: buildAndSubmit = Finalied
+17 : Withdraw: buildAndSubmit = Finalied
+45 : Withdraw-confirmation : Confirmed "fbe0fcba36bb1277a86afb850819b13ea2a26d9fc92b0b335132041b72c26985"
+6 : Withdraw-confirmation : Confirmed "2b7048f442f8a87de304e356504a73945e5af84e1e19c756caf69ad14b94d006"
+21 : Primary Buy-confirmation : Confirmed "ac4faa0f60e1811e3d1fab7a7346e1e5f7f782a4413b96c96e3e59f7452549fa"
+21 : Secondary Sale: setup = Finalied
+64 : Withdraw: buildAndSubmit = Finalied
+81 : Withdraw: buildAndSubmit = Finalied
+92 : Withdraw: buildAndSubmit = Finalied
+35 : Withdraw: buildAndSubmit = Finalied
+30 : Withdraw: buildAndSubmit = Finalied
+93 : Withdraw: buildAndSubmit = Finalied
+57 : Withdraw: buildAndSubmit = Finalied
+36 : Withdraw: buildAndSubmit = Finalied
+74 : Withdraw: buildAndSubmit = Finalied
+18 : Withdraw: buildAndSubmit = Finalied
+63 : Withdraw: buildAndSubmit = Finalied
+49 : Withdraw-confirmation : Confirmed "32c3de1ebaaed3dddc0cc520e9a108b94f05b705b02fa1650a81ba2fe98eee9b"
+88 : Withdraw-confirmation : Confirmed "c4ce60a54f78d43f185462fd23f17668b4ad8db592722f7c477e08872dc4d69a"
+28 : Withdraw: buildAndSubmit = Finalied
+91 : Withdraw: buildAndSubmit = Finalied
+7 : Withdraw: buildAndSubmit = Finalied
+33 : Withdraw: buildAndSubmit = Finalied
+47 : Secondary Sale: buildAndSubmit = Finalied
+3 : Withdraw: buildAndSubmit = Finalied
+94 : Withdraw: buildAndSubmit = Finalied
+24 : Withdraw: buildAndSubmit = Finalied
+83 : Withdraw: buildAndSubmit = Finalied
+58 : Withdraw: buildAndSubmit = Finalied
+44 : Withdraw: buildAndSubmit = Finalied
+95 : Withdraw: buildAndSubmit = Finalied
+65 : Withdraw: buildAndSubmit = Finalied
+80 : Withdraw: buildAndSubmit = Finalied
+43 : Withdraw: buildAndSubmit = Finalied
+21 : Secondary Sale: buildAndSubmit = Finalied
+54 : Withdraw: buildAndSubmit = Finalied
+98 : Withdraw: buildAndSubmit = Finalied
+19 : Secondary Sale-confirmation : Confirmed "bdc7b239b6d2eab3fc5efa8a16ecb18530306c2172430384d938e2550e61c25a"
+46 : Secondary Sale-confirmation : Confirmed "f05aa477a00f90ab04bcba9dde6cd28d46a633c994783ff0411527c1ba608ed5"
+34 : Secondary Sale-confirmation : Confirmed "03e3a5e347d36a424f77614b600d4f22508afd9a1562a86f8105e915c2d2e6aa"
+96 : Secondary Sale-confirmation : Confirmed "469118f10a39a92b4c3d4565c7771c6ba2b7a4f20298d8113b1d09a0de2f8360"
+53 : Withdraw-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 18>: resource exhausted (Resource temporarily unavailable)"
+29 : Withdraw-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 18>: resource exhausted (Resource temporarily unavailable)"
+46 : Withdraw: setup = Finalied
+19 : Withdraw: setup = Finalied
+34 : Withdraw: setup = Finalied
+96 : Withdraw: setup = Finalied
+96 : Withdraw: buildAndSubmit = Finalied
+46 : Withdraw: buildAndSubmit = Finalied
+34 : Withdraw: buildAndSubmit = Finalied
+19 : Withdraw: buildAndSubmit = Finalied
+95 : Withdraw-confirmation : Confirmed "d09052dddc7289508112ae176f8b2e88a68c60f88fd88c9ffd41497854ff28fa"
+43 : Withdraw-confirmation : Confirmed "dd908bca6da485f47a389542638a0f6926634efa3d9ec2186e16dcea1597209a"
+44 : Withdraw-confirmation : Confirmed "e9bf7d3fa23c784ec3e1cc360699618318844e42ce8dc9af0e6d83ce220b171c"
+21 : Secondary Sale-confirmation : Confirmed "a1c5ca2403cc332d6f6a3bff7f6e45d0faad361d0951d8f1ddc1e8a36ce2d643"
+80 : Withdraw-confirmation : Confirmed "2b0cfdc7211dde145bf9bfb5f2f2bbe66e467493be7f03b68cfcbc7423c694ab"
+65 : Withdraw-confirmation : Confirmed "3cb13553ec05b3f7b5a5fcd9c50092b694d680d3964ac8f1694b4096f5de9f92"
+21 : Withdraw: setup = Finalied
+54 : Withdraw-confirmation : Confirmed "6cfa09d7c5d64eeaa2daeb5165b51a4eccc9abdb3d0ede0caf803cbe3a7771ae"
+21 : Withdraw: buildAndSubmit = Finalied
+41 : Withdraw-confirmation : Confirmed "56dac93ef63d9850d3d7e167c87d5d61ee41b0e4709303a2be440bc49d4aef53"
+48 : Secondary Sale-confirmation : Confirmed "6d9b126bdbf959c8f9c97f923da757a31afb87abee298cfed4643f61c3f71e14"
+48 : Withdraw: setup = Finalied
+8 : Secondary Sale-confirmation : Confirmed "237a80a0f35f4924ef9fc71256a72f4aca735b34010398d2e7a6805451004844"
+8 : Withdraw: setup = Finalied
+48 : Withdraw: buildAndSubmit = Finalied
+97 : Secondary Sale-confirmation : Confirmed "cab6e492bc3451a3872f57240b7c9de3aea64f31b35bd2640ab904a2863e238a"
+12 : Withdraw-confirmation : Confirmed "60a02f4f80f2d71590be994d76409843718afe53bcd47b0fa85645140e056c5e"
+52 : Withdraw-confirmation : Confirmed "5db82bada7e0bcdab3a8188d5dc94f39ae2733aed5520808a99978539bcc6c8d"
+60 : Withdraw-confirmation : Confirmed "a1528febf283706a04aa5af71c9bf182fc4925f29010c91c799b73d811916437"
+86 : Withdraw-confirmation : Confirmed "e04907dc451626e727c52bc9f32739ed19ade19a1bf2e23395b78817022cfb7f"
+76 : Secondary Sale-confirmation : Confirmed "3a0a56cdeafedbcf177a6a8f00f9223b5e66f71d22480bd9b8caa403ca2f0ad6"
+66 : Withdraw-confirmation : Confirmed "8e440560675fcaa9bf004f323929d9c3ad85af14c331b0da6db0c5120d32b7cd"
+78 : Withdraw-confirmation : Confirmed "d6f8ceec0ae1e71dcdc616c15835b4be7a0c5d102790f70015a2eaaf260e8b8a"
+50 : Withdraw-confirmation : Confirmed "761e6cde910111cc70e1ea5b2836b66037d2e9b2b0c126d77a5a6647d0cb0860"
+82 : Withdraw-confirmation : Confirmed "80dbe73197678ffcde8935e851537fc11409f4c2ad5ac81ddedbbbf58f56a017"
+51 : Withdraw-confirmation : Confirmed "6e05ad1a5132ede54ac3a8fa9ca5e12787bcc46938949490955f29c3b455aec4"
+76 : Withdraw: setup = Finalied
+97 : Withdraw: setup = Finalied
+8 : Withdraw: buildAndSubmit = Finalied
+97 : Withdraw: buildAndSubmit = Finalied
+76 : Withdraw: buildAndSubmit = Finalied
+29 : Withdraw-confirmation : Confirmed "e204f593afe74dd6d317aefaed349b8dc5d44e7674e29f6151c196c243a282db"
+53 : Withdraw-confirmation : Confirmed "27620294e9380f3365ebfdec08a867473d445a033eea780c5c2a8ee0c2d70147"
+59 : Withdraw-confirmation : Confirmed "2d58e376bcb5e51320f31d53d3b5f41542f79daa838a1068d5cb56b04f11e888"
+26 : Withdraw-confirmation : Confirmed "9c900bdb95f262c357ca4d3adca3066b4eb7e38edaf3133cb30d9af1e03c39c1"
+22 : Withdraw-confirmation : Confirmed "83815f2c324047fe6cb6dcdbf69b7464a00677c0762b8c9958cf04e314defb67"
+72 : Secondary Sale-confirmation : Confirmed "137af5028a44733b891e9f49ece2cb28f7d07c48818ded9986d8d51c82d3dbf0"
+56 : Secondary Sale-confirmation : Confirmed "1316405560f303c690f33fcca6932ab64b0c01f406801fbb4cdb13fb4058d018"
+2 : Secondary Sale-confirmation : Confirmed "4d672c3f7d603dc3e2047c0a749a09480246121ee0aff02ca6fc41b5be839524"
+5 : Withdraw-confirmation : Confirmed "9505e6f920e787a9ed9bd56aa0cbde292a49d45aa726b4e837f9021b4c57fc4c"
+69 : Secondary Sale-confirmation : Confirmed "8c4c9046559cecd4c458e80a664ed278140e93a6cd307610e71eaeb3a1e08dd1"
+14 : Withdraw-confirmation : Confirmed "5ebeb638ca877315a27e2c0d7a4c9a765e50c231c64e38f74f30a49d57a5c1af"
+38 : Withdraw-confirmation : Confirmed "c1facb827d3529c74f9775fc11ac64cbf11afd04c645542808b1e2468f629b8e"
+4 : Withdraw-confirmation : Confirmed "f0e80850d24e16264f0ed8fc91b0cfb76eae20e2add34838391207e8f032211f"
+72 : Withdraw: setup = Finalied
+56 : Withdraw: setup = Finalied
+2 : Withdraw: setup = Finalied
+69 : Withdraw: setup = Finalied
+17 : Withdraw-confirmation : Confirmed "eacbd06768992402e45d500addf8132a485a2ae9001d877ad0dc4f24f66cd8cc"
+79 : Withdraw-confirmation : Confirmed "9444542040bcacf2c0f7a55415167e110cfd3cc34f3b36992c006ab0df2e3bbf"
+71 : Withdraw-confirmation : Confirmed "f41b6ad7ec4a6dc5403d345faa0d0edad9555ab8cefbbb38d0fc92d451454ae9"
+27 : Withdraw-confirmation : Confirmed "54eda629fdae52ed0e6a15b9e801137c062ece12dff75f253ceafb42e4982b9e"
+96 : Withdraw-confirmation : Confirmed "b21662b38aafe98268bdb283941b51a5ccbf74a8569d093fcfc0342204d3dd24"
+46 : Withdraw-confirmation : Confirmed "ffb9733447e6b6f7ac09db545661d18c8371fcfee87ce5fdc203d9148d131e6a"
+34 : Withdraw-confirmation : Confirmed "cf943bdd631a66f9c19fa6257d8b2864a7d71ee7a1ef80f8e45e9dd1a236bf3a"
+19 : Withdraw-confirmation : Confirmed "80d4fd59fcc7b0769c3990607dfccbd4e670527621e62e45de5f863f1e2d10cd"
+56 : Withdraw: buildAndSubmit = Finalied
+2 : Withdraw: buildAndSubmit = Finalied
+72 : Withdraw: buildAndSubmit = Finalied
+69 : Withdraw: buildAndSubmit = Finalied
+64 : Withdraw-confirmation : Confirmed "95ec959ea13931e6ffe1a75ff012c16898abcd5a0ea898db2cad12863343dbff"
+81 : Withdraw-confirmation : Confirmed "746985502c73b74c8b6bc670bbe8157d2fce8a086fa5c94956c073b7cf3e37b3"
+92 : Withdraw-confirmation : Confirmed "a94bf6a95f5ecce0b224cfb8eeb2b4f4b7a69219edb9f2ed63a727123820f5c1"
+35 : Withdraw-confirmation : Confirmed "52ea6d3b3e72bd182207f63984915de595eaf8b7045382cdc9cd330660ad0475"
+63 : Withdraw-confirmation : Confirmed "5358b024841e05d8fabfe54888aa694487b0f400e8ecf476308f5eda880182f7"
+74 : Withdraw-confirmation : Confirmed "b5235849fa0e008bc8e7c7a27c5dcd3c90ab3b18d46327bc3ab3faa51f08d8e3"
+57 : Withdraw-confirmation : Confirmed "83b0dc56f76818d675336914cf2e92f7298ae3948db84fc6399061ac5918f3fd"
+93 : Withdraw-confirmation : Confirmed "a7cbdc007a1128fb4e01bf0d020f7bd5348f1c0bba8425d4acbdf44b23e7ce84"
+40 : Withdraw-confirmation : Confirmed "f8afc25c3b0e1524811fb1455a9d6d47a8eda605f166fad2cacb606ef3b4a420"
+36 : Withdraw-confirmation : Confirmed "66cd985f33e4243aab4787ac3b4a85713672e33c1cf5b494f657b7cda84e7d9e"
+70 : Secondary Sale-confirmation : Confirmed "9d1297f39088c0efc30fe1a37f5fc069929dd54083230c65c57e6eaecc09b532"
+30 : Withdraw-confirmation : Confirmed "1c1e84139c09807bdcc4d8640817cf7ab720eee5b9c30eb017f41c9483cc5aa2"
+7 : Withdraw-confirmation : Confirmed "064938bb5c2f35c4fccf842514c1e1dbea4e422ee7efb63e300703f332747ac9"
+47 : Secondary Sale-confirmation : Confirmed "3609c28a47652c946af1162bff30bb418be2f2b3fa6c82f3ed6ad2eb07e6dbe9"
+23 : Secondary Sale-confirmation : Confirmed "1acd31a4489169c5c75e8dab07db9ab6bda479e06f9851c5c2f35c933718207d"
+83 : Withdraw-confirmation : Confirmed "a195f2e05dd953e7992767e8c8284351a84f397da5d80c25cfb8c0ed4d9072d6"
+58 : Withdraw-confirmation : Confirmed "2d3f051b4b73450ebf14eca4e1a6c114865fb078535715718df2851321f83b95"
+68 : Withdraw-confirmation : Confirmed "e518742d36fb563ede866322acdbb81e27003f3960887a216b15aaf8dc3b1c3d"
+28 : Withdraw-confirmation : Confirmed "4caae779edc5b77bbc61f5a8b0765602f698823607dc2f547d0eb70e8d666c17"
+99 : Withdraw-confirmation : Confirmed "578d2ea8d19afa06e43c82d92aaf4d040492c577e1422ca933b1616b7a20244a"
+3 : Withdraw-confirmation : Confirmed "f6210d24280e75792fb88c80357c86da7a9af5d089cad74c4e7f31f4fbcbe006"
+73 : Withdraw-confirmation : Confirmed "ca97428b026bcc688ee51ec896b316d77b3c1cb190a0399ff9bd4e57e5e1760b"
+42 : Withdraw-confirmation : Confirmed "029302a95e0ac08756ef8ae2197dea898c3fd8774d208cc4c0654f91b5460e44"
+94 : Withdraw-confirmation : Confirmed "0c00741f47073380dc824d847c85d45c22f2c2fde24be6785e17c06eaf75569e"
+33 : Withdraw-confirmation : Confirmed "cd071ffa86cd51fda1cfb265f3b3728d096c30b1a9a912249e79c158f4bc3451"
+91 : Withdraw-confirmation : Confirmed "e8b9ce0142cbae667c0d72dc06aee377357994e7d3fc683507b5a722f6326cd7"
+18 : Withdraw-confirmation : Confirmed "36e7ab89729b0097404f6ed13ebc24de078441db69bd98d58cc5ad61efa24062"
+24 : Withdraw-confirmation : Confirmed "972439c212e6c743dd9f863d0bb26d4e4e2a7dca4dbf9df014ec593eaabc030a"
+47 : Withdraw: setup = Finalied
+23 : Withdraw: setup = Finalied
+70 : Withdraw: setup = Finalied
+98 : Withdraw-confirmation : Confirmed "d2316262a4acfcc075648235c7dbf655f60399c247494cf9e73cc971406391f5"
+47 : Withdraw: buildAndSubmit = Finalied
+70 : Withdraw: buildAndSubmit = Finalied
+23 : Withdraw: buildAndSubmit = Finalied
+21 : Withdraw-confirmation : Confirmed "9e802f5e5a96c10e4ac88e967de123658a1d36ef740ea11bbd8fdf0c2f22bf7d"
+48 : Withdraw-confirmation : Confirmed "04a731b21ffc4320a129f942a220bac905b8c14880fe3ff2e13834f9f974b79a"
+8 : Withdraw-confirmation : Confirmed "19dffd0800dd9ad782098f760349c14873ee1121501d93c6f0f1c69b2bb106d5"
+76 : Withdraw-confirmation : Confirmed "5f719bf51b2993c229596c2c8c231aba7fa5ae97d08f7e274ddf2f0d03ef2af0"
+97 : Withdraw-confirmation : Confirmed "74e73dc9d1b97cfe70a1d25d99d305fba5715b4be22006ea1376b589b5f06ac0"
+3 : Refund Wallet: setup = Finalied
+3 : Refund Wallet: buildAndSubmit = Finalied
+70 : Withdraw-confirmation : Confirmed "6a542029f37e82da47b84a2d8f70f6ce198abebb3221a08efae6f272ea80237f"
+47 : Withdraw-confirmation : Confirmed "d0eb3d53ee3c69e1cf9ada443a7ffbf085c5c3daa65733a9bc02705cf2655291"
+23 : Withdraw-confirmation : Confirmed "ac4586877db8ff5958467f00a65da5e932c504db2561861b307ded7a0215e723"
+1 : Refund Wallet: setup = Finalied
+1 : Refund Wallet: buildAndSubmit = Finalied
+2 : Withdraw-confirmation : Confirmed "5f92b5361032003ebcca6442a01a28cf827c6acd2ac7b88f75196641f52c926b"
+56 : Withdraw-confirmation : Confirmed "ad64f188b7285ed40982fc2dd046bdc9ba6a0e917f798ab0680dff2f51af395e"
+69 : Withdraw-confirmation : Confirmed "929bc289301f38ec47acc04a4ae12b48d4f2d9f26c27d576987c52bcc6b1dc29"
+0 : Refund Wallet: setup = Finalied
+72 : Withdraw-confirmation : Confirmed "fcde4f334430e036dfb4047e4f9f13dac8885e204e7b94be860bde1227f61cfc"
+2 : Refund Wallet: setup = Finalied
+0 : Refund Wallet: buildAndSubmit = Finalied
+2 : Refund Wallet: buildAndSubmit = Finalied
+3 : Refund Wallet-confirmation : Confirmed "2bc6dd17184e262c6e27a385d9c7e394966bfc59866016191c4e83013b92f8e6"
+0 : Refund Wallet-confirmation : Confirmed "92c1c3a5b04e68bb42d956e30eaa7973b00e624c16c6a5fd3d4b1d7db94aa027"
+2 : Refund Wallet-confirmation : Confirmed "fb88d8809046ff3f62a07fe9fa3e24f1b47e7be09e21754e5e3d05e401888f57"
+1 : Refund Wallet-confirmation : Confirmed "40831eaa9a456587dd6211119ec024469ae87c9fcdf0abdacf579afa2b60f6d0"

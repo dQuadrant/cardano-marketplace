@@ -59,6 +59,7 @@ import Data.Time.Clock (diffUTCTime)
 import GHC.Base (when)
 import Wallet (ShelleyWallet(..))
 import Cardano.Kuber.Api (FrameworkError)
+import qualified Debug.Trace as Debug
 
 data TransactionTime = TransactionTime {
     ttTxName :: String
@@ -118,7 +119,6 @@ instance FromJSON BenchRun where
       <*> (v A..: "actions")
 
   parseJSON _ = fail "Expected BenchRun Object got something else"
-
 
 monitoredSubmitTx' ::(HasKuberAPI api, HasSubmitApi api, HasChainQueryAPI api) =>Integer -> String ->   Kontract api w FrameworkError TxBuilder ->  Kontract api w FrameworkError TransactionTime
 monitoredSubmitTx'  index txName  txBuilder = do
@@ -198,11 +198,11 @@ runOperations index refScriptUtxo  marketHelper  sellAsset (sellerWallet,buyerWa
           Right v ->
               pure $ getTxId $ getTxBody  v
           Left e -> KError e
+
   let extractResults = liftIO $  do 
         endTime <- liftIO getCurrentTime
         resultList<-readTVarIO results
         pure $ BenchRun index  startTime endTime resultList
-
   -- perform primary sale.
   catchError ( do 
       primarySale  <- monitoredSubmitTx index "Primary Sale" sellerWallet
@@ -228,6 +228,7 @@ runOperations index refScriptUtxo  marketHelper  sellAsset (sellerWallet,buyerWa
     (\e -> do
       extractResults
       )
+
     
 
 runBuildAndSubmit :: (HasKuberAPI api, HasSubmitApi api) => TxBuilder -> Kontract api w FrameworkError (Tx ConwayEra)
