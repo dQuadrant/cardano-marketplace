@@ -15,7 +15,8 @@ import qualified Data.Set as Set
 import Cardano.Kuber.Console.ConsoleWritable (toConsoleText)
 import Wallet (genWallet, ShelleyWallet (..))
 import ParallelUtils (runOperations, runBuildAndSubmit, waitTxConfirmation, BenchRun, monitoredSubmitTx, monitoredSubmitTx', TransactionTime (ttTx))
-import Cardano.Marketplace.V3.Core (simpleMarketV3Helper)
+-- import Cardano.Marketplace.V3.Core (simpleMarketV3Helper)
+import Cardano.Marketplace.V2.Core (simpleMarketV2Helper)
 import Cardano.Marketplace.SimpleMarketplace (SimpleMarketHelper(..))
 import qualified Data.ByteString.Char8 as BS8
 import Control.Concurrent.Async (forConcurrently, async, Async, wait)
@@ -78,7 +79,7 @@ main= do
       )
 
 
-  let marketHelper = simpleMarketV3Helper
+  let marketHelper = simpleMarketV2Helper
       walletBuilder =
             txWalletSignKey sKey
         <>  txWalletAddress walletAddr
@@ -99,7 +100,7 @@ main= do
       Left e -> throwError e
       Right v -> do
         let refTxId = getTxId $ getTxBody $ v
-        batches <- mapM (\i ->  setupBenchBatch i simpleMarketV3Helper (TxIn refTxId (TxIx 0)) sKey walletAddr ) [0..3]
+        batches <- mapM (\i ->  setupBenchBatch i simpleMarketV2Helper (TxIn refTxId (TxIx 0)) sKey walletAddr ) [0..4]
         let runBatch batch = do
               task <- kAsync batch
               liftIO $ threadDelay 0
@@ -134,7 +135,7 @@ kWait results = do
 setupBenchBatch :: (HasChainQueryAPI api, HasKuberAPI api, HasSubmitApi api) => Integer -> SimpleMarketHelper api w -> TxIn  -> SigningKey PaymentKey ->
    AddressInEra ConwayEra -> Kontract api w FrameworkError (Kontract api w FrameworkError [Either FrameworkError BenchRun])
 setupBenchBatch  _batchNo marketHelper refScriptTxin sKey walletAddress   = do
-  let walletCount ::Word32 = 25
+  let walletCount ::Word32 = 2
   let startIndex = fromInteger $  _batchNo *  (toInteger walletCount * 2)
   networkId <- kGetNetworkId
   backend <- kGetBackend

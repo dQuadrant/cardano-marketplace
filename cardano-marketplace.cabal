@@ -43,7 +43,7 @@ library marketplace-plutus
     , plutus-core
     , aeson
     , bytestring
-    , cardano-api
+    , cardano-api 
     , serialise
     , kuber
 
@@ -70,7 +70,7 @@ library marketplace-core
     , serialise
     , http-types
     , marketplace-plutus
-    , cardano-api
+    , cardano-api 
     , plutus-ledger-api
     , text 
     , text-conversions
@@ -96,7 +96,7 @@ executable  market-cli
     , cardano-ledger-shelley
     , cardano-ledger-core
     , cardano-ledger-alonzo
-    , cardano-api
+    , cardano-api 
     , kuber
     , marketplace-plutus
     , marketplace-core
@@ -128,7 +128,7 @@ test-suite market-test
     , text
     , aeson
     , text-conversions
-    , cardano-api
+    , cardano-api 
     , cardano-ledger-alonzo
     , cardano-ledger-shelley
     , cardano-slotting
@@ -156,7 +156,7 @@ benchmark marketplace
       Wallet
   build-depends:        
       base
-    , cardano-api
+    , cardano-api 
     , aeson
     , statistics
     , vector
