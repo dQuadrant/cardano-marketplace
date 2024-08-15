@@ -14,17 +14,11 @@ import { market } from "@/config";
 import {
   Address,
   BaseAddress,
-Transaction,
-TransactionWitnessSet,
-Vkeywitnesses,
+  Transaction,
+  TransactionUnspentOutput,
+  TransactionWitnessSet,
+  Vkeywitnesses,
 } from "@emurgo/cardano-serialization-lib-asmjs";
-import {
-  CIP30ProviderProxy,
-  CIP30Wallet,
-  mergeTxAndWitness,
-  signAndSubmit,
-  WalletBalance,
-} from "kuber-client";
 </script>
 
 <template>
@@ -241,6 +235,7 @@ import {
 </template>
 
 <script lang="ts">
+import { CIP30ProviderProxy, CIP30Wallet } from "kuber-client";
 export default {
   data() {
     const noInstance: CIP30Wallet | null = null;
@@ -284,15 +279,17 @@ export default {
         if (v.tagName == "INPUT") data[v.name] = v.value;
       });
       const tokenNameHex = Buffer.from(data.tokenName, "utf-8").toString("hex");
-      const addresses = await this.curInstance.unusedAddresses().then((v) => {
-        if (v.length == 0) {
-          return this.curInstance.usedAddresses();
-        } else {
-          return v;
-        }
-      });
+      const addresses: string[] = await this.curInstance.instance
+        .getUnusedAddresses()
+        .then((v) => {
+          if (v.length == 0) {
+            return this.curInstance.instance.getUnusedAddresses();
+          } else {
+            return v;
+          }
+        });
       const userPkh = Buffer.from(
-        BaseAddress.from_address(addresses[0])
+        BaseAddress.from_address(Address.from_hex(addresses[0]))
           .payment_cred()
           .to_keyhash()
           .to_bytes()
@@ -329,19 +326,10 @@ export default {
               },
             },
           };
-          return kuber
-            .buildWithProvider(this.curInstance.instance, request)
-            .then(async (tx) => {
-
-               const witness = await this.curInstance.signTx(tx);
-               const finalTx = mergeTxAndWitness(tx,witness)
-               console.log("mint",{
-                  "rawTx":tx.to_hex(),
-                  witness:witness.to_hex(),
-                  finalTx: finalTx.to_hex()
-               })
-               return this.curInstance.submitTx(finalTx)
-            });
+          return kuber.buildWithProvider(this.curInstance, request).then(async (tx) => {
+            const signedTx = await this.curInstance.getSignedTx(tx.cborHex);
+            return this.curInstance.submitTx(signedTx);
+          });
         })
         .catch((e) => {
           console.error(e);
@@ -369,8 +357,8 @@ export default {
       navigator.clipboard.writeText(this.walletPkh);
     },
     async sellNft(providerInstance: CIP30Wallet, asset) {
-      const addresses = await providerInstance.usedAddresses();
-      const sellerAddr = BaseAddress.from_address(addresses[0])
+      const addresses = await providerInstance.instance.getUnusedAddresses();
+      const sellerAddr = BaseAddress.from_address(Address.from_hex(addresses[0]));
       console.log("sellerAddr", sellerAddr);
       const sellerPkh = Buffer.from(
         sellerAddr.payment_cred().to_keyhash().to_bytes()
@@ -409,15 +397,16 @@ export default {
           },
         ],
       };
-      return kuber.buildWithProvider(providerInstance,body).then(async (tx) => {
-        providerInstance.signAndSubmit(tx)
+      return kuber.buildWithProvider(providerInstance, body).then(async (tx) => {
+        const signedTx = await providerInstance.getSignedTx(tx.cborHex);
+        providerInstance.submitTx(signedTx);
       });
     },
     async renderPubKeyHash(providerInstance: CIP30Wallet) {
       const addresses = await providerInstance.instance.getChangeAddress();
-      console.log("Change address",addresses)
-      const sellerAddr = BaseAddress.from_address(Address.from_hex(addresses))
-      const sellerPkh = sellerAddr.payment_cred().to_keyhash().to_hex()
+      console.log("Change address", addresses);
+      const sellerAddr = BaseAddress.from_address(Address.from_hex(addresses));
+      const sellerPkh = sellerAddr.payment_cred().to_keyhash().to_hex();
       console.log("seller public key hash", typeof sellerPkh);
       return sellerPkh;
     },
@@ -433,7 +422,7 @@ export default {
         walletAction.enable = false;
         console.log("calling", walletAction.callback);
         return walletAction.callback(await provider.enable())?.catch?.((e) => {
-          console.error(e)
+          console.error(e);
           alert("Error " + (e && e.message) || "Something went wrong ");
         });
       }
@@ -442,38 +431,101 @@ export default {
       return provider.enable().then(async (instance) => {
         this.curInstance = instance;
         this.walletPkh = await this.renderPubKeyHash(instance);
-        return instance.calculateBalance().then((val) => {
-          console.log("Wallet balance", val);
-          let assetList: Array<any> = [];
-          for (let policy in val.multiassets) {
-            const tokens = val.multiassets[policy];
-            for (let token in tokens) {
-              console.log(policy, token, tokens[token]);
-              if (tokens[token] == BigInt(1)) {
-                assetList.push({
-                  tokenName: decodeAssetName(token),
-                  policy: policy,
-                  asset: policy + token,
-                });
-              }
-            }
-          }
-          this.balance.lovelace = val.lovelace;
-          this.balance.multiAssets = assetList;
-          return Promise.all(
+
+        const walletUtxos = await instance.instance.getUtxos();
+        console.log("Wallet Utsox", walletUtxos);
+        const processed=this.processUtxos(walletUtxos);
+        this.balance.lovelace=processed.lovelace
+        this.balance.multiAssets = processed.assets
+        return Promise.all(
             this.balance.multiAssets.map((v, i) => {
-              return getAssetDetail(v.asset).then((asset) => {
+              return getAssetDetail(v.policy+v.tokenName).then((asset) => {
                 v.name = asset.onchain_metadata?.name;
                 v.image = transformNftImageUrl(asset.onchain_metadata?.image);
               });
             })
           );
 
-          //this.balance.multiAssets[i]=v
-        });
+        
       });
     },
-   
+    processUtxos(utxos: any[]) {
+      const balance = {
+        lovelace: BigInt(0),
+        assets: [], // Array to store assets with { policy: string, tokenName: string, amount: BigInt }
+      };
+
+      const assetTotals = new Map(); // Map to aggregate totals for each asset
+
+      utxos.forEach((utxo) => {
+        // Decode UTXO using cardano-serialization-lib
+        let txOut
+        try{
+          txOut = TransactionUnspentOutput.from_bytes(Buffer.from(utxo, "hex"));
+        }
+        catch{
+          console.error("Failed to decode output",utxo)
+          return
+        }
+
+        // Get the value from the transaction output
+        const value = txOut.output().amount();
+
+        // Update lovelace
+        const lovelace = BigInt(value.coin().to_str());
+        balance.lovelace += lovelace;
+
+        // Update assets
+        const multiasset = value.multiasset();
+        if (multiasset) {
+          const scriptHashes = multiasset.keys();
+
+          for (let i = 0; i < scriptHashes.len(); i++) {
+            const policyId = scriptHashes.get(i);
+            const assets = multiasset.get(policyId);
+            const assetKeys = assets.keys();
+
+            for (let j = 0; j < assetKeys.len(); j++) {
+              const asset = assetKeys.get(j);
+              const amount = BigInt(assets.get(asset).to_str());
+
+              const key = `${policyId.to_hex()}-${asset.to_hex()}`;
+              console.log('key')
+              // Update the assetTotals map
+              if (assetTotals.has(key)) {
+                assetTotals.set(key, assetTotals.get(key) + amount);
+              } else {
+                assetTotals.set(key, amount);
+              }
+
+              // Add to the balance.assets array
+              balance.assets.push({
+                policy: policyId.to_hex(),
+                tokenName: asset.to_hex(),
+                amount,
+              });
+            }
+          }
+        }
+      })
+
+      // Optional: Remove duplicates and keep the aggregated sum in the `balance.assets` array
+      const uniqueAssets = new Map();
+      balance.assets.forEach((asset) => {
+        const key = `${asset.policy}-${asset.tokenName}`;
+        if (uniqueAssets.has(key)) {
+          uniqueAssets.get(key).amount += asset.amount;
+        } else {
+          uniqueAssets.set(key, { ...asset });
+        }
+      });
+
+      // Update balance.assets with unique aggregated values
+      balance.assets = Array.from(uniqueAssets.values());
+      console.log("finalBalance", balance);
+      return balance;
+    },
+
     disconnectProvider() {
       this.balance.lovelace = BigInt(0);
       this.balance.multiAssets = [];
