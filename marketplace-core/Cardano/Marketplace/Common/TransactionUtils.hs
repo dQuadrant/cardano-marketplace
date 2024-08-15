@@ -45,6 +45,9 @@ import Cardano.Kuber.Util (fromPlutusData, fromPlutusAddress)
 import Cardano.Kuber.Api 
 import qualified Debug.Trace as Debug
 
+maybeExUnits :: Maybe ExecutionUnits
+maybeExUnits =  (Just $ ExecutionUnits {executionSteps=676270061, executionMemory=2718298})
+
 getTxIdFromTx :: Tx ConwayEra -> String
 getTxIdFromTx tx = T.unpack $ serialiseToRawBytesHexText $ getTxId $ getTxBody tx
 
@@ -63,9 +66,9 @@ withdrawTokenBuilder' :: IsPlutusScript script => script -> HashableScriptData -
 withdrawTokenBuilder' script redeemer netId refTxIn txIn tout = do 
     (sellerAddr , price) <- getSimpleSaleInfo netId tout
     case refTxIn of 
-      Nothing -> pure $ txRedeemUtxo txIn tout script redeemer  Nothing
+      Nothing -> pure $ txRedeemUtxo txIn tout script redeemer  maybeExUnits
         <> txSignBy (sellerAddr)
-      Just referenceScriptTxIn -> pure $ txRedeemUtxoWithReferenceScript referenceScriptTxIn txIn tout redeemer Nothing 
+      Just referenceScriptTxIn -> pure $ txRedeemUtxoWithReferenceScript referenceScriptTxIn txIn tout redeemer maybeExUnits
         <> txSignBy (sellerAddr)  
 
 getSimpleSaleInfo :: NetworkId -> TxOut CtxUTxO ConwayEra -> Either String (AddressInEra ConwayEra, Integer)
@@ -96,10 +99,10 @@ buyTokenBuilder' script buyRedeemer netId refTxIn txIn tout feeInfo = do
               <> txReferenceTxIn txin
           Nothing -> mempty
     case refTxIn of 
-          Nothing -> pure $ txRedeemUtxo txIn tout script buyRedeemer  Nothing
+          Nothing -> pure $ txRedeemUtxo txIn tout script buyRedeemer  maybeExUnits
             <> txPayTo   (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
             <> marketFeeOutput
-          Just referenceTxIn -> pure $ txRedeemUtxoWithReferenceScript referenceTxIn txIn tout buyRedeemer  Nothing
+          Just referenceTxIn -> pure $ txRedeemUtxoWithReferenceScript referenceTxIn txIn tout buyRedeemer  maybeExUnits
             <> txPayTo   (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
             <> marketFeeOutput
             

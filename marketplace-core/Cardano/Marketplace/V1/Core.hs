@@ -98,14 +98,14 @@ parseAssetInfo sd =
 
 buyFromMarket spendTxIn script datum = do 
   (tin, tout)<- resolveTxIn spendTxIn
-  kWrapParser $ Right $ txRedeemUtxoWithDatum tin tout script (fromJust datum) buyRedeemer  Nothing
+  kWrapParser $ Right $ txRedeemUtxoWithDatum tin tout script (fromJust datum) buyRedeemer  maybeExUnits
     <> txPayTo (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)]) 
   where 
     (sellerAddr, price) = parseAssetInfo (fromJust datum)
 
 withdrawFromMarket withdrawTxIn script datum = do
   (tin, tout) <- resolveTxIn (withdrawTxIn)
-  kWrapParser $ Right $ txRedeemUtxoWithDatum tin tout script (v1SaleDatumInline datum) withdrawRedeemer  Nothing
+  kWrapParser $ Right $ txRedeemUtxoWithDatum tin tout script (v1SaleDatumInline datum) withdrawRedeemer  maybeExUnits
     <> txSignBy (sellerAddr)
   where 
     (sellerAddr, _) = parseAssetInfo (fromJust datum)
@@ -115,14 +115,14 @@ placeOnSell marketAddr saleItem cost sellerAddress =
 
 buyFromMarketWithRefScript spendTxIn refTxIn datum = do
   (tin, tout) <- resolveTxIn spendTxIn
-  kWrapParser $ Right $ txRedeemUtxoWithDatumAndReferenceScript refTxIn tin tout (v1SaleDatumInline datum) buyRedeemer  Nothing
+  kWrapParser $ Right $ txRedeemUtxoWithDatumAndReferenceScript refTxIn tin tout (v1SaleDatumInline datum) buyRedeemer  maybeExUnits
       <> txPayTo (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
   where 
     (sellerAddr, price) = parseAssetInfo (fromJust datum)
 
 withdrawFromMarketWithRefScript withdrawTxIn refTxIn datum = do 
   (tin, tout) <- resolveTxIn withdrawTxIn
-  kWrapParser $ Right $ txRedeemUtxoWithDatumAndReferenceScript refTxIn tin tout (v1SaleDatumInline datum) withdrawRedeemer Nothing 
+  kWrapParser $ Right $ txRedeemUtxoWithDatumAndReferenceScript refTxIn tin tout (v1SaleDatumInline datum) withdrawRedeemer maybeExUnits
     <> txSignBy (sellerAddr)  
   where 
     (sellerAddr, price) = parseAssetInfo (fromJust datum)

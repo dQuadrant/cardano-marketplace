@@ -53,25 +53,25 @@ placeOnSell' marketAddr saleItem datum =
   txPayToScriptWithData marketAddr saleItem datum
 
 buyFromMarket' spendTxIn buyUtxo script buyRedeemer = 
-  txRedeemUtxo spendTxIn buyUtxo script buyRedeemer  Nothing
+  txRedeemUtxo spendTxIn buyUtxo script buyRedeemer  maybeExUnits
   <> txPayTo   (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
   where 
     (sellerAddr, price) = assetInfo buyUtxo
 
 withdrawFromMarket' withdrawTxIn withdrawUTxO script withdrawRedeemer = 
-  txRedeemUtxo withdrawTxIn withdrawUTxO script withdrawRedeemer  Nothing
+  txRedeemUtxo withdrawTxIn withdrawUTxO script withdrawRedeemer  maybeExUnits
   <> txSignBy (sellerAddr)
   where 
     (sellerAddr, _) = assetInfo withdrawUTxO
 
 buyFromMarketWithRefScript' spendTxIn refTxIn buyUtxo buyRedeemer =
-  txRedeemUtxoWithReferenceScript refTxIn spendTxIn buyUtxo buyRedeemer  Nothing
+  txRedeemUtxoWithReferenceScript refTxIn spendTxIn buyUtxo buyRedeemer  maybeExUnits
   <> txPayTo (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
   where 
     (sellerAddr, price) = assetInfo buyUtxo
 
 withdrawFromMarketWithRefScript' withdrawTxIn refTxIn withdrawUTxO withdrawRedeemer = 
-  txRedeemUtxoWithReferenceScript refTxIn withdrawTxIn withdrawUTxO withdrawRedeemer Nothing 
+  txRedeemUtxoWithReferenceScript refTxIn withdrawTxIn withdrawUTxO withdrawRedeemer maybeExUnits
   <> txSignBy (sellerAddr)  
   where 
     (sellerAddr, price) = assetInfo withdrawUTxO
