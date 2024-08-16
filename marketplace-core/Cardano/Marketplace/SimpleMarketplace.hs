@@ -34,30 +34,44 @@ import qualified Data.Set as Set
 import qualified Plutus.Contracts.V2.SimpleMarketplace as Marketplace
 import PlutusLedgerApi.V2 (toData, dataToBuiltinData, FromData (fromBuiltinData))
 
-data SimpleMarketHelper = SimpleMarketHelper {
+data SimpleMarketHelper api w = SimpleMarketHelper {
     simpleMarketScript :: TxPlutusScript
-  , makeSaleDatum :: AddressInEra ConwayEra -> Integer -> HashableScriptData
-  , withdrawRedeemer :: HashableScriptData
-  , buyRedeemer :: HashableScriptData
+  , sell :: AddressInEra ConwayEra -> Value -> Integer -> AddressInEra ConwayEra -> Kontract api w FrameworkError TxBuilder
+  , buy :: TxIn -> Kontract api w FrameworkError TxBuilder
+  , buyWithRefScript :: TxIn -> TxIn -> Kontract api w FrameworkError TxBuilder
+  , withdraw :: TxIn -> Kontract api w FrameworkError TxBuilder
+  , withdrawWithRefScript :: TxIn -> TxIn -> Kontract api w FrameworkError TxBuilder
 }
 
-sellBuilder :: SimpleMarketHelper -> AddressInEra ConwayEra ->  Value -> Integer -> AddressInEra  ConwayEra  -> TxBuilder
-sellBuilder smHelper marketAddr saleItem cost  sellerAddr 
-  = txPayToScriptWithData marketAddr saleItem (makeSaleDatum smHelper sellerAddr cost)
+assetInfo :: TxOut CtxUTxO ConwayEra -> (AddressInEra ConwayEra, Integer)
+assetInfo assetUTxO = do 
+  case getSimpleSaleInfo (Testnet (NetworkMagic 4)) assetUTxO of 
+    Right sellerAndPrice -> sellerAndPrice
+    Left str -> error (str)
 
-buyTokenBuilder ::  HasChainQueryAPI api => 
-  SimpleMarketHelper ->
-  Maybe TxIn -> 
-  TxIn -> 
-  Maybe (AddressInEra ConwayEra, Integer, TxIn) -> 
-  Kontract api w FrameworkError TxBuilder
-buyTokenBuilder mHelper refTxIn txin  feeInfo = do
-  netid<- kGetNetworkId
-  (tin, tout) <- resolveTxIn txin
-  kWrapParser $ buyTokenBuilder' (simpleMarketScript mHelper ) (buyRedeemer mHelper )  netid refTxIn txin tout feeInfo
+placeOnSell' marketAddr saleItem datum = 
+  txPayToScriptWithData marketAddr saleItem datum
 
-withdrawTokenBuilder ::  HasChainQueryAPI api => SimpleMarketHelper -> Maybe TxIn -> TxIn  -> Kontract api w FrameworkError TxBuilder
-withdrawTokenBuilder mHelper refTxIn txin  = do
-  netid<- kGetNetworkId
-  (tin, tout) <- resolveTxIn txin
-  kWrapParser $ withdrawTokenBuilder' (simpleMarketScript mHelper ) (withdrawRedeemer mHelper) netid refTxIn txin tout
+buyFromMarket' spendTxIn buyUtxo script buyRedeemer = 
+  txRedeemUtxo spendTxIn buyUtxo script buyRedeemer  maybeExUnits
+  <> txPayTo   (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
+  where 
+    (sellerAddr, price) = assetInfo buyUtxo
+
+withdrawFromMarket' withdrawTxIn withdrawUTxO script withdrawRedeemer = 
+  txRedeemUtxo withdrawTxIn withdrawUTxO script withdrawRedeemer  maybeExUnits
+  <> txSignBy (sellerAddr)
+  where 
+    (sellerAddr, _) = assetInfo withdrawUTxO
+
+buyFromMarketWithRefScript' spendTxIn refTxIn buyUtxo buyRedeemer =
+  txRedeemUtxoWithReferenceScript refTxIn spendTxIn buyUtxo buyRedeemer  maybeExUnits
+  <> txPayTo (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
+  where 
+    (sellerAddr, price) = assetInfo buyUtxo
+
+withdrawFromMarketWithRefScript' withdrawTxIn refTxIn withdrawUTxO withdrawRedeemer = 
+  txRedeemUtxoWithReferenceScript refTxIn withdrawTxIn withdrawUTxO withdrawRedeemer maybeExUnits
+  <> txSignBy (sellerAddr)  
+  where 
+    (sellerAddr, price) = assetInfo withdrawUTxO

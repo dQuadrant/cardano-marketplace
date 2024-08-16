@@ -1,6 +1,15 @@
 module Test.TestContext where
 import Cardano.Api
 import GHC.Conc (TVar)
+import Data.Map (Map)
+
+data TagMetric = TagMetric {
+  tmTestGroup :: String,
+  tmTag :: String,
+  tmMetricName :: String,
+  tmMetric :: String 
+}
+
 
 data TestReport = TestReport {
     trTestGroup :: String 
@@ -22,4 +31,5 @@ data TestContext a= TestContext{
   , tcWalletAddr :: AddressInEra ConwayEra
   , tcReports :: TVar [TestReport]
   , tcTempReport :: TVar [TxDetail]
+  , tcTagMetrics :: TVar [TagMetric]
 }

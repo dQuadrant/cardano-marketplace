@@ -59,6 +59,7 @@ import Cardano.Marketplace.Common.TransactionUtils
 import Cardano.Marketplace.SimpleMarketplace
 import Cardano.Marketplace.V2.Core (simpleMarketV2Helper)
 import Cardano.Marketplace.V3.Core (simpleMarketV3Helper)
+import Cardano.Marketplace.ConfigurableMarketplace (sellBuilder)
 
 
 data Modes
@@ -217,13 +218,16 @@ runCli = do
       sellerAddress <- case saddressMaybe of
         Nothing -> pure  $ skeyToAddrInEra sKey networkId 
         Just txt -> parseAddress txt
-      let
-        txBuilder = (case version of 
-                  2 -> sellBuilder simpleMarketV2Helper   v2MarketAddr  (valueFromList [sellVale]) cost  sellerAddress 
-                  3 -> sellBuilder simpleMarketV3Helper  v3MarketAddr (valueFromList [sellVale]) cost  sellerAddress )
+              
+      runKontract chainInfo $ do 
+        sellBuilder <- case version of 
+          2 -> (sell simpleMarketV2Helper) v2MarketAddr  (valueFromList [sellVale]) cost  sellerAddress
+          3 -> (sell simpleMarketV3Helper)  v3MarketAddr (valueFromList [sellVale]) cost  sellerAddress 
+        let builder = sellBuilder
               <> txWalletSignKey sKey
               <> txWalletAddress sellerAddress
-      runKontract chainInfo $ runBuildAndSubmit txBuilder 
+        runBuildAndSubmit builder
+
         
     Buy version txInText datumStr sKeyFile addrMaybe -> do
       sKey <- getSignKey sKeyFile
@@ -232,8 +236,8 @@ runCli = do
 
       runKontract  chainInfo $ do
         buyBuilder <- case version of 
-            2 -> buyTokenBuilder simpleMarketV2Helper Nothing tin Nothing
-            3 -> buyTokenBuilder simpleMarketV3Helper Nothing tin Nothing
+            2 -> buy simpleMarketV2Helper tin
+            3 -> buy simpleMarketV3Helper tin
         let builder = buyBuilder
                         <> txWalletSignKey sKey
                         <> txWalletAddress address
@@ -245,8 +249,8 @@ runCli = do
       address <- getAddress networkId sKey mAddr
       runKontract  chainInfo $ do
         withdrawBuilder <- case version of 
-          2 -> withdrawTokenBuilder simpleMarketV2Helper Nothing txIn 
-          3 -> withdrawTokenBuilder simpleMarketV3Helper Nothing txIn
+          2 -> withdraw simpleMarketV2Helper txIn 
+          3 -> withdraw simpleMarketV3Helper txIn
         let builder = withdrawBuilder
                         <> txWalletSignKey sKey
                         <> txWalletAddress address

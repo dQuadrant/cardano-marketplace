@@ -18,9 +18,10 @@
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE ViewPatterns #-}
 {-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:target-version=1.0.0 #-}
-module Plutus.Contracts.V2.SimpleMarketplace(
-  simpleMarketplacePlutusV2,
-  simpleMarketplacePlutusV2SuperLazy,
+
+module Plutus.Contracts.V1.SimpleMarketplace(
+  simpleMarketplacePlutusV1,
+  simpleMarketplacePlutusV1SuperLazy,
   MarketRedeemer(..),
   SimpleSale(..)
 )
@@ -37,11 +38,11 @@ import qualified Data.Bifunctor
 import qualified Data.ByteString.Short as SBS
 import qualified Data.ByteString.Lazy  as LBS
 import qualified PlutusTx.Builtins.Internal as BI
-import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV2)
+import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV1)
 import Codec.Serialise ( serialise )
-import PlutusLedgerApi.V2
+import PlutusLedgerApi.V1
 import PlutusLedgerApi.V1.Value
-import PlutusLedgerApi.V2.Contexts
+import PlutusLedgerApi.V1.Contexts
 
 
 {-# INLINABLE allScriptInputsCount #-}
@@ -49,9 +50,12 @@ allScriptInputsCount:: [TxInInfo] ->Integer
 allScriptInputsCount inputs=
     foldl (\c txOutTx-> c + countTxOut txOutTx) 0 inputs
   where
-  countTxOut (TxInInfo _ (TxOut addr _ _ _)) = case addr of { Address cre m_sc -> case cre of
-                                                              PubKeyCredential pkh -> 0
-                                                              ScriptCredential vh -> 1  } 
+  countTxOut input = case txInInfoResolved input of 
+    (TxOut addr _ _ ) -> case addr of 
+      { Address cre m_sc -> case cre of
+          PubKeyCredential pkh -> 0
+          ScriptCredential vh -> 1  
+      } 
 
 {-# INLINABLE parseData #-}
 parseData ::FromData a =>  BuiltinData -> BuiltinString -> a
@@ -108,10 +112,10 @@ mkMarketSuperLazy ds@SimpleSale{sellerAddress,priceOfAsset} action allInputs all
                                                            ScriptCredential vh -> Nothing  }
       adaAsset=AssetClass (adaSymbol,adaToken )
 
-      valuePaidTo' pkh' = foldMap(\(TxOut _ val _ _) -> val ) filteredOutputs
+      valuePaidTo' pkh' = foldMap(\(TxOut _ val _ ) -> val ) filteredOutputs
         where
           filteredOutputs = mapMaybe (\x -> case x of 
-            (TxOut addr _ _ _) -> case addr of 
+            (TxOut addr _ _) -> case addr of 
               { Address cre m_sc -> case cre of
                 PubKeyCredential pkh -> if pkh == pkh' then Just x else Nothing
                 ScriptCredential vh -> Nothing }) allOutputs
@@ -143,23 +147,21 @@ mkWrappedMarketSuperLazy  d r c =
     inputs = parseData (BI.head lazyTxInfo) "txInfoInputs: Invalid [TxInInfo] type"
 
     outputs :: [TxOut] 
-    outputs = parseData (BI.head (BI.tail (BI.tail lazyTxInfo))) "txInfoOutputs: Invalid [TxOut] type"
+    outputs = parseData (BI.head (BI.tail lazyTxInfo)) "txInfoOutputs: Invalid [TxOut] type"
 
     signatures :: [PubKeyHash]
     signatures = parseData 
-      (BI.head $ BI.tail $ BI.tail $ BI.tail $ BI.tail $ BI.tail $ BI.tail $ BI.tail $ BI.tail lazyTxInfo) 
+      (BI.head $ BI.tail $ BI.tail $ BI.tail $ BI.tail $ BI.tail $ BI.tail $ BI.tail lazyTxInfo) 
       "txInfoSignatories: Invalid [PubKeyHash] type"
 
 simpleMarketValidator = 
             $$(PlutusTx.compile [|| mkWrappedMarket ||])
 
-simpleMarketValidatorSuperLazy :: CompiledCode
-  (BuiltinData -> BuiltinData -> BuiltinData -> BuiltinUnit)
 simpleMarketValidatorSuperLazy = 
             $$(PlutusTx.compile [|| mkWrappedMarketSuperLazy ||])
 
-simpleMarketplacePlutusV2 ::  PlutusScript PlutusScriptV2
-simpleMarketplacePlutusV2  = PlutusScriptSerialised $ serialiseCompiledCode  simpleMarketValidator
+simpleMarketplacePlutusV1 ::  PlutusScript PlutusScriptV1
+simpleMarketplacePlutusV1  = PlutusScriptSerialised $ serialiseCompiledCode  simpleMarketValidator
 
-simpleMarketplacePlutusV2SuperLazy ::  PlutusScript PlutusScriptV2
-simpleMarketplacePlutusV2SuperLazy  = PlutusScriptSerialised $ serialiseCompiledCode  simpleMarketValidatorSuperLazy
+simpleMarketplacePlutusV1SuperLazy ::  PlutusScript PlutusScriptV1
+simpleMarketplacePlutusV1SuperLazy  = PlutusScriptSerialised $ serialiseCompiledCode  simpleMarketValidatorSuperLazy

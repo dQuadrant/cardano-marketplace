@@ -23,12 +23,16 @@ maintainer:         Sireto
 
 library marketplace-plutus
   exposed-modules:
+    Plutus.Contracts.V1.SimpleMarketplace
+
+    Plutus.Contracts.V2.ConfigurableMarketplace
     Plutus.Contracts.V2.SimpleMarketplace
     Plutus.Contracts.V2.MarketplaceConfig
-    Plutus.Contracts.V2.ConfigurableMarketplace
+
     Plutus.Contracts.V3.ConfigurableMarketplace
     Plutus.Contracts.V3.SimpleMarketplace
     Plutus.Contracts.V3.MarketplaceConfig
+
   hs-source-dirs: marketplace-plutus
   build-depends:
       base  -any
@@ -39,18 +43,22 @@ library marketplace-plutus
     , plutus-core
     , aeson
     , bytestring
-    , cardano-api
+    , cardano-api 
     , serialise
     , kuber
 
 library marketplace-core
   exposed-modules:
+    Cardano.Marketplace.V1.Core
     Cardano.Marketplace.V2.Core
     Cardano.Marketplace.V3.Core
+    
     Cardano.Marketplace.Common.TextUtils
     Cardano.Marketplace.Common.TransactionUtils
+    
     Cardano.Marketplace.SimpleMarketplace
     Cardano.Marketplace.ConfigurableMarketplace
+  
   hs-source-dirs: marketplace-core
   build-depends:
       base -any
@@ -62,7 +70,7 @@ library marketplace-core
     , serialise
     , http-types
     , marketplace-plutus
-    , cardano-api
+    , cardano-api 
     , plutus-ledger-api
     , text 
     , text-conversions
@@ -88,7 +96,7 @@ executable  market-cli
     , cardano-ledger-shelley
     , cardano-ledger-core
     , cardano-ledger-alonzo
-    , cardano-api
+    , cardano-api 
     , kuber
     , marketplace-plutus
     , marketplace-core
@@ -120,7 +128,7 @@ test-suite market-test
     , text
     , aeson
     , text-conversions
-    , cardano-api
+    , cardano-api 
     , cardano-ledger-alonzo
     , cardano-ledger-shelley
     , cardano-slotting
@@ -148,7 +156,7 @@ benchmark marketplace
       Wallet
   build-depends:        
       base
-    , cardano-api
+    , cardano-api 
     , aeson
     , statistics
     , vector
