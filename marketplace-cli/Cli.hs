@@ -218,12 +218,12 @@ runCli = do
         Nothing -> pure  $ skeyToAddrInEra sKey networkId 
         Just txt -> parseAddress txt
       let
-        txBuilder = (case version of 
-                  2 -> sellBuilder simpleMarketV2Helper   v2MarketAddr  (valueFromList [sellVale]) cost  sellerAddress 
-                  3 -> sellBuilder simpleMarketV3Helper  v3MarketAddr (valueFromList [sellVale]) cost  sellerAddress )
-              <> txWalletSignKey sKey
-              <> txWalletAddress sellerAddress
-      runKontract chainInfo $ runBuildAndSubmit txBuilder 
+        sellBuilder = (case version of 
+                  2 -> (sell simpleMarketV2Helper)   v2MarketAddr  (valueFromList [sellVale]) cost  sellerAddress 
+                  3 -> (sell simpleMarketV3Helper)  v3MarketAddr (valueFromList [sellVale]) cost  sellerAddress )
+      evaluatedSellBuilder <- evaluateKontract chainInfo sellBuilder >>= throwFrameworkError
+      let sellTx = evaluatedSellBuilder <> txWalletSignKey_ sKey <> txWalletAddress_ sellerAddress
+      runKontract chainInfo $ runBuildAndSubmit sellTx 
         
     Buy version txInText datumStr sKeyFile addrMaybe -> do
       sKey <- getSignKey sKeyFile
@@ -232,11 +232,11 @@ runCli = do
 
       runKontract  chainInfo $ do
         buyBuilder <- case version of 
-            2 -> buyTokenBuilder simpleMarketV2Helper Nothing tin Nothing
-            3 -> buyTokenBuilder simpleMarketV3Helper Nothing tin Nothing
+            2 -> (buy simpleMarketV2Helper) tin
+            3 -> (buy simpleMarketV3Helper) tin
         let builder = buyBuilder
-                        <> txWalletSignKey sKey
-                        <> txWalletAddress address
+                        <> txWalletSignKey_ sKey
+                        <> txWalletAddress_ address
         runBuildAndSubmit builder
  
     Withdraw version txInText datumStr sKeyFile mAddr-> do
@@ -245,11 +245,11 @@ runCli = do
       address <- getAddress networkId sKey mAddr
       runKontract  chainInfo $ do
         withdrawBuilder <- case version of 
-          2 -> withdrawTokenBuilder simpleMarketV2Helper Nothing txIn 
-          3 -> withdrawTokenBuilder simpleMarketV3Helper Nothing txIn
+          2 -> (withdraw simpleMarketV2Helper) txIn 
+          3 -> (withdraw simpleMarketV3Helper) txIn
         let builder = withdrawBuilder
-                        <> txWalletSignKey sKey
-                        <> txWalletAddress address
+                        <> txWalletSignKey_ sKey
+                        <> txWalletAddress_ address
         runBuildAndSubmit builder
 
     Mint sKeyFile walletAddrStr tokenNameStr qty-> runKontract chainInfo $  do
@@ -257,20 +257,20 @@ runCli = do
       builderWallet <- if T.null walletAddrStr 
                 then  pure mempty
                 else   kWrapParser $ parseAddress walletAddrStr
-                      <&> txWalletAddress
+                      <&> txWalletAddress_
       skey <- liftIO $ readSignKey sKeyFile
       let (assetId,mintBuilder)= mintNativeAsset  (getVerificationKey $ skey)  assetName qty
       kBuildAndSubmit $ 
-        txWalletSignKey skey
+        txWalletSignKey_ skey
         <> builderWallet
         <> mintBuilder
 
     CreateCollateral sKeyFile mAddr-> do
       skey <- getSignKey sKeyFile
       addrInEra <- getAddress networkId  skey mAddr
-      let txOperations = txPayTo addrInEra (valueFromList [(AdaAssetId,Quantity 5_000_000)]) 
-            <> txWalletAddress addrInEra 
-            <> txWalletSignKey skey
+      let txOperations = txPayTo_ addrInEra (valueFromList [(AdaAssetId,Quantity 5_000_000)]) 
+            <> txWalletAddress_ addrInEra 
+            <> txWalletSignKey_ skey
       runKontract chainInfo $ do 
         runBuildAndSubmit txOperations
  

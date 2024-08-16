@@ -100,7 +100,7 @@ main= do
       Left e -> throwError e
       Right v -> do
         let refTxId = getTxId $ getTxBody $ v
-        batches <- mapM (\i ->  setupBenchBatch i simpleMarketV2Helper (TxIn refTxId (TxIx 0)) sKey walletAddr ) [0..4]
+        batches <- mapM (\i ->  setupBenchBatch i simpleMarketV2Helper (TxIn refTxId (TxIx 0)) sKey walletAddr ) [0..3]
         let runBatch batch = do
               task <- kAsync batch
               liftIO $ threadDelay 0
@@ -135,7 +135,7 @@ kWait results = do
 setupBenchBatch :: (HasChainQueryAPI api, HasKuberAPI api, HasSubmitApi api) => Integer -> SimpleMarketHelper api w -> TxIn  -> SigningKey PaymentKey ->
    AddressInEra BabbageEra -> Kontract api w FrameworkError (Kontract api w FrameworkError [Either FrameworkError BenchRun])
 setupBenchBatch  _batchNo marketHelper refScriptTxin sKey walletAddress   = do
-  let walletCount ::Word32 = 2
+  let walletCount ::Word32 = 25
   let startIndex = fromInteger $  _batchNo *  (toInteger walletCount * 2)
   networkId <- kGetNetworkId
   backend <- kGetBackend

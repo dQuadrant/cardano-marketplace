@@ -88,14 +88,14 @@ readTxId mTvar tag= do
 
 runTestContext_   c tVar n k = runTestContext   c tVar n k >> return ()
 
-runTestContext :: (HasKuberAPI a, HasSubmitApi a, HasChainQueryAPI a) =>   TestContext a -> Maybe (TVar (Maybe TxId)) ->String ->  Kontract a w FrameworkError TxBuilder -> IO TxId
+runTestContext :: (HasKuberAPI a, HasSubmitApi a, HasChainQueryAPI a) =>   TestContext a -> Maybe (TVar (Maybe TxId)) ->String ->  Kontract a w FrameworkError (TxBuilder_ BabbageEra) -> IO TxId
 runTestContext  context txVar testName kontract = do
   result<-evaluateKontract (tcChainInfo context)  $
         performTransactionAndReport
         testName
         (
-            txWalletSignKey (tcSignKey context)
-          <> txWalletAddress (tcWalletAddr context))
+            txWalletSignKey_ (tcSignKey context)
+          <> txWalletAddress_ (tcWalletAddr context))
         kontract
   let setTvar v =
         case txVar of
@@ -120,15 +120,15 @@ runTestContext  context txVar testName kontract = do
 
 performTransactionAndReport :: (HasKuberAPI api,HasSubmitApi api,HasChainQueryAPI api) =>
   String ->
-  TxBuilder ->
-  Kontract api w FrameworkError TxBuilder ->
+  TxBuilder_ BabbageEra ->
+  Kontract api w FrameworkError (TxBuilder_ BabbageEra) ->
   Kontract api w FrameworkError (Tx BabbageEra)
 performTransactionAndReport action wallet = performTransactionAndReport' action (pure wallet)
 
 performTransactionAndReport' :: (HasKuberAPI api,HasSubmitApi api,HasChainQueryAPI api) =>
   String ->
-  Kontract api w FrameworkError TxBuilder ->
-  Kontract api w FrameworkError TxBuilder ->
+  Kontract api w FrameworkError (TxBuilder_ BabbageEra) ->
+  Kontract api w FrameworkError (TxBuilder_ BabbageEra) ->
   Kontract api w FrameworkError (Tx BabbageEra)
 performTransactionAndReport' action walletKontract builderKontract = do
   wallet <- walletKontract
@@ -148,7 +148,7 @@ performTransactionAndReport' action walletKontract builderKontract = do
     )
     errorHandler
 
-  let txEnvelope =  serialiseTxLedgerCddl ShelleyBasedEraConway tx
+  let txEnvelope =  serialiseTxLedgerCddl ShelleyBasedEraBabbage tx
   liftIO $ do
     putStrLn $ action ++ " Tx submitted : " ++ (BS8.unpack $  prettyPrintJSON txEnvelope)
     reportExUnitsandFee tx
@@ -157,7 +157,7 @@ performTransactionAndReport' action walletKontract builderKontract = do
   liftIO $ do putStrLn $ action ++ " Tx Confirmed: " ++ (show $ getTxId (getTxBody tx))
   pure (tx)
 
-runBuildAndSubmit :: (HasKuberAPI api, HasSubmitApi api) => TxBuilder -> Kontract api w FrameworkError (Tx BabbageEra)
+runBuildAndSubmit :: (HasKuberAPI api, HasSubmitApi api) => (TxBuilder_ BabbageEra) -> Kontract api w FrameworkError (Tx BabbageEra)
 runBuildAndSubmit txBuilder =  do
         tx<- kBuildTx txBuilder
         kSubmitTx (InAnyCardanoEra BabbageEra tx)

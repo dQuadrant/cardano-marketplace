@@ -17,7 +17,6 @@ repository cardano-haskell-packages
     d4a35cd3121aa00d18544bb0ac01c3e1691d618f462c46129271bccf39f7e8ee
 
 packages:
-  . /home/reeshav/dQuadrant/dum/kuber
   .
 
   
@@ -38,10 +37,10 @@ package cryptonite
   flags: -support_rdrand
 
 
---source-repository-package
- -- type: git
- -- location: https://github.com/dquadrant/kuber
- -- tag: 102551731b95bed465ddc6e56e28635c8eeb8f65
+source-repository-package
+ type: git
+ location: https://github.com/dquadrant/kuber
+ tag: edd074012d9aa86f2e19812fc065db1102c6a8ff
 
 
 source-repository-package
