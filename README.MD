@@ -37,3 +37,6 @@ VS code  with devcontainer enabled is the fastest way to get started with the pr
 
 ## Building locally
  [Building locally](./docs/build.md)
+
+## Running on a private testnet
+[Running on a private testnet](./docs/RunOnPrivateTestnet.md) 

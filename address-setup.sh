@@ -1,22 +1,14 @@
-export SOCKET_PATH='/home/reeshav/forks/cardano-node-tests/dev_workdir/state-cluster0/bft1.socket'
-echo "SOCKET_PATH = $SOCKET_PATH"
-export CARDANO_NODE_SOCKET_PATH=$SOCKET_PATH
-
-export GENESIS_ADDRESS=$(cat /home/reeshav/forks/cardano-node-tests/dev_workdir/state-cluster0/shelley/genesis-utxo.addr)
+echo "CARDANO_NODE_SOCKET_PATH = $CARDANO_NODE_SOCKET_PATH"
 echo "GENESIS_ADDRESS = $GENESIS_ADDRESS"
-
-export GENESIS_SKEY_FILE='/home/reeshav/forks/cardano-node-tests/dev_workdir/state-cluster0/shelley/genesis-utxo.skey'
 echo "GENESIS_SKEY_FILE = $GENESIS_SKEY_FILE"
-
-export WALLET_ADDRESS=$(cat /home/reeshav/cardano-marketplace/payment.addr)
 echo "WALLET_ADDRESS = $WALLET_ADDRESS"
-export SIGNKEY_FILE='./payment.skey'
-# fund from cluster
 
+# fund from cluster
+mkdir .cluster-address
 cardano-cli query utxo \
     --address $GENESIS_ADDRESS \
     --testnet-magic 42 \
-    --socket-path $SOCKET_PATH \
+    --socket-path $CARDANO_NODE_SOCKET_PATH \
     --out-file .cluster-address/genesis-utxos.json
 
 export GENESIS_TXIN=$(jq -r 'keys[0]' .cluster-address/genesis-utxos.json)
@@ -28,7 +20,7 @@ cardano-cli conway transaction build \
     --out-file .cluster-address/fund-wallet-address.tx \
     --change-address $GENESIS_ADDRESS \
     --testnet-magic 42 \
-    --socket-path $SOCKET_PATH
+    --socket-path $CARDANO_NODE_SOCKET_PATH
 
 cardano-cli conway transaction sign \
     --tx-body-file .cluster-address/fund-wallet-address.tx \
@@ -39,10 +31,10 @@ cardano-cli conway transaction sign \
 cardano-cli transaction submit \
     --tx-file .cluster-address/fund-wallet-address.tx \
     --testnet-magic 42 \
-    --socket-path $SOCKET_PATH
+    --socket-path $CARDANO_NODE_SOCKET_PATH
 
 echo "Funding Wallet..."
 sleep 5
 
 echo "WALLET BALANCE:"
-cardano-cli query utxo --address $WALLET_ADDRESS --testnet-magic 42 --socket-path $SOCKET_PATH
+cardano-cli query utxo --address $WALLET_ADDRESS --testnet-magic 42 --socket-path $CARDANO_NODE_SOCKET_PATH
