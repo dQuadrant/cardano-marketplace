@@ -1,0 +1,222 @@
+WalletAddress  : addr_test1qp444s0a5p2t225f3urwwfpyx7v7u9zg0aevtkt05rptkv5l636vkjjyt545wg3dagvzrv23ckltwlr4pzmsrw88jqpssa7hl0
+Wallet Balance :  194630.154993 Ada
+  349	c852933415a71b75a9750048be4bed695af8edb6117bcc233558575e.TestToken
+0 : Create Ref Script: setup = Finalied
+0 : Create Ref Script: buildAndSubmit = Finalied
+0 : Create Ref Script-confirmation : Confirmed "f62a893f42d1761cddfd521ec705726b003f12fb48c761c4b395dac68b2e9b8f"
+0 Generated wallets for batch  buyers : 0-9 sellers : 10-19
+0 : Fund Wallets: setup = Finalied
+0 : Fund Wallets: buildAndSubmit = Finalied
+0 : Fund Wallets-confirmation : Confirmed "acfeebdd2827acbb2134cd71d8b7190b042034e7b7c95772248abb601ac7fdce"
+1 : Primary Sale: setup = Finalied
+2 : Primary Sale: setup = Finalied
+3 : Primary Sale: setup = Finalied
+4 : Primary Sale: setup = Finalied
+0 : Primary Sale: setup = Finalied
+5 : Primary Sale: setup = Finalied
+6 : Primary Sale: setup = Finalied
+7 : Primary Sale: setup = Finalied
+8 : Primary Sale: setup = Finalied
+8 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+9 : Primary Sale: setup = Finalied
+9 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 9>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 9>: resource exhausted (Resource temporarily unavailable)"
+2 : Primary Sale: buildAndSubmit = Finalied
+3 : Primary Sale: buildAndSubmit = Finalied
+1 : Primary Sale: buildAndSubmit = Finalied
+5 : Primary Sale: buildAndSubmit = Finalied
+6 : Primary Sale: buildAndSubmit = Finalied
+7 : Primary Sale: buildAndSubmit = Finalied
+4 : Primary Sale: buildAndSubmit = Finalied
+8 : Primary Sale: buildAndSubmit = Finalied
+9 : Primary Sale: buildAndSubmit = Finalied
+0 : Primary Sale: buildAndSubmit = Finalied
+5 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+5 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+5 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+5 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+5 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+5 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+5 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+5 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+5 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+5 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+5 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+5 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+5 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+5 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+5 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+5 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+1 : Primary Sale-confirmation : Confirmed "8b99473245dc2599cdc82d962ea154b0b1835f4c1c4e5b23fde085c17806f2b5"
+3 : Primary Sale-confirmation : Confirmed "83a663bd67ffe047f8af6c937a7fd28b5621732607008accb4147a33c90a4bdf"
+6 : Primary Sale-confirmation : Confirmed "821e7eddd55f67568905512ec460c13dcfaf604190b7ff8ad2133daad208c1bd"
+8 : Primary Sale-confirmation : Confirmed "2177d6a1a2d3de5d151bf8eabddfe8531fe04aca8d819a93e777a9be9e873d4d"
+2 : Primary Sale-confirmation : Confirmed "23cfc09220e20aedc3038abbe4b604ba2bd9a457a31148df1ded85dafd1b6476"
+7 : Primary Sale-confirmation : Confirmed "c1a1a98cdbaa501f38816ac9b1bbda4db6824598e59fcff37263d21a0a43fdc5"
+4 : Primary Sale-confirmation : Confirmed "87f888bf6763cf0f062144f85d383c32ec6a5f1e0adf3c8a8071b7814f943f12"
+9 : Primary Sale-confirmation : Confirmed "982e99886e75fdb189b3e3b4a2f235a5e7ca4fd593e2e49b63c0780022bd408b"
+6 : Primary Buy: setup = Finalied
+7 : Primary Buy: setup = Finalied
+3 : Primary Buy: setup = Finalied
+8 : Primary Buy: setup = Finalied
+2 : Primary Buy: setup = Finalied
+1 : Primary Buy: setup = Finalied
+4 : Primary Buy: setup = Finalied
+5 : Primary Sale-confirmation : Confirmed "2b566cfbb0c368dc84e08bf3787ed5a0cf5a1fd64ff1c60d0820edae8bd5d71a"
+9 : Primary Buy: setup = Finalied
+7 : Primary Buy-buildAndSubmit : FrameworkError: ConnectionError: "QuerySystemStart: IOError :Network.Socket.connect: <socket: 9>: resource exhausted (Resource temporarily unavailable)"
+5 : Primary Buy: setup = Finalied
+6 : Primary Buy: buildAndSubmit = Finalied
+2 : Primary Buy: buildAndSubmit = Finalied
+1 : Primary Buy: buildAndSubmit = Finalied
+8 : Primary Buy: buildAndSubmit = Finalied
+9 : Primary Buy: buildAndSubmit = Finalied
+3 : Primary Buy: buildAndSubmit = Finalied
+4 : Primary Buy: buildAndSubmit = Finalied
+5 : Primary Buy: buildAndSubmit = Finalied
+0 : Primary Sale-confirmation : Confirmed "f55f610711438384bf8232d279b6125548bbb446f6ad08b49d1dc4b2b9dd6594"
+0 : Primary Buy: setup = Finalied
+0 : Primary Buy: buildAndSubmit = Finalied
+7 : Primary Buy: buildAndSubmit = Finalied
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+8 : Primary Buy-confirmation : Confirmed "2d4c383607361a0827623ba80d556e47826a51fbd3d3c4077f8f2fb5f0675ccd"
+8 : Secondary Sale: setup = Finalied
+6 : Primary Buy-confirmation : Confirmed "b0d44488093da729d43ffab9c4d19fee4eb0196cd5e695287843d5f46b030a78"
+6 : Secondary Sale: setup = Finalied
+3 : Primary Buy-confirmation : Confirmed "c135eb19b75e6476047378275f3f8f432d26ade12160c1d16d0d37b0df0ad60e"
+3 : Secondary Sale: setup = Finalied
+5 : Primary Buy-confirmation : Confirmed "1ebf055cd9d1cec296ec8e2789c45c5d34fe7f1a822aaa377259e9775b516c2f"
+5 : Secondary Sale: setup = Finalied
+9 : Primary Buy-confirmation : Confirmed "d90a8a191a616dd256e65865a0403f3d27bc303ab1de97fd986d4f4dbf598e38"
+9 : Secondary Sale: setup = Finalied
+2 : Primary Buy-confirmation : Confirmed "7e7e70c30bad70302f953c63757e27a48f3af1229fc7d89831fd628bb4edc5d8"
+2 : Secondary Sale: setup = Finalied
+1 : Primary Buy-confirmation : Confirmed "59b42ac04646420fe9e33f6a5e88928da6272d338e885d8d98c4b8ee740f4430"
+1 : Secondary Sale: setup = Finalied
+4 : Primary Buy-confirmation : Confirmed "6f09ad9360ff38627e60ecd1537ee9439e7880b3d2a4554668fa87537049ce5e"
+4 : Secondary Sale: setup = Finalied
+0 : Primary Buy-confirmation : Confirmed "e64ce924bfd535c24b3f6f7b83dc944d99abd5abb936e4197cde971544f7037d"
+0 : Secondary Sale: setup = Finalied
+6 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 5>: resource exhausted (Resource temporarily unavailable)"
+8 : Secondary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryEraHistory: IOError :Network.Socket.connect: <socket: 4>: resource exhausted (Resource temporarily unavailable)"
+7 : Primary Buy-confirmation : Confirmed "bd0d6ad87109eee84feff44b5054cf668c063da32ab72565e01c582e6858b62a"
+7 : Secondary Sale: setup = Finalied
+2 : Secondary Sale: buildAndSubmit = Finalied
+4 : Secondary Sale: buildAndSubmit = Finalied
+0 : Secondary Sale: buildAndSubmit = Finalied
+9 : Secondary Sale: buildAndSubmit = Finalied
+1 : Secondary Sale: buildAndSubmit = Finalied
+5 : Secondary Sale: buildAndSubmit = Finalied
+3 : Secondary Sale: buildAndSubmit = Finalied
+7 : Secondary Sale: buildAndSubmit = Finalied
+6 : Secondary Sale: buildAndSubmit = Finalied
+8 : Secondary Sale: buildAndSubmit = Finalied
+3 : Secondary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 11>: resource exhausted (Resource temporarily unavailable)"
+5 : Secondary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 11>: resource exhausted (Resource temporarily unavailable)"
+7 : Secondary Sale-waitTxConfirmation : FrameworkError: ConnectionError: "QueryTxInput: IOError :Network.Socket.connect: <socket: 11>: resource exhausted (Resource temporarily unavailable)"
+3 : Secondary Sale-confirmation : Confirmed "65013175b84574e9d7fd435264090170aea0948c5e05b0230200990df6e7384a"
+3 : Withdraw: setup = Finalied
+7 : Secondary Sale-confirmation : Confirmed "a009db75d1a4f93d612a79cdaded4f30b8e045d7b5b8cfaed8d579d15a44f39b"
+5 : Secondary Sale-confirmation : Confirmed "48e228442616ee405b782dd81a9572257a6691219c82fe0db9abad8f150fbfd6"
+5 : Withdraw: setup = Finalied
+7 : Withdraw: setup = Finalied
+5 : Withdraw: buildAndSubmit = Finalied
+3 : Withdraw: buildAndSubmit = Finalied
+7 : Withdraw: buildAndSubmit = Finalied
+0 : Secondary Sale-confirmation : Confirmed "da70aeafd1469ea307d4cd18cb74ee7f4871b0afde2ba8c5fb5ecec70c339b61"
+4 : Secondary Sale-confirmation : Confirmed "6d30be87cf3879026dcf22fa2bf558d55967744c34bda4b93e27196354795064"
+6 : Secondary Sale-confirmation : Confirmed "5c29b1dcc7900d33339fb870c0eee60848ad4f730320190179e998676010909a"
+1 : Secondary Sale-confirmation : Confirmed "9fd6d7628bb1384db1cab13140923e52a724da8a47d50e5c3b64893736d9589e"
+8 : Secondary Sale-confirmation : Confirmed "abe3d9c2b8c0030ddc4d5e67fe8b092fd0a6ebc91fe6ee5a555f5094df9ab2d3"
+9 : Secondary Sale-confirmation : Confirmed "6399c038dd65e724430bbad1a53219afbe21116c5d89b01b03fd7398826b69c2"
+6 : Withdraw: setup = Finalied
+1 : Withdraw: setup = Finalied
+8 : Withdraw: setup = Finalied
+0 : Withdraw: setup = Finalied
+2 : Secondary Sale-confirmation : Confirmed "05d7337456c160e0cab8648c1f936f4ed053bf13d109197ec2c592fe9f78cb06"
+9 : Withdraw: setup = Finalied
+4 : Withdraw: setup = Finalied
+2 : Withdraw: setup = Finalied
+9 : Withdraw: buildAndSubmit = Finalied
+8 : Withdraw: buildAndSubmit = Finalied
+0 : Withdraw: buildAndSubmit = Finalied
+1 : Withdraw: buildAndSubmit = Finalied
+6 : Withdraw: buildAndSubmit = Finalied
+2 : Withdraw: buildAndSubmit = Finalied
+4 : Withdraw: buildAndSubmit = Finalied
+8 : Withdraw-confirmation : Confirmed "89304bd4229588b77e2ad7f2d69e5685fa258f1767aa1bd514ca64f6d8e524e5"
+9 : Withdraw-confirmation : Confirmed "895719e1e43b6c143bea2d38d68d5735fe4b5ff929da314e34332c288f89fa98"
+0 : Withdraw-confirmation : Confirmed "7d8472b1d77976bd905531cb154450fe3012fcad8f936cc9fb2e6395ccec612b"
+1 : Withdraw-confirmation : Confirmed "ca2abf9594d675eb7f2dbc263ac116b774d8999c7c5291b6436128f938968050"
+6 : Withdraw-confirmation : Confirmed "71108dd63c5a55484113315f8c2619a9becda3a0db922c67f57a4d9c594d68ee"
+4 : Withdraw-confirmation : Confirmed "0bf2376102f300cce6b4d7f1179c40fb80cad114b60223a1b29ebaf2c9f5ad76"
+2 : Withdraw-confirmation : Confirmed "d71693bb8594090ee549b59fda81ae20fecd0d2f3415bac8de4f950142e09d94"
+3 : Withdraw-confirmation : Confirmed "2361861efda29b0b9a5c45c792eacc06650ceb7b7282db6d8ea0b5a3684c4d28"
+7 : Withdraw-confirmation : Confirmed "1114dc87b18179277540c87f8c0eb99c9d70ce8afd9267760df6f96c68f688eb"
+5 : Withdraw-confirmation : Confirmed "38efce3e754ddd88d3876ff4a548b5a00cde4d2f009716555a38c7df33e04efb"
+0 : Refund Wallet: setup = Finalied
+0 : Refund Wallet: buildAndSubmit = Finalied
+0 : Refund Wallet-confirmation : Confirmed "ba8b81602bcd5d7623f1468e5e22782728ed8a8ca8932334e935b321fae11006"

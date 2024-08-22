@@ -1,0 +1,136 @@
+WalletAddress  : addr_test1qp444s0a5p2t225f3urwwfpyx7v7u9zg0aevtkt05rptkv5l636vkjjyt545wg3dagvzrv23ckltwlr4pzmsrw88jqpssa7hl0
+Wallet Balance :  195048.721596 Ada
+  349	c852933415a71b75a9750048be4bed695af8edb6117bcc233558575e.TestToken
+0 : Create Ref Script: setup = Finalied
+0 : Create Ref Script: buildAndSubmit = Finalied
+0 : Create Ref Script-confirmation : Confirmed "347cb7703e5993eacad31bbec97d273c974251abd035892a86127643c4d9466a"
+0 Generated wallets for batch  buyers : 0-9 sellers : 10-19
+0 : Fund Wallets: setup = Finalied
+0 : Fund Wallets: buildAndSubmit = Finalied
+0 : Fund Wallets-confirmation : Confirmed "0e8fc53d000e61b7a5806fc03cafb0ba53a5bf12ceded4f40ce3e4803bcdb7df"
+1 : Primary Sale: setup = Finalied
+2 : Primary Sale: setup = Finalied
+3 : Primary Sale: setup = Finalied
+4 : Primary Sale: setup = Finalied
+0 : Primary Sale: setup = Finalied
+5 : Primary Sale: setup = Finalied
+6 : Primary Sale: setup = Finalied
+7 : Primary Sale: setup = Finalied
+8 : Primary Sale: setup = Finalied
+8 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 12>: resource exhausted (Resource temporarily unavailable)"
+9 : Primary Sale: setup = Finalied
+9 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 9>: resource exhausted (Resource temporarily unavailable)"
+0 : Primary Sale-buildAndSubmit : FrameworkError: ConnectionError: "QueryProtocolParameters: IOError :Network.Socket.connect: <socket: 9>: resource exhausted (Resource temporarily unavailable)"
+4 : Primary Sale: buildAndSubmit = Finalied
+3 : Primary Sale: buildAndSubmit = Finalied
+1 : Primary Sale: buildAndSubmit = Finalied
+7 : Primary Sale: buildAndSubmit = Finalied
+5 : Primary Sale: buildAndSubmit = Finalied
+6 : Primary Sale: buildAndSubmit = Finalied
+2 : Primary Sale: buildAndSubmit = Finalied
+8 : Primary Sale: buildAndSubmit = Finalied
+9 : Primary Sale: buildAndSubmit = Finalied
+0 : Primary Sale: buildAndSubmit = Finalied
+7 : Primary Sale-confirmation : Confirmed "559743e6e8e494ac0d8df10b2bcf2385f03d656ae87ed048d7c030839587863f"
+7 : Primary Buy: setup = Finalied
+3 : Primary Sale-confirmation : Confirmed "fbe0524f14c96d74dbef773131fa7b27791b4ff6213d41eb1fe9a304a3820030"
+1 : Primary Sale-confirmation : Confirmed "0186a350f24fece8e21425cd388003a1de4574a24573706506e049eaae8fff75"
+5 : Primary Sale-confirmation : Confirmed "d12fa0640ba4b3beec2b89f3bd071051bded2d9f08032d032567da2ac10136fd"
+4 : Primary Sale-confirmation : Confirmed "01dc244c1aeb526ec4961bf0432830d4f221207e998036120a4f8b60196364af"
+2 : Primary Sale-confirmation : Confirmed "e40aa04e2e2c45d886fea60a399a9c199f83d98813bb372525ae16d318a5d4eb"
+1 : Primary Buy: setup = Finalied
+5 : Primary Buy: setup = Finalied
+4 : Primary Buy: setup = Finalied
+3 : Primary Buy: setup = Finalied
+2 : Primary Buy: setup = Finalied
+6 : Primary Sale-confirmation : Confirmed "7be1d5a43f106b8202cd8761872e8cfe1e6530b4658a4956c92634cb659919d6"
+6 : Primary Buy: setup = Finalied
+7 : Primary Buy: buildAndSubmit = Finalied
+5 : Primary Buy: buildAndSubmit = Finalied
+1 : Primary Buy: buildAndSubmit = Finalied
+2 : Primary Buy: buildAndSubmit = Finalied
+3 : Primary Buy: buildAndSubmit = Finalied
+4 : Primary Buy: buildAndSubmit = Finalied
+6 : Primary Buy: buildAndSubmit = Finalied
+8 : Primary Sale-confirmation : Confirmed "91109d104486f9c360f9b046fc8d85d7cc00921d7e397ca507960d812acb0a9e"
+0 : Primary Sale-confirmation : Confirmed "41b1fb56ca676827d881696eafe83673b30e8c1b9bd56edce40da18443124476"
+9 : Primary Sale-confirmation : Confirmed "132e0bd091c9e81a136fee2b5fe0f0a127534b392af3965062f23d4367304d59"
+0 : Primary Buy: setup = Finalied
+9 : Primary Buy: setup = Finalied
+8 : Primary Buy: setup = Finalied
+9 : Primary Buy: buildAndSubmit = Finalied
+0 : Primary Buy: buildAndSubmit = Finalied
+8 : Primary Buy: buildAndSubmit = Finalied
+0 : Primary Buy-confirmation : Confirmed "de711d7e4ed625a22e6b345e4490926e631c4e454c0fc4723f827bc72bf028d3"
+0 : Secondary Sale: setup = Finalied
+9 : Primary Buy-confirmation : Confirmed "70bf2a77ab839c5cbd62df7c4ca27f0c9bb21e4a2d08d43d8558178def309288"
+9 : Secondary Sale: setup = Finalied
+8 : Primary Buy-confirmation : Confirmed "e5c0771319529a532494fbdea8abf51b7af014d3d1abe43ca783a4861bc107e8"
+8 : Secondary Sale: setup = Finalied
+9 : Secondary Sale: buildAndSubmit = Finalied
+0 : Secondary Sale: buildAndSubmit = Finalied
+8 : Secondary Sale: buildAndSubmit = Finalied
+7 : Primary Buy-confirmation : Confirmed "c916723dc1e9cf61c34f12fcdeab24e8ed3d5d226f655ba774b7a07c1dbe8f8f"
+7 : Secondary Sale: setup = Finalied
+5 : Primary Buy-confirmation : Confirmed "3f5d2aaa008bb31f0f66f886ef3cf94a7138d8a494fc1b6921eb4b8ea8b4d293"
+5 : Secondary Sale: setup = Finalied
+1 : Primary Buy-confirmation : Confirmed "58a0a3413de52ce15c73025448056995af63a793a338c547ad9ac9e832df545d"
+1 : Secondary Sale: setup = Finalied
+2 : Primary Buy-confirmation : Confirmed "04944fe0eeac930e3afd955ca12437c0a25614f2781f698aac009f5404fad051"
+2 : Secondary Sale: setup = Finalied
+3 : Primary Buy-confirmation : Confirmed "f13213698ea7516e54ce8a9f7c25d1464a28969aa3ae8cfce9fee5188e7c8a37"
+3 : Secondary Sale: setup = Finalied
+4 : Primary Buy-confirmation : Confirmed "19102cad451f677c678f86679680f7cc8c97f888db61ccb7cd41f29d29258a88"
+4 : Secondary Sale: setup = Finalied
+6 : Primary Buy-confirmation : Confirmed "e058e04b5f5ea481f7d95172ed3830c4fc41477801ee5f88a060f3066b305b59"
+6 : Secondary Sale: setup = Finalied
+7 : Secondary Sale: buildAndSubmit = Finalied
+3 : Secondary Sale: buildAndSubmit = Finalied
+2 : Secondary Sale: buildAndSubmit = Finalied
+4 : Secondary Sale: buildAndSubmit = Finalied
+6 : Secondary Sale: buildAndSubmit = Finalied
+1 : Secondary Sale: buildAndSubmit = Finalied
+5 : Secondary Sale: buildAndSubmit = Finalied
+7 : Secondary Sale-confirmation : Confirmed "82fd26e134ba58a3ca17df99ec24fb93c6868443b0f7962e87e4fcb70834b2f8"
+7 : Withdraw: setup = Finalied
+2 : Secondary Sale-confirmation : Confirmed "4ea5fd34792814f903ef00a232f4fe9f7f44ecc61c3bf97e9ecf718c49031da9"
+4 : Secondary Sale-confirmation : Confirmed "d780860d05fcf49ad3d0ea2e104e88e45a9732b656295f51b3e6d0c698aaaac2"
+3 : Secondary Sale-confirmation : Confirmed "bd2431428c8158b35ae0672cebce712cbf72f8f7beb8df91f48cba9406f876bd"
+6 : Secondary Sale-confirmation : Confirmed "b0513d77132f3ce00ab95f656b9e67594d6e6da7d1d641b495e007fee4390914"
+1 : Secondary Sale-confirmation : Confirmed "13b391747991d5a846c3cf690cc1fcc8b07220909a1fb00b909419bf458a7d65"
+5 : Secondary Sale-confirmation : Confirmed "d0808b552aa47f4c8db608f1198bea93257b42e95cbb9e5606bd6546edba3736"
+2 : Withdraw: setup = Finalied
+3 : Withdraw: setup = Finalied
+6 : Withdraw: setup = Finalied
+1 : Withdraw: setup = Finalied
+5 : Withdraw: setup = Finalied
+4 : Withdraw: setup = Finalied
+9 : Secondary Sale-confirmation : Confirmed "90854f0498cb174f141c19c48f8244bdb3716ede5e91be0ef49bd14ada65af37"
+8 : Secondary Sale-confirmation : Confirmed "170171d603fccdd03ee8177bd27be2ce77e3705e97c5e6b2d60dbd460f6cf91f"
+0 : Secondary Sale-confirmation : Confirmed "f6e40f85984dcc5a8d052c915b01f3fa39f3d4dbbf78c5b120ff2a8dff2a85f4"
+9 : Withdraw: setup = Finalied
+8 : Withdraw: setup = Finalied
+0 : Withdraw: setup = Finalied
+7 : Withdraw: buildAndSubmit = Finalied
+2 : Withdraw: buildAndSubmit = Finalied
+5 : Withdraw: buildAndSubmit = Finalied
+3 : Withdraw: buildAndSubmit = Finalied
+4 : Withdraw: buildAndSubmit = Finalied
+1 : Withdraw: buildAndSubmit = Finalied
+6 : Withdraw: buildAndSubmit = Finalied
+0 : Withdraw: buildAndSubmit = Finalied
+8 : Withdraw: buildAndSubmit = Finalied
+9 : Withdraw: buildAndSubmit = Finalied
+0 : Withdraw-confirmation : Confirmed "a7a01fcd84e0a73a56862792e7a0da70159827c979d7f9902b7f9b26a0ccb7c2"
+8 : Withdraw-confirmation : Confirmed "c8bcb28cb6718f2e3addbb9d55b8e6316c1ea2bfe79135240364a7b02cfbfe5b"
+9 : Withdraw-confirmation : Confirmed "4d39731286e2ae092ebc04facd255cbb0599d0b37a39f0d7600fbb12cb284f50"
+7 : Withdraw-confirmation : Confirmed "a1c5e212d331f4a960c803d53f3b4a9e82c644b7a363e5c1aaf62ad3b4870762"
+2 : Withdraw-confirmation : Confirmed "265329233d7d666280d7fb24fdcd09ce6504d9759a0488c7979c9a9014fe96ce"
+1 : Withdraw-confirmation : Confirmed "a0d93fd919a847d5e5c516f755d823615209a03d58fdf4a2c3cf815c299a07f3"
+5 : Withdraw-confirmation : Confirmed "4050882b0da6a9f4298f85774513e72de580c959f3e34ded23eaa33fcbe6134d"
+3 : Withdraw-confirmation : Confirmed "a10a8019718170beb62083340533edf526c3ae391f5153ffc283c24c52483e4c"
+6 : Withdraw-confirmation : Confirmed "81b08748b03da7f238579a69a4265e0567398850c4ba20b0479289b0c53f7609"
+4 : Withdraw-confirmation : Confirmed "06c62df3aec7ad6dcbc6c3ed47bd21ae9ce1ca417555bd9fd66e8d0319b893f4"
+0 : Refund Wallet: setup = Finalied
+0 : Refund Wallet: buildAndSubmit = Finalied
+0 : Refund Wallet-confirmation : Confirmed "1fc7e8c5e1ccba5b6fc12ba79fe348513c7d54ff98ad5c3afe414067630e671e"
