@@ -46,7 +46,7 @@ import Cardano.Kuber.Api
 import qualified Debug.Trace as Debug
 
 maybeExUnits :: Maybe ExecutionUnits
-maybeExUnits =  (Just $ ExecutionUnits {executionSteps=676270061, executionMemory=2718298})
+maybeExUnits =  (Just $ ExecutionUnits {executionSteps=976270061, executionMemory=5718298})
 
 getTxIdFromTx :: Tx ConwayEra -> String
 getTxIdFromTx tx = T.unpack $ serialiseToRawBytesHexText $ getTxId $ getTxBody tx
@@ -66,9 +66,9 @@ withdrawTokenBuilder' :: IsPlutusScript script => script -> HashableScriptData -
 withdrawTokenBuilder' script redeemer netId refTxIn txIn tout = do 
     (sellerAddr , price) <- getSimpleSaleInfo netId tout
     case refTxIn of 
-      Nothing -> pure $ txRedeemUtxo txIn tout script redeemer  maybeExUnits
+      Nothing -> pure $ txRedeemUtxo txIn tout script redeemer  Nothing
         <> txSignBy (sellerAddr)
-      Just referenceScriptTxIn -> pure $ txRedeemUtxoWithReferenceScript referenceScriptTxIn txIn tout redeemer maybeExUnits
+      Just referenceScriptTxIn -> pure $ txRedeemUtxoWithReferenceScript referenceScriptTxIn txIn tout redeemer Nothing
         <> txSignBy (sellerAddr)  
 
 getSimpleSaleInfo :: NetworkId -> TxOut CtxUTxO ConwayEra -> Either String (AddressInEra ConwayEra, Integer)
@@ -99,10 +99,10 @@ buyTokenBuilder' script buyRedeemer netId refTxIn txIn tout feeInfo = do
               <> txReferenceTxIn txin
           Nothing -> mempty
     case refTxIn of 
-          Nothing -> pure $ txRedeemUtxo txIn tout script buyRedeemer  maybeExUnits
+          Nothing -> pure $ txRedeemUtxo txIn tout script buyRedeemer  Nothing
             <> txPayTo   (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
             <> marketFeeOutput
-          Just referenceTxIn -> pure $ txRedeemUtxoWithReferenceScript referenceTxIn txIn tout buyRedeemer  maybeExUnits
+          Just referenceTxIn -> pure $ txRedeemUtxoWithReferenceScript referenceTxIn txIn tout buyRedeemer  Nothing
             <> txPayTo   (sellerAddr) (valueFromList [ (AdaAssetId, Quantity price)])
             <> marketFeeOutput
             
