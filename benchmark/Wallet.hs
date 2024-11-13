@@ -28,6 +28,8 @@ import Control.Exception (throwIO)
 import Cardano.Api (StakeKey, AddressInEra (AddressInEra), ShelleyBasedEra (ShelleyBasedEraConway), makeShelleyAddress, NetworkId (Testnet), NetworkMagic (NetworkMagic), PaymentCredential (PaymentCredentialByKey), Key (verificationKeyHash, getVerificationKey), StakeAddressReference (StakeAddressByValue), AddressTypeInEra (ShelleyAddressInEra))
 import Cardano.Ledger.Address (serialiseAddr)
 import GHC.Word (Word32)
+import Cardano.Address.Style.Shared (hashKey)
+import Cardano.Address.Script (KeyRole(..), KeyHash (KeyHash))
 -- Replace these with your seed words
 seedWords :: [Text]
 seedWords =
@@ -73,8 +75,8 @@ genWallet index =  do
                 sSignkeyBytes = xprvPrivateKey stakeKey
                 baseAddr =   delegationAddress 
                                 descriminant  
-                                (PaymentFromExtendedKey $ liftXPub $ toXPub paymentKey) 
-                                (DelegationFromExtendedKey $ liftXPub $ toXPub stakeKey )
+                                (Shelley.PaymentFromKeyHash $ KeyHash Payment (xpubPublicKey $ toXPub paymentKey))
+                                (Shelley.DelegationFromKeyHash $ KeyHash Delegation (xpubPublicKey $ toXPub stakeKey))
                 in do
                     psKey<- errorOnLeft $ deserialiseFromRawBytes (AsSigningKey AsPaymentKey) $ BS.drop 32 pSignkeyBytes
                     ssKey <- errorOnLeft $ deserialiseFromRawBytes (AsSigningKey AsStakeKey) $ BS.drop 32 sSignkeyBytes
