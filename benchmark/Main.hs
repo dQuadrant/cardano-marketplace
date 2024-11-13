@@ -100,7 +100,7 @@ main= do
       Left e -> throwError e
       Right v -> do
         let refTxId = getTxId $ getTxBody $ v
-        batches <- mapM (\i ->  setupBenchBatch i simpleMarketV2Helper (TxIn refTxId (TxIx 0)) sKey walletAddr ) [0]
+        batches <- mapM (\i ->  setupBenchBatch i simpleMarketV2Helper (TxIn refTxId (TxIx 0)) sKey walletAddr ) [0..9]
         let runBatch batch = do
               task <- kAsync batch
               liftIO $ threadDelay 0
