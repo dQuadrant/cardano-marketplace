@@ -14,8 +14,8 @@
 <th>Withdraw</th>
 <th>Total Time</th>
 </tr>
-<tr><th>Average</th><td>7.324</td><td>7.360</td><td>5.324</td><td>5.404</td><td>25.412</td></tr>
-<tr><th>Std Deviation</th><td>0.001</td><td>0.000</td><td>0.000</td><td>0.003</td><td>0.003</td></tr>
+<tr><th>Average</th><td>5.270</td><td>1.961</td><td>3.247</td><td>4.397</td><td>14.875</td></tr>
+<tr><th>Std Deviation</th><td>0.028</td><td>0.026</td><td>0.041</td><td>0.020</td><td>0.024</td></tr>
 </table>
 
 ### Time Details
@@ -32,73 +32,73 @@
 </thead>
 <tr>
 <td>0</td>
-<td class="highlight">7.324</td>
-<td class="highlight">7.360</td>
-<td class="highlight">5.324</td>
-<td class="highlight">5.406</td>
+<td>5.267</td>
+<td>1.938</td>
+<td class="highlight">3.286</td>
+<td>4.373</td>
 </tr>
 <tr>
 <td>1</td>
-<td class="highlight">7.325</td>
-<td>7.359</td>
-<td class="highlight">5.324</td>
-<td class="highlight">5.406</td>
+<td>5.220</td>
+<td class="highlight">1.986</td>
+<td class="highlight">3.320</td>
+<td>4.377</td>
 </tr>
 <tr>
 <td>2</td>
-<td class="highlight">7.324</td>
-<td>7.359</td>
-<td>5.324</td>
-<td class="highlight">5.406</td>
+<td>5.241</td>
+<td class="highlight">1.964</td>
+<td class="highlight">3.283</td>
+<td class="highlight">4.423</td>
 </tr>
 <tr>
 <td>3</td>
-<td class="highlight">7.324</td>
-<td>7.359</td>
-<td>5.324</td>
-<td class="highlight">5.407</td>
+<td class="highlight">5.274</td>
+<td class="highlight">1.982</td>
+<td class="highlight">3.251</td>
+<td>4.365</td>
 </tr>
 <tr>
 <td>4</td>
-<td class="highlight">7.324</td>
-<td class="highlight">7.360</td>
-<td>5.324</td>
-<td class="highlight">5.405</td>
+<td class="highlight">5.292</td>
+<td>1.949</td>
+<td>3.200</td>
+<td class="highlight">4.417</td>
 </tr>
 <tr>
 <td>5</td>
-<td class="highlight">7.324</td>
-<td>7.359</td>
-<td class="highlight">5.325</td>
-<td>5.404</td>
+<td>5.259</td>
+<td>1.960</td>
+<td>3.247</td>
+<td class="highlight">4.411</td>
 </tr>
 <tr>
 <td>6</td>
-<td>7.323</td>
-<td class="highlight">7.360</td>
-<td>5.324</td>
-<td>5.398</td>
+<td class="highlight">5.281</td>
+<td>1.946</td>
+<td>3.214</td>
+<td class="highlight">4.398</td>
 </tr>
 <tr>
 <td>7</td>
-<td>7.323</td>
-<td class="highlight">7.360</td>
-<td>5.324</td>
-<td>5.398</td>
+<td>5.252</td>
+<td class="highlight">2.011</td>
+<td>3.225</td>
+<td class="highlight">4.407</td>
 </tr>
 <tr>
 <td>8</td>
-<td>7.323</td>
-<td class="highlight">7.360</td>
-<td class="highlight">5.324</td>
-<td class="highlight">5.405</td>
+<td class="highlight">5.311</td>
+<td>1.923</td>
+<td class="highlight">3.255</td>
+<td>4.396</td>
 </tr>
 <tr>
 <td>9</td>
-<td>7.323</td>
-<td>7.359</td>
-<td class="highlight">5.324</td>
-<td class="highlight">5.407</td>
+<td class="highlight">5.300</td>
+<td>1.949</td>
+<td>3.192</td>
+<td class="highlight">4.408</td>
 </tr>
 </table>
 
@@ -126,7 +126,7 @@
 <tr>
 <td>0</td>
 <td>Primary Sale</td>
-<td>0d7eec3d6059ef360ced5a11fa92e10a4f188fafae6c5ae95630299b03892736</td>
+<td>849c9fe11239e55be99a59ae8b53ddb346f64035ab4c6b0bdf81855a6275cd3d</td>
 <td>179141</td>
 <td>-</td>
 <td>-</td>
@@ -134,7 +134,7 @@
 <tr>
 <td>0</td>
 <td>Primary Buy</td>
-<td>7efb23e52575007eb8e420c9210b0ce25c8dd28afb78e268478c4d78c8bde5ed</td>
+<td>93dae101286b392e6ce3abdd99d8ad4aa155f11331315b8ab5be63669468300f</td>
 <td>335747</td>
 <td>1992720</td>
 <td>536441539</td>
@@ -142,7 +142,7 @@
 <tr>
 <td>0</td>
 <td>Secondary Sale</td>
-<td>daefa40b1573594dbd29473dcbf475e8ce70f956019e3c87135771d9345e53e4</td>
+<td>88ae4e0d75e33d49d35fdb94e6671c69907096c63526e8c8a8a75bc702481c21</td>
 <td>177557</td>
 <td>-</td>
 <td>-</td>
@@ -150,7 +150,7 @@
 <tr>
 <td>0</td>
 <td>Withdraw</td>
-<td>f9d801aa89731dba96e50d54d047fafd7701e68c8e463359bff5b66806cfeae7</td>
+<td>f3483fced3e0a9c913985f42102e9ce5404be71c8a69371275908441a4f7a54f</td>
 <td>314559</td>
 <td>1733544</td>
 <td>468293773</td>
@@ -158,7 +158,7 @@
 <tr>
 <td>1</td>
 <td>Primary Sale</td>
-<td>bbb2a552db597d64b70e7a97a83dd34203f1d4e0d1f815081f88056314fdbbbf</td>
+<td>10c440a6e2709ffd515d4f6e1af1ca2ac05e69f422cd24a0cc1aca0e3c848c8d</td>
 <td>179141</td>
 <td>-</td>
 <td>-</td>
@@ -166,15 +166,15 @@
 <tr>
 <td>1</td>
 <td>Primary Buy</td>
-<td>c10fa1447e9614524265f0a628f21ac1e5d4a032a5e526e59a46b666a9a2279d</td>
-<td>335791</td>
+<td>360dfc54c2f788254d70a52a23a94a489b89491b401fb36a0dfc92cdeb286926</td>
+<td>335747</td>
 <td>1992720</td>
 <td>536441539</td>
 </tr>
 <tr>
 <td>1</td>
 <td>Secondary Sale</td>
-<td>d81af6e820abe7a706171a880bb4a93a22bd2bd1041ee1475ef70859018f75c2</td>
+<td>63d5cd0b18f5917d176378798c2c3d570a049ca0bca4fe40ffa8bfc243bb4533</td>
 <td>177557</td>
 <td>-</td>
 <td>-</td>
@@ -182,7 +182,7 @@
 <tr>
 <td>1</td>
 <td>Withdraw</td>
-<td>0bb3d933191cf60e8dce02fe0068491435daa572e0fb4c2ed45c08e389130e37</td>
+<td>6eec608d3e60933f8ed673a393eeb712408a3fc9ee6a8ff9fa8644e17de7c47d</td>
 <td>314559</td>
 <td>1733544</td>
 <td>468293773</td>
@@ -190,7 +190,7 @@
 <tr>
 <td>2</td>
 <td>Primary Sale</td>
-<td>862704663783c5c32e75dd609f38ab2a3bcfc1a21d0ae49b9bfe867f8c0af4f1</td>
+<td>2c398e6e195a195c0ea9782ddc8a337d627198315408f224b1c83a377a760a53</td>
 <td>179141</td>
 <td>-</td>
 <td>-</td>
@@ -198,7 +198,7 @@
 <tr>
 <td>2</td>
 <td>Primary Buy</td>
-<td>f132d96bf5f38df68dfd5064140460b92d9fa5326261cddea2b9807cca431407</td>
+<td>8e084f0f90ebb43295dcb105afe58a288b43986f1abe087f117890148390331d</td>
 <td>335835</td>
 <td>1992720</td>
 <td>536441539</td>
@@ -206,7 +206,7 @@
 <tr>
 <td>2</td>
 <td>Secondary Sale</td>
-<td>567c006c53c4fd9019ba4b9acf4be32cd1810ac55134f3a9c35750ea4cb8f2b8</td>
+<td>effa75f5da35d6fd7a35ca092b5dbf7fd9266a1f4bcc0e69b6650261417748f6</td>
 <td>177557</td>
 <td>-</td>
 <td>-</td>
@@ -214,7 +214,7 @@
 <tr>
 <td>2</td>
 <td>Withdraw</td>
-<td>d8a96d2860f682d932513840079cf1a5fa52cf7bddc48a45104dab5b510c6dbd</td>
+<td>86838e52ff222bdca358cd11dbe41a52a5c7388f3070b7a254e5d3effbb9019e</td>
 <td>314559</td>
 <td>1733544</td>
 <td>468293773</td>
@@ -222,7 +222,7 @@
 <tr>
 <td>3</td>
 <td>Primary Sale</td>
-<td>02e1f3d9e9094f7203744c9f4dbbbd19473bf7242446f4ec978796ec6fd01e0c</td>
+<td>259ef013b4e9673894226520ab63b20a67ef40ec1ef8f3bb7ad35bb1bd1cd9a0</td>
 <td>179141</td>
 <td>-</td>
 <td>-</td>
@@ -230,7 +230,7 @@
 <tr>
 <td>3</td>
 <td>Primary Buy</td>
-<td>8ee5630ac2afa45284da0555c571c3c5f6e2cf95b1c43d62b9859fd9640e63e5</td>
+<td>5f08027a322101ccec29d7aedaec8882aecc48fa1725969fbfd6b69490573cfb</td>
 <td>335835</td>
 <td>1992720</td>
 <td>536441539</td>
@@ -238,7 +238,7 @@
 <tr>
 <td>3</td>
 <td>Secondary Sale</td>
-<td>545452a614a92e32c9079f3e14f026959e886f548c1aefe923c6ac2dd6480935</td>
+<td>13bc70467e78d6eea000ba2601ed332a8a7b60998feaabc87bf2537f3915cc7e</td>
 <td>177557</td>
 <td>-</td>
 <td>-</td>
@@ -246,7 +246,7 @@
 <tr>
 <td>3</td>
 <td>Withdraw</td>
-<td>5de90d52454e74266f772fcadd6e9e6daeb9f39bf28268ad24e5ac7a2acb1aba</td>
+<td>1c0a28ef7cbe634e70fec438e246d554c2a0cbb4e2f4d0835191c3fd9306ce60</td>
 <td>314559</td>
 <td>1733544</td>
 <td>468293773</td>
@@ -254,7 +254,7 @@
 <tr>
 <td>4</td>
 <td>Primary Sale</td>
-<td>766ad9fbb033812997e152f82c4a5ca240d153445de09879de85256c565aaa52</td>
+<td>710ade336d7dd27d40e5175947464eb57638547392a45252525ee38245efb40d</td>
 <td>179141</td>
 <td>-</td>
 <td>-</td>
@@ -262,7 +262,7 @@
 <tr>
 <td>4</td>
 <td>Primary Buy</td>
-<td>8da088bd1c6735a81f3d0f32b1d4b122aa4b953d2f1aeb260f2c80b9ccc0331d</td>
+<td>add82249b02b9a0e77dd1f29cff331f70c4e683b1d884b4ff5b1cff4978b2bfd</td>
 <td>335835</td>
 <td>1992720</td>
 <td>536441539</td>
@@ -270,7 +270,7 @@
 <tr>
 <td>4</td>
 <td>Secondary Sale</td>
-<td>39607f677043a0ff4b69867c1706071deef7a4db7e8ecb88159070a249f5401d</td>
+<td>786751f74c45b27173db82fd3c7f112ded0fb2aaec1d9b306c31b0be57631c07</td>
 <td>177557</td>
 <td>-</td>
 <td>-</td>
@@ -278,7 +278,7 @@
 <tr>
 <td>4</td>
 <td>Withdraw</td>
-<td>41ee6cfb925fbf88f800259f2570e221a8a947dbc4080b3ddafcf64ae2636556</td>
+<td>d3f4e1ae06288e2913ffe63d1de92b754db9ded86438cb9e203c784d54ff8374</td>
 <td>314559</td>
 <td>1733544</td>
 <td>468293773</td>
@@ -286,7 +286,7 @@
 <tr>
 <td>5</td>
 <td>Primary Sale</td>
-<td>19dfdb24da1fbb5273120e7e1f90284ba4b9610a75f669d1bf1abb7d82d39687</td>
+<td>3cbec0ae29cac6bdcba0daf51ff2896b415e4cf73ed8d89b0039896962542307</td>
 <td>179141</td>
 <td>-</td>
 <td>-</td>
@@ -294,7 +294,7 @@
 <tr>
 <td>5</td>
 <td>Primary Buy</td>
-<td>8b14217abccd5cb8b50e523448bd93ea8d431a1cc94b39b9c32a9d01749b1f7b</td>
+<td>be50218c9b3739f513c8bc1a515d0bdcc8be7c55c194faf6e8bff6acd6286cb7</td>
 <td>335835</td>
 <td>1992720</td>
 <td>536441539</td>
@@ -302,7 +302,7 @@
 <tr>
 <td>5</td>
 <td>Secondary Sale</td>
-<td>9e5b6979f5255dc4eb07cf24b985952e368a94b9241f4ac936f18ec6416afd8a</td>
+<td>999ffe4550ef820cc8ea769a333d8ff4a64497e1ea5479d06fd55230f60caa34</td>
 <td>177557</td>
 <td>-</td>
 <td>-</td>
@@ -310,7 +310,7 @@
 <tr>
 <td>5</td>
 <td>Withdraw</td>
-<td>1196a823645e31c8618d6f87f421d4e942be96d7a99eafed57e2340d88349542</td>
+<td>76d0a45f454881243e0d67bf08e4f490ed2d0edddaec04725c01aaa793b2939e</td>
 <td>314559</td>
 <td>1733544</td>
 <td>468293773</td>
@@ -318,7 +318,7 @@
 <tr>
 <td>6</td>
 <td>Primary Sale</td>
-<td>8ec1254446e84e724396a9ba8d8d1887b3b6810ba72b75da016fd7357510d5e3</td>
+<td>4fcd015bb42cd63fb2e2ac71e0f0b82c5defaebe6529ed94eda4e307f2f11a61</td>
 <td>179141</td>
 <td>-</td>
 <td>-</td>
@@ -326,7 +326,7 @@
 <tr>
 <td>6</td>
 <td>Primary Buy</td>
-<td>ee2df7c5c25c0c9cd11c7a8819de5db661374c146dbe81e785ccd8353ed9881d</td>
+<td>3c419e06d5a32ea9b577906758b3e41b597a24a6ea07dab9e3cde21ddc0df6fa</td>
 <td>335835</td>
 <td>1992720</td>
 <td>536441539</td>
@@ -334,7 +334,7 @@
 <tr>
 <td>6</td>
 <td>Secondary Sale</td>
-<td>f12ac95af654c93c0891d0d80d39228d9a4421207a961cb24abc54b8395c1529</td>
+<td>3c16fb5e2d6c7408b6cf84b7c75d6dea527750f9dde110bc90ad7062f54276e4</td>
 <td>177557</td>
 <td>-</td>
 <td>-</td>
@@ -342,7 +342,7 @@
 <tr>
 <td>6</td>
 <td>Withdraw</td>
-<td>69c3f3d69262d1b3340ba56b54a6dd6f4aa2e89779b61d062fb05e707fba9702</td>
+<td>488b429717cdc6437181355549c5968099ee4e3c437aa961812c8d06434e68f3</td>
 <td>314559</td>
 <td>1733544</td>
 <td>468293773</td>
@@ -350,7 +350,7 @@
 <tr>
 <td>7</td>
 <td>Primary Sale</td>
-<td>f07a4f94509de84c9d1226488a0a2946d50de0aff8742f7f88f838fc8d9e9717</td>
+<td>1d7be3c17cd009db792e4a5f001cbe3c472d51397251b58566c14e435e896bc0</td>
 <td>179141</td>
 <td>-</td>
 <td>-</td>
@@ -358,7 +358,7 @@
 <tr>
 <td>7</td>
 <td>Primary Buy</td>
-<td>0765f5024b40d741a4dbd997389f8408b38f5ebeef997a8e2fa530b08d9e08b8</td>
+<td>14da63ec1ad3430aa0c6c2b6317dcc69bdb277c18596a1fa1ad542c1271475c8</td>
 <td>335835</td>
 <td>1992720</td>
 <td>536441539</td>
@@ -366,7 +366,7 @@
 <tr>
 <td>7</td>
 <td>Secondary Sale</td>
-<td>f4c6c011a845e1e6fbb230011081a76c025eace9ac4b9f3a02caff5da4a71391</td>
+<td>1043bd3fff6a540a09be4c2a1367363aaee4f6629a65d27ee44ab2f556907e4d</td>
 <td>177557</td>
 <td>-</td>
 <td>-</td>
@@ -374,7 +374,7 @@
 <tr>
 <td>7</td>
 <td>Withdraw</td>
-<td>e5d48498a29546243509a9ced969f115d77a9e2f108c5fe28e6f4e1a62f09517</td>
+<td>305983d9c2a648357b6724ea4c46bd01630257b96b7fc5ce8e224266bd5bc2b4</td>
 <td>314559</td>
 <td>1733544</td>
 <td>468293773</td>
@@ -382,7 +382,7 @@
 <tr>
 <td>8</td>
 <td>Primary Sale</td>
-<td>040c8a121bc8f67be0441b0012bbf4c0cb1a20b5e341ff7c133cba082bf42efa</td>
+<td>8c080f08a4ae2b3ccabfb7edc7c4ce65d2e403fbaa2ffd2151d96e8066785f23</td>
 <td>179141</td>
 <td>-</td>
 <td>-</td>
@@ -390,7 +390,7 @@
 <tr>
 <td>8</td>
 <td>Primary Buy</td>
-<td>9a11b7ef6b904a01bd1fc186e28fb2852c0390ac9ae9a0cc534910d6880a3367</td>
+<td>9aed175310edecebf404e3afaff069e57ca2c74c8a7416137818b59b8e7a367b</td>
 <td>335835</td>
 <td>1992720</td>
 <td>536441539</td>
@@ -398,7 +398,7 @@
 <tr>
 <td>8</td>
 <td>Secondary Sale</td>
-<td>0b0301a2d6bece9485fbe9df07560e35c17cf0b9b4fff2e91cdb96e3fa46cd93</td>
+<td>1c9bb4c2c3b3eb504e51cd782271849899ecc15c3dbd3837b2e8983ce2239731</td>
 <td>177557</td>
 <td>-</td>
 <td>-</td>
@@ -406,7 +406,7 @@
 <tr>
 <td>8</td>
 <td>Withdraw</td>
-<td>83ab6e1aa5b57e5f3771dea6f25bab4050672e0cdd6f6bf4abbb59e72a1dfdfd</td>
+<td>654f8b35326dd8fc6f6c99d7d20aa6923b6d4b10f685a7dd7969db105ce8a27a</td>
 <td>314559</td>
 <td>1733544</td>
 <td>468293773</td>
@@ -414,7 +414,7 @@
 <tr>
 <td>9</td>
 <td>Primary Sale</td>
-<td>96acbebce1c01741d0811fac0ae4c3d27927f6c89e0cc44d81effde95d131a0e</td>
+<td>b2cd491106c1fe0b740470682664b2f2481d7cd69f7de2e4ebd3f0bfa73dd9c6</td>
 <td>179141</td>
 <td>-</td>
 <td>-</td>
@@ -422,7 +422,7 @@
 <tr>
 <td>9</td>
 <td>Primary Buy</td>
-<td>0de71835dffe7bee3317ca48caa44c2f8b3fde2d97bcc3ee80d7bb3d5c310dde</td>
+<td>6990a311c0d3248a8e59280e3085c653a8a44c9f9a53ed9e639ef32b254e956f</td>
 <td>335835</td>
 <td>1992720</td>
 <td>536441539</td>
@@ -430,7 +430,7 @@
 <tr>
 <td>9</td>
 <td>Secondary Sale</td>
-<td>2ccbfa1ae46836b6a04d7063a9f68ff48ac8fbad7f5cce23fe52ae6db02df194</td>
+<td>ee7708dce4a50f473acdbbd963d006c1f1ecb75fb86133f8e6fc3bc9631c1af6</td>
 <td>177557</td>
 <td>-</td>
 <td>-</td>
@@ -438,7 +438,7 @@
 <tr>
 <td>9</td>
 <td>Withdraw</td>
-<td>1d21a628733e71b95fef2f2d53b1b9ea01aeb7f7ed4a9cbd41799a666de010d8</td>
+<td>c30f84c75eb700324d39037768afd07a65dc5ad105de7eb9b406a951e575a888</td>
 <td>314559</td>
 <td>1733544</td>
 <td>468293773</td>
