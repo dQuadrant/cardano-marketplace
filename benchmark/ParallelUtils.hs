@@ -149,7 +149,7 @@ monitoredSubmitTx'  index txName  txBuilder = do
           ConnectionError  ->do -- connection errors will be retried
             liftIO $ do
               putStrLn $ show index ++ " : " ++ txName ++ "-" ++ actName ++ " : " ++  show e
-              threadDelay 2_000_000
+              threadDelay 0
             loopedAction  shouldLog actName action
           _ -> throwError e
         )
@@ -164,7 +164,7 @@ monitoredSubmitTx'  index txName  txBuilder = do
               else do
                 startTime <- liftIO getCurrentTime
                 (UTxO uMap):: UTxO ConwayEra <- loopedAction False "waitTxConfirmation" $ kQueryUtxoByTxin $  Set.singleton (TxIn txId (TxIx 0))
-                liftIO $ Control.threadDelay 2_000_000
+                liftIO $ Control.threadDelay 0
                 endTime <- liftIO getCurrentTime
                 case Map.toList uMap of
                   [] -> waitTxId txId (remainingSecs - (floor $ diffUTCTime startTime endTime * 1_000_000))
@@ -248,7 +248,7 @@ waitTxIdConfirmation txId totalWaitSecs =
         then kError TxSubmissionError $ "Transaction not confirmed after  " ++ show totalWaitSecs ++ " secs"
         else do
           (UTxO uMap):: UTxO ConwayEra <- kQueryUtxoByTxin $  Set.singleton (TxIn txId (TxIx 0))
-          liftIO $ Control.threadDelay 2_000_000
+          liftIO $ Control.threadDelay 0
           case Map.toList uMap of
             [] -> waitTxId txId (remainingSecs - 2)
             _ -> pure ()

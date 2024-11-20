@@ -1,0 +1,239 @@
+5000000 compare 5000000=EQ
+5000000 compare 5000000=EQ
+sorted: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 27),"4ba319362d403fd5d41b3de9c6ec37696644f8de6f851cc3928d6a43",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 27),"4ba319362d403fd5d41b3de9c6ec37696644f8de6f851cc3928d6a43",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 28),"4ba319362d403fd5d41b3de9c6ec37696644f8de6f851cc3928d6a43",5000000)selected: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 27),"4ba319362d403fd5d41b3de9c6ec37696644f8de6f851cc3928d6a43")
+5000000 compare 5000000=EQ
+5000000 compare 5000000=EQ
+sorted: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 23),"27316e1b41e9d20500d1f6ad0f3f62766fe65400fbce9406f163c14b",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 23),"27316e1b41e9d20500d1f6ad0f3f62766fe65400fbce9406f163c14b",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 24),"27316e1b41e9d20500d1f6ad0f3f62766fe65400fbce9406f163c14b",5000000)selected: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 23),"27316e1b41e9d20500d1f6ad0f3f62766fe65400fbce9406f163c14b")
+5000000 compare 5000000=EQ
+5000000 compare 5000000=EQ
+sorted: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 33),"4215bdc01fc3c4c31bea06f2c0062060ab2235a16c567a58da91615c",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 33),"4215bdc01fc3c4c31bea06f2c0062060ab2235a16c567a58da91615c",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 34),"4215bdc01fc3c4c31bea06f2c0062060ab2235a16c567a58da91615c",5000000)selected: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 33),"4215bdc01fc3c4c31bea06f2c0062060ab2235a16c567a58da91615c")
+5000000 compare 5000000=EQ
+5000000 compare 5000000=EQ
+sorted: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 37),"7ead68787c3b139fde707e83f8bf00cf691703f99eaf29626a6e6094",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 37),"7ead68787c3b139fde707e83f8bf00cf691703f99eaf29626a6e6094",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 38),"7ead68787c3b139fde707e83f8bf00cf691703f99eaf29626a6e6094",5000000)selected: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 37),"7ead68787c3b139fde707e83f8bf00cf691703f99eaf29626a6e6094")
+5000000 compare 5000000=EQ
+5000000 compare 5000000=EQ
+sorted: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 39),"cfdb814214f1e44b94772b1ec267f55aec3274d57d1c6282a9b398ae",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 39),"cfdb814214f1e44b94772b1ec267f55aec3274d57d1c6282a9b398ae",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 40),"cfdb814214f1e44b94772b1ec267f55aec3274d57d1c6282a9b398ae",5000000)selected: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 39),"cfdb814214f1e44b94772b1ec267f55aec3274d57d1c6282a9b398ae")
+5000000 compare 5000000=EQ
+5000000 compare 5000000=EQ
+sorted: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 25),"5bea99d5d1ce9eebc0beb6c7ad02538b9a1a50e3a9d30e0894879389",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 25),"5bea99d5d1ce9eebc0beb6c7ad02538b9a1a50e3a9d30e0894879389",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 26),"5bea99d5d1ce9eebc0beb6c7ad02538b9a1a50e3a9d30e0894879389",5000000)selected: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 25),"5bea99d5d1ce9eebc0beb6c7ad02538b9a1a50e3a9d30e0894879389")
+5000000 compare 5000000=EQ
+5000000 compare 5000000=EQ
+5000000 compare 5000000=EQ
+sorted: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 35),"3614fb1c1914ceed625c0899f3145775d8b69e0d06fece2486264ee8",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 35),"3614fb1c1914ceed625c0899f3145775d8b69e0d06fece2486264ee8",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 36),"3614fb1c1914ceed625c0899f3145775d8b69e0d06fece2486264ee8",5000000)selected: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 35),"3614fb1c1914ceed625c0899f3145775d8b69e0d06fece2486264ee8")
+5000000 compare 5000000=EQ
+sorted: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 21),"00057a6c84ab95f918a0f13ac75d47f58697802cf1ee59803e10dd84",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 21),"00057a6c84ab95f918a0f13ac75d47f58697802cf1ee59803e10dd84",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 22),"00057a6c84ab95f918a0f13ac75d47f58697802cf1ee59803e10dd84",5000000)selected: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 21),"00057a6c84ab95f918a0f13ac75d47f58697802cf1ee59803e10dd84")
+5000000 compare 5000000=EQ
+5000000 compare 5000000=EQ
+sorted: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 29),"ab44a1696777302bc7d67c74b21ce9c9e23c7ec5a654bd57027182ca",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 29),"ab44a1696777302bc7d67c74b21ce9c9e23c7ec5a654bd57027182ca",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 30),"ab44a1696777302bc7d67c74b21ce9c9e23c7ec5a654bd57027182ca",5000000)selected: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 29),"ab44a1696777302bc7d67c74b21ce9c9e23c7ec5a654bd57027182ca")
+5000000 compare 5000000=EQ
+5000000 compare 5000000=EQ
+sorted: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 31),"c458d5517677a4605b6706aa97a5823c472b55176029dcbb8941078b",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 31),"c458d5517677a4605b6706aa97a5823c472b55176029dcbb8941078b",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 32),"c458d5517677a4605b6706aa97a5823c472b55176029dcbb8941078b",5000000)selected: (TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 31),"c458d5517677a4605b6706aa97a5823c472b55176029dcbb8941078b")
+5000000 compare 5000000=EQ
+5000000 compare 2486608=GT
+5000000 compare 2486608=GT
+sorted: (TxIn "f4c6c011a845e1e6fbb230011081a76c025eace9ac4b9f3a02caff5da4a71391" (TxIx 1),"3614fb1c1914ceed625c0899f3145775d8b69e0d06fece2486264ee8",2486608)
+(TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 35),"3614fb1c1914ceed625c0899f3145775d8b69e0d06fece2486264ee8",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 35),"3614fb1c1914ceed625c0899f3145775d8b69e0d06fece2486264ee8",5000000)selected: (TxIn "f4c6c011a845e1e6fbb230011081a76c025eace9ac4b9f3a02caff5da4a71391" (TxIx 1),"3614fb1c1914ceed625c0899f3145775d8b69e0d06fece2486264ee8")
+5000000 compare 5000000=EQ
+5000000 compare 2486608=GT
+5000000 compare 2486608=GT
+sorted: (TxIn "f12ac95af654c93c0891d0d80d39228d9a4421207a961cb24abc54b8395c1529" (TxIx 1),"4215bdc01fc3c4c31bea06f2c0062060ab2235a16c567a58da91615c",2486608)
+(TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 33),"4215bdc01fc3c4c31bea06f2c0062060ab2235a16c567a58da91615c",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 33),"4215bdc01fc3c4c31bea06f2c0062060ab2235a16c567a58da91615c",5000000)selected: (TxIn "f12ac95af654c93c0891d0d80d39228d9a4421207a961cb24abc54b8395c1529" (TxIx 1),"4215bdc01fc3c4c31bea06f2c0062060ab2235a16c567a58da91615c")
+5000000 compare 5000000=EQ
+5000000 compare 2486696=GT
+5000000 compare 2486696=GT
+sorted: (TxIn "daefa40b1573594dbd29473dcbf475e8ce70f956019e3c87135771d9345e53e4" (TxIx 1),"00057a6c84ab95f918a0f13ac75d47f58697802cf1ee59803e10dd84",2486696)
+(TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 21),"00057a6c84ab95f918a0f13ac75d47f58697802cf1ee59803e10dd84",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 21),"00057a6c84ab95f918a0f13ac75d47f58697802cf1ee59803e10dd84",5000000)selected: (TxIn "daefa40b1573594dbd29473dcbf475e8ce70f956019e3c87135771d9345e53e4" (TxIx 1),"00057a6c84ab95f918a0f13ac75d47f58697802cf1ee59803e10dd84")
+5000000 compare 2486608=GT
+2486608 compare 5000000=LT
+2486608 compare 5000000=LT
+5000000 compare 5000000=EQ
+sorted: (TxIn "9e5b6979f5255dc4eb07cf24b985952e368a94b9241f4ac936f18ec6416afd8a" (TxIx 1),"c458d5517677a4605b6706aa97a5823c472b55176029dcbb8941078b",2486608)
+(TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 31),"c458d5517677a4605b6706aa97a5823c472b55176029dcbb8941078b",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 31),"c458d5517677a4605b6706aa97a5823c472b55176029dcbb8941078b",5000000)selected: (TxIn "9e5b6979f5255dc4eb07cf24b985952e368a94b9241f4ac936f18ec6416afd8a" (TxIx 1),"c458d5517677a4605b6706aa97a5823c472b55176029dcbb8941078b")
+2486608 compare 5000000=LT
+5000000 compare 5000000=EQ
+sorted: (TxIn "567c006c53c4fd9019ba4b9acf4be32cd1810ac55134f3a9c35750ea4cb8f2b8" (TxIx 1),"5bea99d5d1ce9eebc0beb6c7ad02538b9a1a50e3a9d30e0894879389",2486608)
+(TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 25),"5bea99d5d1ce9eebc0beb6c7ad02538b9a1a50e3a9d30e0894879389",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 25),"5bea99d5d1ce9eebc0beb6c7ad02538b9a1a50e3a9d30e0894879389",5000000)selected: (TxIn "567c006c53c4fd9019ba4b9acf4be32cd1810ac55134f3a9c35750ea4cb8f2b8" (TxIx 1),"5bea99d5d1ce9eebc0beb6c7ad02538b9a1a50e3a9d30e0894879389")
+5000000 compare 5000000=EQ
+5000000 compare 2486652=GT
+5000000 compare 2486652=GT
+sorted: (TxIn "d81af6e820abe7a706171a880bb4a93a22bd2bd1041ee1475ef70859018f75c2" (TxIx 1),"27316e1b41e9d20500d1f6ad0f3f62766fe65400fbce9406f163c14b",2486652)
+(TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 23),"27316e1b41e9d20500d1f6ad0f3f62766fe65400fbce9406f163c14b",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 23),"27316e1b41e9d20500d1f6ad0f3f62766fe65400fbce9406f163c14b",5000000)selected: (TxIn "d81af6e820abe7a706171a880bb4a93a22bd2bd1041ee1475ef70859018f75c2" (TxIx 1),"27316e1b41e9d20500d1f6ad0f3f62766fe65400fbce9406f163c14b")
+2486608 compare 5000000=LT
+5000000 compare 5000000=EQ
+sorted: (TxIn "0b0301a2d6bece9485fbe9df07560e35c17cf0b9b4fff2e91cdb96e3fa46cd93" (TxIx 1),"7ead68787c3b139fde707e83f8bf00cf691703f99eaf29626a6e6094",2486608)
+(TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 37),"7ead68787c3b139fde707e83f8bf00cf691703f99eaf29626a6e6094",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 37),"7ead68787c3b139fde707e83f8bf00cf691703f99eaf29626a6e6094",5000000)selected: (TxIn "0b0301a2d6bece9485fbe9df07560e35c17cf0b9b4fff2e91cdb96e3fa46cd93" (TxIx 1),"7ead68787c3b139fde707e83f8bf00cf691703f99eaf29626a6e6094")
+2486608 compare 5000000=LT
+5000000 compare 5000000=EQ
+sorted: (TxIn "39607f677043a0ff4b69867c1706071deef7a4db7e8ecb88159070a249f5401d" (TxIx 1),"ab44a1696777302bc7d67c74b21ce9c9e23c7ec5a654bd57027182ca",2486608)
+(TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 29),"ab44a1696777302bc7d67c74b21ce9c9e23c7ec5a654bd57027182ca",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 29),"ab44a1696777302bc7d67c74b21ce9c9e23c7ec5a654bd57027182ca",5000000)selected: (TxIn "39607f677043a0ff4b69867c1706071deef7a4db7e8ecb88159070a249f5401d" (TxIx 1),"ab44a1696777302bc7d67c74b21ce9c9e23c7ec5a654bd57027182ca")
+2486608 compare 5000000=LT
+5000000 compare 5000000=EQ
+sorted: (TxIn "545452a614a92e32c9079f3e14f026959e886f548c1aefe923c6ac2dd6480935" (TxIx 1),"4ba319362d403fd5d41b3de9c6ec37696644f8de6f851cc3928d6a43",2486608)
+(TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 27),"4ba319362d403fd5d41b3de9c6ec37696644f8de6f851cc3928d6a43",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 27),"4ba319362d403fd5d41b3de9c6ec37696644f8de6f851cc3928d6a43",5000000)selected: (TxIn "545452a614a92e32c9079f3e14f026959e886f548c1aefe923c6ac2dd6480935" (TxIx 1),"4ba319362d403fd5d41b3de9c6ec37696644f8de6f851cc3928d6a43")
+2486608 compare 5000000=LT
+5000000 compare 5000000=EQ
+sorted: (TxIn "2ccbfa1ae46836b6a04d7063a9f68ff48ac8fbad7f5cce23fe52ae6db02df194" (TxIx 1),"cfdb814214f1e44b94772b1ec267f55aec3274d57d1c6282a9b398ae",2486608)
+(TxIn "649293daad9e478ba4b98d4a2587f4bb3014fd820712efefe2ea96e1c0ef5a9d" (TxIx 39),"cfdb814214f1e44b94772b1ec267f55aec3274d57d1c6282a9b398ae",5000000)
+(TxIn "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7" (TxIx 39),"cfdb814214f1e44b94772b1ec267f55aec3274d57d1c6282a9b398ae",5000000)selected: (TxIn "2ccbfa1ae46836b6a04d7063a9f68ff48ac8fbad7f5cce23fe52ae6db02df194" (TxIx 1),"cfdb814214f1e44b94772b1ec267f55aec3274d57d1c6282a9b398ae")
+WalletAddress  : addr_test1qp444s0a5p2t225f3urwwfpyx7v7u9zg0aevtkt05rptkv5l636vkjjyt545wg3dagvzrv23ckltwlr4pzmsrw88jqpssa7hl0
+Wallet Balance :  2.899999778660609e10 Ada
+  24	c852933415a71b75a9750048be4bed695af8edb6117bcc233558575e.TestToken
+0 : Create Ref Script: setup = Finalied
+0 : Create Ref Script: buildAndSubmit = Finalied
+0 : Create Ref Script-confirmation : Confirmed "712e186a4be142091cfaeb233136779802e21b1bfe2b192d20fc1cf4a5367a0e"
+0 Generated wallets for batch  buyers : 0-9 sellers : 10-19
+0 : Fund Wallets: setup = Finalied
+0 : Fund Wallets: buildAndSubmit = Finalied
+0 : Fund Wallets-confirmation : Confirmed "d2ac268d64269b9962595aae7704142a754e2a6a1a2445d36d5b691dad7b06b7"
+1 : Primary Sale: setup = Finalied
+2 : Primary Sale: setup = Finalied
+0 : Primary Sale: setup = Finalied
+3 : Primary Sale: setup = Finalied
+4 : Primary Sale: setup = Finalied
+5 : Primary Sale: setup = Finalied
+6 : Primary Sale: setup = Finalied
+7 : Primary Sale: setup = Finalied
+8 : Primary Sale: setup = Finalied
+9 : Primary Sale: setup = Finalied
+8 : Primary Sale: buildAndSubmit = Finalied
+9 : Primary Sale: buildAndSubmit = Finalied
+4 : Primary Sale: buildAndSubmit = Finalied
+3 : Primary Sale: buildAndSubmit = Finalied
+7 : Primary Sale: buildAndSubmit = Finalied
+0 : Primary Sale: buildAndSubmit = Finalied
+1 : Primary Sale: buildAndSubmit = Finalied
+6 : Primary Sale: buildAndSubmit = Finalied
+5 : Primary Sale: buildAndSubmit = Finalied
+2 : Primary Sale: buildAndSubmit = Finalied
+7 : Primary Sale-confirmation : Confirmed "f07a4f94509de84c9d1226488a0a2946d50de0aff8742f7f88f838fc8d9e9717"
+8 : Primary Sale-confirmation : Confirmed "040c8a121bc8f67be0441b0012bbf4c0cb1a20b5e341ff7c133cba082bf42efa"
+6 : Primary Sale-confirmation : Confirmed "8ec1254446e84e724396a9ba8d8d1887b3b6810ba72b75da016fd7357510d5e3"
+0 : Primary Sale-confirmation : Confirmed "0d7eec3d6059ef360ced5a11fa92e10a4f188fafae6c5ae95630299b03892736"
+2 : Primary Sale-confirmation : Confirmed "862704663783c5c32e75dd609f38ab2a3bcfc1a21d0ae49b9bfe867f8c0af4f1"
+4 : Primary Sale-confirmation : Confirmed "766ad9fbb033812997e152f82c4a5ca240d153445de09879de85256c565aaa52"
+3 : Primary Sale-confirmation : Confirmed "02e1f3d9e9094f7203744c9f4dbbbd19473bf7242446f4ec978796ec6fd01e0c"
+9 : Primary Sale-confirmation : Confirmed "96acbebce1c01741d0811fac0ae4c3d27927f6c89e0cc44d81effde95d131a0e"
+1 : Primary Sale-confirmation : Confirmed "bbb2a552db597d64b70e7a97a83dd34203f1d4e0d1f815081f88056314fdbbbf"
+5 : Primary Sale-confirmation : Confirmed "19dfdb24da1fbb5273120e7e1f90284ba4b9610a75f669d1bf1abb7d82d39687"
+8 : Primary Buy: setup = Finalied
+6 : Primary Buy: setup = Finalied
+7 : Primary Buy: setup = Finalied
+0 : Primary Buy: setup = Finalied
+2 : Primary Buy: setup = Finalied
+3 : Primary Buy: setup = Finalied
+4 : Primary Buy: setup = Finalied
+9 : Primary Buy: setup = Finalied
+1 : Primary Buy: setup = Finalied
+5 : Primary Buy: setup = Finalied
+3 : Primary Buy: buildAndSubmit = Finalied
+1 : Primary Buy: buildAndSubmit = Finalied
+6 : Primary Buy: buildAndSubmit = Finalied
+8 : Primary Buy: buildAndSubmit = Finalied
+2 : Primary Buy: buildAndSubmit = Finalied
+9 : Primary Buy: buildAndSubmit = Finalied
+7 : Primary Buy: buildAndSubmit = Finalied
+0 : Primary Buy: buildAndSubmit = Finalied
+5 : Primary Buy: buildAndSubmit = Finalied
+4 : Primary Buy: buildAndSubmit = Finalied
+5 : Primary Buy-confirmation : Confirmed "8b14217abccd5cb8b50e523448bd93ea8d431a1cc94b39b9c32a9d01749b1f7b"
+5 : Secondary Sale: setup = Finalied
+2 : Primary Buy-confirmation : Confirmed "f132d96bf5f38df68dfd5064140460b92d9fa5326261cddea2b9807cca431407"
+2 : Secondary Sale: setup = Finalied
+7 : Primary Buy-confirmation : Confirmed "0765f5024b40d741a4dbd997389f8408b38f5ebeef997a8e2fa530b08d9e08b8"
+7 : Secondary Sale: setup = Finalied
+8 : Primary Buy-confirmation : Confirmed "9a11b7ef6b904a01bd1fc186e28fb2852c0390ac9ae9a0cc534910d6880a3367"
+8 : Secondary Sale: setup = Finalied
+3 : Primary Buy-confirmation : Confirmed "8ee5630ac2afa45284da0555c571c3c5f6e2cf95b1c43d62b9859fd9640e63e5"
+3 : Secondary Sale: setup = Finalied
+0 : Primary Buy-confirmation : Confirmed "7efb23e52575007eb8e420c9210b0ce25c8dd28afb78e268478c4d78c8bde5ed"
+0 : Secondary Sale: setup = Finalied
+6 : Primary Buy-confirmation : Confirmed "ee2df7c5c25c0c9cd11c7a8819de5db661374c146dbe81e785ccd8353ed9881d"
+6 : Secondary Sale: setup = Finalied
+1 : Primary Buy-confirmation : Confirmed "c10fa1447e9614524265f0a628f21ac1e5d4a032a5e526e59a46b666a9a2279d"
+1 : Secondary Sale: setup = Finalied
+9 : Primary Buy-confirmation : Confirmed "0de71835dffe7bee3317ca48caa44c2f8b3fde2d97bcc3ee80d7bb3d5c310dde"
+9 : Secondary Sale: setup = Finalied
+4 : Primary Buy-confirmation : Confirmed "8da088bd1c6735a81f3d0f32b1d4b122aa4b953d2f1aeb260f2c80b9ccc0331d"
+4 : Secondary Sale: setup = Finalied
+3 : Secondary Sale: buildAndSubmit = Finalied
+8 : Secondary Sale: buildAndSubmit = Finalied
+0 : Secondary Sale: buildAndSubmit = Finalied
+6 : Secondary Sale: buildAndSubmit = Finalied
+5 : Secondary Sale: buildAndSubmit = Finalied
+1 : Secondary Sale: buildAndSubmit = Finalied
+9 : Secondary Sale: buildAndSubmit = Finalied
+2 : Secondary Sale: buildAndSubmit = Finalied
+7 : Secondary Sale: buildAndSubmit = Finalied
+4 : Secondary Sale: buildAndSubmit = Finalied
+2 : Secondary Sale-confirmation : Confirmed "567c006c53c4fd9019ba4b9acf4be32cd1810ac55134f3a9c35750ea4cb8f2b8"
+4 : Secondary Sale-confirmation : Confirmed "39607f677043a0ff4b69867c1706071deef7a4db7e8ecb88159070a249f5401d"
+7 : Secondary Sale-confirmation : Confirmed "f4c6c011a845e1e6fbb230011081a76c025eace9ac4b9f3a02caff5da4a71391"
+3 : Secondary Sale-confirmation : Confirmed "545452a614a92e32c9079f3e14f026959e886f548c1aefe923c6ac2dd6480935"
+6 : Secondary Sale-confirmation : Confirmed "f12ac95af654c93c0891d0d80d39228d9a4421207a961cb24abc54b8395c1529"
+0 : Secondary Sale-confirmation : Confirmed "daefa40b1573594dbd29473dcbf475e8ce70f956019e3c87135771d9345e53e4"
+1 : Secondary Sale-confirmation : Confirmed "d81af6e820abe7a706171a880bb4a93a22bd2bd1041ee1475ef70859018f75c2"
+8 : Secondary Sale-confirmation : Confirmed "0b0301a2d6bece9485fbe9df07560e35c17cf0b9b4fff2e91cdb96e3fa46cd93"
+9 : Secondary Sale-confirmation : Confirmed "2ccbfa1ae46836b6a04d7063a9f68ff48ac8fbad7f5cce23fe52ae6db02df194"
+5 : Secondary Sale-confirmation : Confirmed "9e5b6979f5255dc4eb07cf24b985952e368a94b9241f4ac936f18ec6416afd8a"
+4 : Withdraw: setup = Finalied
+2 : Withdraw: setup = Finalied
+7 : Withdraw: setup = Finalied
+3 : Withdraw: setup = Finalied
+0 : Withdraw: setup = Finalied
+1 : Withdraw: setup = Finalied
+6 : Withdraw: setup = Finalied
+5 : Withdraw: setup = Finalied
+9 : Withdraw: setup = Finalied
+8 : Withdraw: setup = Finalied
+6 : Withdraw: buildAndSubmit = Finalied
+7 : Withdraw: buildAndSubmit = Finalied
+5 : Withdraw: buildAndSubmit = Finalied
+1 : Withdraw: buildAndSubmit = Finalied
+0 : Withdraw: buildAndSubmit = Finalied
+8 : Withdraw: buildAndSubmit = Finalied
+2 : Withdraw: buildAndSubmit = Finalied
+4 : Withdraw: buildAndSubmit = Finalied
+3 : Withdraw: buildAndSubmit = Finalied
+9 : Withdraw: buildAndSubmit = Finalied
+6 : Withdraw-confirmation : Confirmed "69c3f3d69262d1b3340ba56b54a6dd6f4aa2e89779b61d062fb05e707fba9702"
+7 : Withdraw-confirmation : Confirmed "e5d48498a29546243509a9ced969f115d77a9e2f108c5fe28e6f4e1a62f09517"
+5 : Withdraw-confirmation : Confirmed "1196a823645e31c8618d6f87f421d4e942be96d7a99eafed57e2340d88349542"
+4 : Withdraw-confirmation : Confirmed "41ee6cfb925fbf88f800259f2570e221a8a947dbc4080b3ddafcf64ae2636556"
+8 : Withdraw-confirmation : Confirmed "83ab6e1aa5b57e5f3771dea6f25bab4050672e0cdd6f6bf4abbb59e72a1dfdfd"
+2 : Withdraw-confirmation : Confirmed "d8a96d2860f682d932513840079cf1a5fa52cf7bddc48a45104dab5b510c6dbd"
+1 : Withdraw-confirmation : Confirmed "0bb3d933191cf60e8dce02fe0068491435daa572e0fb4c2ed45c08e389130e37"
+0 : Withdraw-confirmation : Confirmed "f9d801aa89731dba96e50d54d047fafd7701e68c8e463359bff5b66806cfeae7"
+9 : Withdraw-confirmation : Confirmed "1d21a628733e71b95fef2f2d53b1b9ea01aeb7f7ed4a9cbd41799a666de010d8"
+3 : Withdraw-confirmation : Confirmed "5de90d52454e74266f772fcadd6e9e6daeb9f39bf28268ad24e5ac7a2acb1aba"
+0 : Refund Wallet: setup = Finalied
+0 : Refund Wallet: buildAndSubmit = Finalied
+0 : Refund Wallet-confirmation : Confirmed "a22f8a2522ca9a67e4c5577ef5db2d8e3339db8542f6bc74a568a9df92e06ab8"

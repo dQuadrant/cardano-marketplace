@@ -202,7 +202,7 @@ waitTxConfirmation tx totalWaitSecs =
         then kError TxSubmissionError $ "Transaction not confirmed after  " ++ show totalWaitSecs ++ " secs"
         else do
           (UTxO uMap):: UTxO ConwayEra <- kQueryUtxoByTxin $  Set.singleton (TxIn txId (TxIx 0))
-          liftIO $ Control.threadDelay 2_000_000
+          liftIO $ Control.threadDelay 0
           case Map.toList uMap of
             [] -> waitTxId txId (remainingSecs - 2)
             _ -> pure ()
