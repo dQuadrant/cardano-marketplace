@@ -1,9 +1,9 @@
 
-export const kuberApiUrl = "http://localhost:8081"
+export const kuberApiUrl = "https://preview.kuber.cardanoapi.io"
 export const explorerUrl = "https://preview.cexplorer.io"
 export const blockfrost = {
     apiUrl: "https://cardano-preview.blockfrost.io/api/v0",
-    apiKey: "previewxxxxxxxxxxxxxxxxxxxxxxxxx",  // replace the api key
+    apiKey: "preview1adTKbYVCt6VqaRtPYamUdJLZ1fayaetIX",  // replace the api key
 }
 
 

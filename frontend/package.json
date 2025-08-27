@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "@dafcoe/vue-notification": "^0.1.6",
-    "@emurgo/cardano-serialization-lib-asmjs": "11.1.0",
+    "@emurgo/cardano-serialization-lib-asmjs": "14.1.2",
     "@headlessui/vue": "^1.6.4",
     "bootstrap-vue": "^2.22.0",
     "buffer": "^6.0.3",

@@ -6,7 +6,7 @@ import {listMarket, getAssetDetail, getDatum} from "@/scripts/blockfrost";
 import {decodeAssetName, listProviders, callKuberAndSubmit, transformNftImageUrl, renderLovelace} from "@/scripts/wallet";
 import * as database from "@/scripts/database"
 import {market} from "@/config";
-import {Address, BaseAddress, Ed25519KeyHash, StakeCredential} from "@emurgo/cardano-serialization-lib-asmjs";
+import {Address, BaseAddress, Credential, Ed25519KeyHash} from "@emurgo/cardano-serialization-lib-asmjs";
 import {walletAction} from "@/scripts/sotre"
 </script>
 
@@ -173,8 +173,8 @@ export default {
       const cost = datum.fields[1].int;
       const sellerPubKeyHashHex =datum.fields[0].fields[0].fields[0].bytes
       const sellerStakeKeyHashHex = datum.fields[0].fields[1].fields[0].fields[0].fields[0].bytes
-      const vkey = StakeCredential.from_keyhash(Ed25519KeyHash.from_bytes(Buffer.from(sellerPubKeyHashHex, "hex")))
-      const stakeKey = StakeCredential.from_keyhash(Ed25519KeyHash.from_bytes(Buffer.from(sellerStakeKeyHashHex, "hex")))
+      const vkey = Credential.from_keyhash(Ed25519KeyHash.from_bytes(Buffer.from(sellerPubKeyHashHex, "hex")))
+      const stakeKey = Credential.from_keyhash(Ed25519KeyHash.from_bytes(Buffer.from(sellerStakeKeyHashHex, "hex")))
       const sellerAddr= BaseAddress.new(0,vkey,stakeKey)
       console.log("SellerAddr",sellerAddr.to_address().to_bech32())
 
