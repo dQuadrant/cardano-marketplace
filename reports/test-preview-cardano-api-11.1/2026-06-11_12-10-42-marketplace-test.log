@@ -1,0 +1,671 @@
+1.1 SimpleMarketV1 Flow : "Mint Native Asset"
+Tx Submitted :b1cf264ec588fc906b80c20f4bac685f7f58ec3920a732ce5a231fdecee330f2
+Mint Native Asset Tx submitted : b1cf264ec588fc906b80c20f4bac685f7f58ec3920a732ce5a231fdecee330f2
+Fee      :   201097
+Tx Bytes (ledger):   938
+Tx Bytes (api)   :   939
+Mint Native Asset Tx Confirmed: "b1cf264ec588fc906b80c20f4bac685f7f58ec3920a732ce5a231fdecee330f2"
+1.2 SimpleMarketV1 Flow : "Create reference script UTxO"
+Tx Submitted :2aed20024ce047d07895a8e51df2e65a4e4887af4162dfa3f28b8686851d346c
+Create reference script UTxO Tx submitted : 2aed20024ce047d07895a8e51df2e65a4e4887af4162dfa3f28b8686851d346c
+Fee      :   337717
+Tx Bytes (ledger):   4043
+Tx Bytes (api)   :   4044
+Create reference script UTxO Tx Confirmed: "2aed20024ce047d07895a8e51df2e65a4e4887af4162dfa3f28b8686851d346c"
+1.3 SimpleMarketV1 Flow : "Place on Sell"
+Tx Submitted :be09e34c98ff68ad6e45dc135ba4207c9b1a75ac3a5688feb31ee9427971c30d
+Place on Sell Tx submitted : be09e34c98ff68ad6e45dc135ba4207c9b1a75ac3a5688feb31ee9427971c30d
+Fee      :   192077
+Tx Bytes (ledger):   733
+Tx Bytes (api)   :   734
+Place on Sell Tx Confirmed: "be09e34c98ff68ad6e45dc135ba4207c9b1a75ac3a5688feb31ee9427971c30d"
+1.4 SimpleMarketV1 Flow : "Withdraw"
+Tx Submitted :58a2faf329bae348b4166b0aec57e5049c8bb042ce18f6587f2cf51d303314b2
+Withdraw Tx submitted : 58a2faf329bae348b4166b0aec57e5049c8bb042ce18f6587f2cf51d303314b2
+ExUnits     :  memory = 909286 cpu = 209021837
+Fee      :   417046
+Tx Bytes (ledger):   4311
+Tx Bytes (api)   :   4312
+Withdraw Tx Confirmed: "58a2faf329bae348b4166b0aec57e5049c8bb042ce18f6587f2cf51d303314b2"
+1.5 SimpleMarketV1 Flow : "Buy"
+Tx Submitted :df2aca985f2854dc695e75a4b22839d671ef338c0aba2602213d10da6c971e5a
+Buy Tx submitted : df2aca985f2854dc695e75a4b22839d671ef338c0aba2602213d10da6c971e5a
+ExUnits     :  memory = 1128256 cpu = 252509448
+Fee      :   433916
+Tx Bytes (ledger):   4336
+Tx Bytes (api)   :   4337
+Buy Tx Confirmed: "df2aca985f2854dc695e75a4b22839d671ef338c0aba2602213d10da6c971e5a"
+1.6 SimpleMarketV1 Flow : "Withdraw with RefScript"
+Tx Submitted :ee05d456270cb2eb793391deaf0f30aee0fb230e0db0bd9a2596ead8f1ebe39e
+Withdraw with RefScript Tx submitted : ee05d456270cb2eb793391deaf0f30aee0fb230e0db0bd9a2596ead8f1ebe39e
+ExUnits     :  memory = 909286 cpu = 209021837
+Fee      :   308977
+Tx Bytes (ledger):   570
+Tx Bytes (api)   :   571
+Withdraw with RefScript Tx Confirmed: "ee05d456270cb2eb793391deaf0f30aee0fb230e0db0bd9a2596ead8f1ebe39e"
+1.7 SimpleMarketV1 Flow : "Buy with RefScript"
+Tx Submitted :3ca4f8fa053397a1ff487f6db12939585890a335b2799d4c03db497a9bff5627
+Buy with RefScript Tx submitted : 3ca4f8fa053397a1ff487f6db12939585890a335b2799d4c03db497a9bff5627
+ExUnits     :  memory = 1128256 cpu = 252509448
+Fee      :   326067
+Tx Bytes (ledger):   600
+Tx Bytes (api)   :   601
+Buy with RefScript Tx Confirmed: "3ca4f8fa053397a1ff487f6db12939585890a335b2799d4c03db497a9bff5627"
+2.1 SimpleMarketV1SuperLazy Flow : "Mint Native Asset"
+Tx Submitted :42b4e79b691b05c950b3d904f17d23cc17fcb1878704693ab929cdc0db8a028d
+Mint Native Asset Tx submitted : 42b4e79b691b05c950b3d904f17d23cc17fcb1878704693ab929cdc0db8a028d
+Fee      :   196345
+Tx Bytes (ledger):   830
+Tx Bytes (api)   :   831
+Mint Native Asset Tx Confirmed: "42b4e79b691b05c950b3d904f17d23cc17fcb1878704693ab929cdc0db8a028d"
+2.2 SimpleMarketV1SuperLazy Flow : "Create reference script UTxO"
+Tx Submitted :d6ab436c8a27a1240f99fd71a1e025ad9d0d3b687b713af833b507cc1f934b99
+Create reference script UTxO Tx submitted : d6ab436c8a27a1240f99fd71a1e025ad9d0d3b687b713af833b507cc1f934b99
+Fee      :   283333
+Tx Bytes (ledger):   2807
+Tx Bytes (api)   :   2808
+Create reference script UTxO Tx Confirmed: "d6ab436c8a27a1240f99fd71a1e025ad9d0d3b687b713af833b507cc1f934b99"
+2.3 SimpleMarketV1SuperLazy Flow : "Place on Sell"
+Tx Submitted :00a76549710974e07c221f82e65215d7b613cf30831c058158ce7d4b16ebe1b3
+Place on Sell Tx submitted : 00a76549710974e07c221f82e65215d7b613cf30831c058158ce7d4b16ebe1b3
+Fee      :   192077
+Tx Bytes (ledger):   733
+Tx Bytes (api)   :   734
+Place on Sell Tx Confirmed: "00a76549710974e07c221f82e65215d7b613cf30831c058158ce7d4b16ebe1b3"
+2.4 SimpleMarketV1SuperLazy Flow : "Withdraw"
+Tx Submitted :d62f59077385a95ac7aa0a4ee2e7acedd4cc23fbeb7107d8329f50990b520a4a
+Withdraw Tx submitted : d62f59077385a95ac7aa0a4ee2e7acedd4cc23fbeb7107d8329f50990b520a4a
+ExUnits     :  memory = 625488 cpu = 144715472
+Fee      :   341650
+Tx Bytes (ledger):   3075
+Tx Bytes (api)   :   3076
+Withdraw Tx Confirmed: "d62f59077385a95ac7aa0a4ee2e7acedd4cc23fbeb7107d8329f50990b520a4a"
+2.5 SimpleMarketV1SuperLazy Flow : "Buy"
+Tx Submitted :22f5b730a6c0bd076bfd8ce19b84dd09e872dc39c0c4466ee9c9fbcb14d51e7d
+Buy Tx submitted : 22f5b730a6c0bd076bfd8ce19b84dd09e872dc39c0c4466ee9c9fbcb14d51e7d
+ExUnits     :  memory = 843058 cpu = 187979083
+Fee      :   358423
+Tx Bytes (ledger):   3100
+Tx Bytes (api)   :   3101
+Buy Tx Confirmed: "22f5b730a6c0bd076bfd8ce19b84dd09e872dc39c0c4466ee9c9fbcb14d51e7d"
+2.6 SimpleMarketV1SuperLazy Flow : "Withdraw with RefScript"
+Tx Submitted :22da6eb02cb14b07a6f3a832e223f434955fa71d0a6cfd8c02c6d2cb1b778b99
+Withdraw with RefScript Tx submitted : 22da6eb02cb14b07a6f3a832e223f434955fa71d0a6cfd8c02c6d2cb1b778b99
+ExUnits     :  memory = 625488 cpu = 144715472
+Fee      :   269425
+Tx Bytes (ledger):   570
+Tx Bytes (api)   :   571
+Withdraw with RefScript Tx Confirmed: "22da6eb02cb14b07a6f3a832e223f434955fa71d0a6cfd8c02c6d2cb1b778b99"
+2.7 SimpleMarketV1SuperLazy Flow : "Buy with RefScript"
+Tx Submitted :4eebf5d26c014523ab35f3272b0b1e48705a36b1eab25d728d6a9479ad2c2cff
+Buy with RefScript Tx submitted : 4eebf5d26c014523ab35f3272b0b1e48705a36b1eab25d728d6a9479ad2c2cff
+ExUnits     :  memory = 843058 cpu = 187979083
+Fee      :   286418
+Tx Bytes (ledger):   600
+Tx Bytes (api)   :   601
+Buy with RefScript Tx Confirmed: "4eebf5d26c014523ab35f3272b0b1e48705a36b1eab25d728d6a9479ad2c2cff"
+3.1 SimpleMarketV2 Flow : "Mint Native Asset"
+Tx Submitted :67cda5181c3c521ef6dbbfaecae9c3777358241e2e7e4f4018f009317062f2b3
+Mint Native Asset Tx submitted : 67cda5181c3c521ef6dbbfaecae9c3777358241e2e7e4f4018f009317062f2b3
+Fee      :   196345
+Tx Bytes (ledger):   830
+Tx Bytes (api)   :   831
+Mint Native Asset Tx Confirmed: "67cda5181c3c521ef6dbbfaecae9c3777358241e2e7e4f4018f009317062f2b3"
+3.2 SimpleMarketV2 Flow : "Create reference script UTxO"
+Tx Submitted :767ac30978f09f99faf1cc1160c46df508466c3e27dcf9152099003c9c71c2e9
+Create reference script UTxO Tx submitted : 767ac30978f09f99faf1cc1160c46df508466c3e27dcf9152099003c9c71c2e9
+Fee      :   346781
+Tx Bytes (ledger):   4249
+Tx Bytes (api)   :   4250
+Create reference script UTxO Tx Confirmed: "767ac30978f09f99faf1cc1160c46df508466c3e27dcf9152099003c9c71c2e9"
+3.3 SimpleMarketV2 Flow : "Place on Sell"
+Tx Submitted :0321b99725c1168d1e1bde983fca004cb0f46fea0f240fa65631f12755e33a3d
+Place on Sell Tx submitted : 0321b99725c1168d1e1bde983fca004cb0f46fea0f240fa65631f12755e33a3d
+Fee      :   203341
+Tx Bytes (ledger):   989
+Tx Bytes (api)   :   990
+Place on Sell Tx Confirmed: "0321b99725c1168d1e1bde983fca004cb0f46fea0f240fa65631f12755e33a3d"
+3.4 SimpleMarketV2 Flow : "Withdraw"
+Tx Submitted :8ee57c1db9dd3e79d81c57ed9662f9581a638c2c653f4198268858a8cf2572e5
+Withdraw Tx submitted : 8ee57c1db9dd3e79d81c57ed9662f9581a638c2c653f4198268858a8cf2572e5
+ExUnits     :  memory = 991368 cpu = 227686573
+Fee      :   428056
+Tx Bytes (ledger):   4423
+Tx Bytes (api)   :   4424
+Withdraw Tx Confirmed: "8ee57c1db9dd3e79d81c57ed9662f9581a638c2c653f4198268858a8cf2572e5"
+3.5 SimpleMarketV2 Flow : "Buy"
+Tx Submitted :4b7d4b8d5f4947da1f64e6d8afcc047bfb2224fdaec5eabcde1b9c329132c496
+Buy Tx submitted : 4b7d4b8d5f4947da1f64e6d8afcc047bfb2224fdaec5eabcde1b9c329132c496
+ExUnits     :  memory = 1222064 cpu = 273843223
+Fee      :   445795
+Tx Bytes (ledger):   4448
+Tx Bytes (api)   :   4449
+Buy Tx Confirmed: "4b7d4b8d5f4947da1f64e6d8afcc047bfb2224fdaec5eabcde1b9c329132c496"
+3.6 SimpleMarketV2 Flow : "Withdraw with RefScript"
+Tx Submitted :bfddac2bf41490cb310b660b6c46f7eadf73109b876dbb02ef93f9f93e57cf75
+Withdraw with RefScript Tx submitted : bfddac2bf41490cb310b660b6c46f7eadf73109b876dbb02ef93f9f93e57cf75
+ExUnits     :  memory = 1146046 cpu = 263555918
+Fee      :   325524
+Tx Bytes (ledger):   476
+Tx Bytes (api)   :   477
+Withdraw with RefScript Tx Confirmed: "bfddac2bf41490cb310b660b6c46f7eadf73109b876dbb02ef93f9f93e57cf75"
+3.7 SimpleMarketV2 Flow : "Buy with RefScript"
+Tx Submitted :38cdd09e3d2e54fd9a58ccdcb7516b24e8a232eb5430dc4cd799723f212c72ef
+Buy with RefScript Tx submitted : 38cdd09e3d2e54fd9a58ccdcb7516b24e8a232eb5430dc4cd799723f212c72ef
+ExUnits     :  memory = 1376742 cpu = 309712568
+Fee      :   343483
+Tx Bytes (ledger):   506
+Tx Bytes (api)   :   507
+Buy with RefScript Tx Confirmed: "38cdd09e3d2e54fd9a58ccdcb7516b24e8a232eb5430dc4cd799723f212c72ef"
+4.1 SimpleMarketV2SuperLazy Flow : "Mint Native Asset"
+Tx Submitted :9b31cb5e14a1823d6612129452f38e3f3e0d95322439966d46cba41b730af1d6
+Mint Native Asset Tx submitted : 9b31cb5e14a1823d6612129452f38e3f3e0d95322439966d46cba41b730af1d6
+Fee      :   196345
+Tx Bytes (ledger):   830
+Tx Bytes (api)   :   831
+Mint Native Asset Tx Confirmed: "9b31cb5e14a1823d6612129452f38e3f3e0d95322439966d46cba41b730af1d6"
+4.2 SimpleMarketV2SuperLazy Flow : "Create reference script UTxO"
+Tx Submitted :a97b9e731584efbfbe4e7ddebc64161406a15da94208debb75ef5e0b250a72eb
+Create reference script UTxO Tx submitted : a97b9e731584efbfbe4e7ddebc64161406a15da94208debb75ef5e0b250a72eb
+Fee      :   289493
+Tx Bytes (ledger):   2947
+Tx Bytes (api)   :   2948
+Create reference script UTxO Tx Confirmed: "a97b9e731584efbfbe4e7ddebc64161406a15da94208debb75ef5e0b250a72eb"
+4.3 SimpleMarketV2SuperLazy Flow : "Place on Sell"
+Tx Submitted :b0b071ba7e8b2bc558c227395c361f866672f7d847d34aad6b1a8d8a7aafe434
+Place on Sell Tx submitted : b0b071ba7e8b2bc558c227395c361f866672f7d847d34aad6b1a8d8a7aafe434
+Fee      :   203341
+Tx Bytes (ledger):   989
+Tx Bytes (api)   :   990
+Place on Sell Tx Confirmed: "b0b071ba7e8b2bc558c227395c361f866672f7d847d34aad6b1a8d8a7aafe434"
+4.4 SimpleMarketV2SuperLazy Flow : "Withdraw"
+Tx Submitted :56873ad73a5f60c02c4ba4b02305e46626611439ee489fd6dbd867f717258638
+Withdraw Tx submitted : 56873ad73a5f60c02c4ba4b02305e46626611439ee489fd6dbd867f717258638
+ExUnits     :  memory = 658936 cpu = 152546117
+Fee      :   346169
+Tx Bytes (ledger):   3121
+Tx Bytes (api)   :   3122
+Withdraw Tx Confirmed: "56873ad73a5f60c02c4ba4b02305e46626611439ee489fd6dbd867f717258638"
+4.5 SimpleMarketV2SuperLazy Flow : "Buy"
+Tx Submitted :16196267872ce13864b526044c5f544b821dbc33b3cd80826dc971dfc0e721d3
+Buy Tx submitted : 16196267872ce13864b526044c5f544b821dbc33b3cd80826dc971dfc0e721d3
+ExUnits     :  memory = 888232 cpu = 198478767
+Fee      :   363811
+Tx Bytes (ledger):   3146
+Tx Bytes (api)   :   3147
+Buy Tx Confirmed: "16196267872ce13864b526044c5f544b821dbc33b3cd80826dc971dfc0e721d3"
+4.6 SimpleMarketV2SuperLazy Flow : "Withdraw with RefScript"
+Tx Submitted :8929b7577f6c861341f6cf438620927354ff61da62d42a24427e000e07e36708
+Withdraw with RefScript Tx submitted : 8929b7577f6c861341f6cf438620927354ff61da62d42a24427e000e07e36708
+ExUnits     :  memory = 462700 cpu = 106907543
+Fee      :   253686
+Tx Bytes (ledger):   440
+Tx Bytes (api)   :   441
+Withdraw with RefScript Tx Confirmed: "8929b7577f6c861341f6cf438620927354ff61da62d42a24427e000e07e36708"
+4.7 SimpleMarketV2SuperLazy Flow : "Buy with RefScript"
+Tx Submitted :e5ec78f537131bb79384f39f42c72ae0ad7e135e4c273a46cf6f7220f9ef04a7
+Buy with RefScript Tx submitted : e5ec78f537131bb79384f39f42c72ae0ad7e135e4c273a46cf6f7220f9ef04a7
+ExUnits     :  memory = 888232 cpu = 198478767
+Fee      :   287746
+Tx Bytes (ledger):   506
+Tx Bytes (api)   :   507
+Buy with RefScript Tx Confirmed: "e5ec78f537131bb79384f39f42c72ae0ad7e135e4c273a46cf6f7220f9ef04a7"
+5.1 SimpleMarketV3 Flow : "Mint Native Asset"
+Tx Submitted :468c4535a327e9f423f7930af3b0026da6ef308ef7b8ccb9f1d8c7da5d29b30b
+Mint Native Asset Tx submitted : 468c4535a327e9f423f7930af3b0026da6ef308ef7b8ccb9f1d8c7da5d29b30b
+Fee      :   197929
+Tx Bytes (ledger):   866
+Tx Bytes (api)   :   867
+Mint Native Asset Tx Confirmed: "468c4535a327e9f423f7930af3b0026da6ef308ef7b8ccb9f1d8c7da5d29b30b"
+5.2 SimpleMarketV3 Flow : "Create reference script UTxO"
+Tx Submitted :2f36823f05f5b142aa8cd4283c142e202287ef4b95716408abed904e733f464f
+Create reference script UTxO Tx submitted : 2f36823f05f5b142aa8cd4283c142e202287ef4b95716408abed904e733f464f
+Fee      :   482521
+Tx Bytes (ledger):   7334
+Tx Bytes (api)   :   7335
+Create reference script UTxO Tx Confirmed: "2f36823f05f5b142aa8cd4283c142e202287ef4b95716408abed904e733f464f"
+5.3 SimpleMarketV3 Flow : "Place on Sell"
+Tx Submitted :2cbe0058a70f5b3c98e40020b35f2d69682b4dbe43588a924211f96b08dbbf24
+Place on Sell Tx submitted : 2cbe0058a70f5b3c98e40020b35f2d69682b4dbe43588a924211f96b08dbbf24
+Fee      :   203341
+Tx Bytes (ledger):   989
+Tx Bytes (api)   :   990
+Place on Sell Tx Confirmed: "2cbe0058a70f5b3c98e40020b35f2d69682b4dbe43588a924211f96b08dbbf24"
+5.4 SimpleMarketV3 Flow : "Withdraw"
+Tx Submitted :cda003df41e6979e93298ff88ff85e2a0d2c3737ab800e61d7cfa652b75d32a2
+Withdraw Tx submitted : cda003df41e6979e93298ff88ff85e2a0d2c3737ab800e61d7cfa652b75d32a2
+ExUnits     :  memory = 1034088 cpu = 236975843
+Fee      :   565346
+Tx Bytes (ledger):   7472
+Tx Bytes (api)   :   7473
+Withdraw Tx Confirmed: "cda003df41e6979e93298ff88ff85e2a0d2c3737ab800e61d7cfa652b75d32a2"
+5.5 SimpleMarketV3 Flow : "Buy"
+Tx Submitted :8c1ae82053fa068bfbac0f9d6f7fe1dedd37e34523aff919b910544a2e5e1f07
+Buy Tx submitted : 8c1ae82053fa068bfbac0f9d6f7fe1dedd37e34523aff919b910544a2e5e1f07
+ExUnits     :  memory = 1265684 cpu = 283276493
+Fee      :   583148
+Tx Bytes (ledger):   7497
+Tx Bytes (api)   :   7498
+Buy Tx Confirmed: "8c1ae82053fa068bfbac0f9d6f7fe1dedd37e34523aff919b910544a2e5e1f07"
+5.6 SimpleMarketV3 Flow : "Withdraw with RefScript"
+Tx Submitted :682911204cefdc3453f77bc65772eaa0ae539efaf0241aac7943603a743f54b3
+Withdraw with RefScript Tx submitted : 682911204cefdc3453f77bc65772eaa0ae539efaf0241aac7943603a743f54b3
+ExUnits     :  memory = 1178040 cpu = 270336149
+Fee      :   373594
+Tx Bytes (ledger):   476
+Tx Bytes (api)   :   477
+Withdraw with RefScript Tx Confirmed: "682911204cefdc3453f77bc65772eaa0ae539efaf0241aac7943603a743f54b3"
+5.7 SimpleMarketV3 Flow : "Buy with RefScript"
+Tx Submitted :721d6356a625cd8e782e878218f30819f1f140a0ee38e0e9220840ea93dec7ac
+Buy with RefScript Tx submitted : 721d6356a625cd8e782e878218f30819f1f140a0ee38e0e9220840ea93dec7ac
+ExUnits     :  memory = 1599148 cpu = 360507542
+Fee      :   407297
+Tx Bytes (ledger):   542
+Tx Bytes (api)   :   543
+Buy with RefScript Tx Confirmed: "721d6356a625cd8e782e878218f30819f1f140a0ee38e0e9220840ea93dec7ac"
+6.1 SimpleMarketV3Lazy Flow : "Mint Native Asset"
+Tx Submitted :e2597a4cda9a319ea081696f6503316926e04095e757650ff6d84a011d43e541
+Mint Native Asset Tx submitted : e2597a4cda9a319ea081696f6503316926e04095e757650ff6d84a011d43e541
+Fee      :   193177
+Tx Bytes (ledger):   758
+Tx Bytes (api)   :   759
+Mint Native Asset Tx Confirmed: "e2597a4cda9a319ea081696f6503316926e04095e757650ff6d84a011d43e541"
+6.2 SimpleMarketV3Lazy Flow : "Create reference script UTxO"
+Tx Submitted :d9d7f3f71e3a8104151dfd53dfe286c4b86653ffbb1121096e7f7c29bc806e48
+Create reference script UTxO Tx submitted : d9d7f3f71e3a8104151dfd53dfe286c4b86653ffbb1121096e7f7c29bc806e48
+Fee      :   450225
+Tx Bytes (ledger):   6600
+Tx Bytes (api)   :   6601
+Create reference script UTxO Tx Confirmed: "d9d7f3f71e3a8104151dfd53dfe286c4b86653ffbb1121096e7f7c29bc806e48"
+6.3 SimpleMarketV3Lazy Flow : "Place on Sell"
+Tx Submitted :7a193d686aa683dd01c1dbabec179137bc9f6ea32df179042ee23dd4d29d580c
+Place on Sell Tx submitted : 7a193d686aa683dd01c1dbabec179137bc9f6ea32df179042ee23dd4d29d580c
+Fee      :   203341
+Tx Bytes (ledger):   989
+Tx Bytes (api)   :   990
+Place on Sell Tx Confirmed: "7a193d686aa683dd01c1dbabec179137bc9f6ea32df179042ee23dd4d29d580c"
+6.4 SimpleMarketV3Lazy Flow : "Withdraw"
+Tx Submitted :a250db1857fc38ec193e2946604cda3c4f7791464eade38d4b53c779126f873c
+Withdraw Tx submitted : a250db1857fc38ec193e2946604cda3c4f7791464eade38d4b53c779126f873c
+ExUnits     :  memory = 888474 cpu = 204236155
+Fee      :   523872
+Tx Bytes (ledger):   6774
+Tx Bytes (api)   :   6775
+Withdraw Tx Confirmed: "a250db1857fc38ec193e2946604cda3c4f7791464eade38d4b53c779126f873c"
+6.5 SimpleMarketV3Lazy Flow : "Buy"
+Tx Submitted :d2650d7f2ef229b6a4ef8087a6831066e2e58ede99c7866b46a8570abf57d55b
+Buy Tx submitted : d2650d7f2ef229b6a4ef8087a6831066e2e58ede99c7866b46a8570abf57d55b
+ExUnits     :  memory = 1119270 cpu = 250408805
+Fee      :   541618
+Tx Bytes (ledger):   6799
+Tx Bytes (api)   :   6800
+Buy Tx Confirmed: "d2650d7f2ef229b6a4ef8087a6831066e2e58ede99c7866b46a8570abf57d55b"
+6.6 SimpleMarketV3Lazy Flow : "Withdraw with RefScript"
+Tx Submitted :61850034f25976b6046a72671fba20949edb5bc6cb6c61ffe64f229692dc10f5
+Withdraw with RefScript Tx submitted : 61850034f25976b6046a72671fba20949edb5bc6cb6c61ffe64f229692dc10f5
+ExUnits     :  memory = 1032426 cpu = 237596461
+Fee      :   352361
+Tx Bytes (ledger):   476
+Tx Bytes (api)   :   477
+Withdraw with RefScript Tx Confirmed: "61850034f25976b6046a72671fba20949edb5bc6cb6c61ffe64f229692dc10f5"
+6.7 SimpleMarketV3Lazy Flow : "Buy with RefScript"
+Tx Submitted :2aae64f6feee792fd6c0a7b8cf833389517a894e8132d8757a65d7294d46ade2
+Buy with RefScript Tx submitted : 2aae64f6feee792fd6c0a7b8cf833389517a894e8132d8757a65d7294d46ade2
+ExUnits     :  memory = 1452734 cpu = 327639854
+Fee      :   386009
+Tx Bytes (ledger):   542
+Tx Bytes (api)   :   543
+Buy with RefScript Tx Confirmed: "2aae64f6feee792fd6c0a7b8cf833389517a894e8132d8757a65d7294d46ade2"
+7.1 SimpleMarketV3SuperLazy Flow : "Mint Native Asset"
+Tx Submitted :0d54f33ec1b7cb71e744f650f25079db9dcbe0df12adb5e1d70a3c5642903909
+Mint Native Asset Tx submitted : 0d54f33ec1b7cb71e744f650f25079db9dcbe0df12adb5e1d70a3c5642903909
+Fee      :   194761
+Tx Bytes (ledger):   794
+Tx Bytes (api)   :   795
+Mint Native Asset Tx Confirmed: "0d54f33ec1b7cb71e744f650f25079db9dcbe0df12adb5e1d70a3c5642903909"
+7.2 SimpleMarketV3SuperLazy Flow : "Create reference script UTxO"
+Tx Submitted :f3a4885fe3a44ce6dd05a8d65025e3dc4630964b60f564ddf6831fb7e8d5b2b6
+Create reference script UTxO Tx submitted : f3a4885fe3a44ce6dd05a8d65025e3dc4630964b60f564ddf6831fb7e8d5b2b6
+Fee      :   289097
+Tx Bytes (ledger):   2938
+Tx Bytes (api)   :   2939
+Create reference script UTxO Tx Confirmed: "f3a4885fe3a44ce6dd05a8d65025e3dc4630964b60f564ddf6831fb7e8d5b2b6"
+7.3 SimpleMarketV3SuperLazy Flow : "Place on Sell"
+Tx Submitted :0ce1a4f3e6de389a274c87f3fa88b5272281678bfeac6cde7d02e86e7568c704
+Place on Sell Tx submitted : 0ce1a4f3e6de389a274c87f3fa88b5272281678bfeac6cde7d02e86e7568c704
+Fee      :   203341
+Tx Bytes (ledger):   989
+Tx Bytes (api)   :   990
+Place on Sell Tx Confirmed: "0ce1a4f3e6de389a274c87f3fa88b5272281678bfeac6cde7d02e86e7568c704"
+7.4 SimpleMarketV3SuperLazy Flow : "Withdraw"
+Tx Submitted :e4cedf10b7b211c41bdf51af3d5a04838b9517d44c96319f74be95ab3ae3fecd
+Withdraw Tx submitted : e4cedf10b7b211c41bdf51af3d5a04838b9517d44c96319f74be95ab3ae3fecd
+ExUnits     :  memory = 641736 cpu = 149062788
+Fee      :   344529
+Tx Bytes (ledger):   3112
+Tx Bytes (api)   :   3113
+Withdraw Tx Confirmed: "e4cedf10b7b211c41bdf51af3d5a04838b9517d44c96319f74be95ab3ae3fecd"
+7.5 SimpleMarketV3SuperLazy Flow : "Buy"
+Tx Submitted :4c7f3a0da16343ab7c4e01f650088fe6c2bb6c14170eb920655d200b83fd6f0e
+Buy Tx submitted : 4c7f3a0da16343ab7c4e01f650088fe6c2bb6c14170eb920655d200b83fd6f0e
+ExUnits     :  memory = 871032 cpu = 194995438
+Fee      :   362171
+Tx Bytes (ledger):   3137
+Tx Bytes (api)   :   3138
+Buy Tx Confirmed: "4c7f3a0da16343ab7c4e01f650088fe6c2bb6c14170eb920655d200b83fd6f0e"
+7.6 SimpleMarketV3SuperLazy Flow : "Withdraw with RefScript"
+Tx Submitted :ecad8a80c2f3a0cb8ac3fa038e51820b4d8cf8c4fbc896a620324a98fb31825e
+Withdraw with RefScript Tx submitted : ecad8a80c2f3a0cb8ac3fa038e51820b4d8cf8c4fbc896a620324a98fb31825e
+ExUnits     :  memory = 455926 cpu = 105885253
+Fee      :   253087
+Tx Bytes (ledger):   440
+Tx Bytes (api)   :   441
+Withdraw with RefScript Tx Confirmed: "ecad8a80c2f3a0cb8ac3fa038e51820b4d8cf8c4fbc896a620324a98fb31825e"
+7.7 SimpleMarketV3SuperLazy Flow : "Buy with RefScript"
+Tx Submitted :c505d046734890a0abbe15e03deb800643cf863aa3eaec0bf79407b0cb1ebb7e
+Buy with RefScript Tx submitted : c505d046734890a0abbe15e03deb800643cf863aa3eaec0bf79407b0cb1ebb7e
+ExUnits     :  memory = 871032 cpu = 194995438
+Fee      :   286367
+Tx Bytes (ledger):   506
+Tx Bytes (api)   :   507
+Buy with RefScript Tx Confirmed: "c505d046734890a0abbe15e03deb800643cf863aa3eaec0bf79407b0cb1ebb7e"
+3.1 ConfigurableMarketV2 Flow : "Mint Native Asset"
+Tx Submitted :bacc3618fb3ce69bd82e51ae20e2767ee3ebce41d49daaae1f3295b559f7db34
+Mint Native Asset Tx submitted : bacc3618fb3ce69bd82e51ae20e2767ee3ebce41d49daaae1f3295b559f7db34
+Fee      :   197929
+Tx Bytes (ledger):   866
+Tx Bytes (api)   :   867
+Mint Native Asset Tx Confirmed: "bacc3618fb3ce69bd82e51ae20e2767ee3ebce41d49daaae1f3295b559f7db34"
+3.2 ConfigurableMarketV2 Flow : "Create reference script UTxO"
+Tx Submitted :cc8a6ef76f0564ab12560d57a7dac4ead9fae5476170e9343d3c7633da4637a7
+Create reference script UTxO Tx submitted : cc8a6ef76f0564ab12560d57a7dac4ead9fae5476170e9343d3c7633da4637a7
+Fee      :   327729
+Tx Bytes (ledger):   3816
+Tx Bytes (api)   :   3817
+Create reference script UTxO Tx Confirmed: "cc8a6ef76f0564ab12560d57a7dac4ead9fae5476170e9343d3c7633da4637a7"
+3.3 ConfigurableMarketV2 Flow : "Place on Sell"
+Tx Submitted :e4bb85c3955049518c43caf0cc113605ad460dbcb9d847e45b5d7fdd1e7bc9f2
+Place on Sell Tx submitted : e4bb85c3955049518c43caf0cc113605ad460dbcb9d847e45b5d7fdd1e7bc9f2
+Fee      :   203341
+Tx Bytes (ledger):   989
+Tx Bytes (api)   :   990
+Place on Sell Tx Confirmed: "e4bb85c3955049518c43caf0cc113605ad460dbcb9d847e45b5d7fdd1e7bc9f2"
+3.4 ConfigurableMarketV2 Flow : "Create market configuration"
+Tx Submitted :0f77ce203a959bc571ba44c6f05b89cb48b0a146137abc55ad8406c0e1d1c954
+Create market configuration Tx submitted : 0f77ce203a959bc571ba44c6f05b89cb48b0a146137abc55ad8406c0e1d1c954
+Fee      :   179141
+Tx Bytes (ledger):   439
+Tx Bytes (api)   :   440
+Create market configuration Tx Confirmed: "0f77ce203a959bc571ba44c6f05b89cb48b0a146137abc55ad8406c0e1d1c954"
+3.5 ConfigurableMarketV2 Flow : "Withdraw"
+Tx Submitted :4a3cc668cbbc3850bf206b7eecec26328f4ad29593638673aad58d2c5f540453
+Withdraw Tx submitted : 4a3cc668cbbc3850bf206b7eecec26328f4ad29593638673aad58d2c5f540453
+ExUnits     :  memory = 522212 cpu = 132425197
+Fee      :   375065
+Tx Bytes (ledger):   3990
+Tx Bytes (api)   :   3991
+Withdraw Tx Confirmed: "4a3cc668cbbc3850bf206b7eecec26328f4ad29593638673aad58d2c5f540453"
+3.6 ConfigurableMarketV2 Flow : "Withdraw with RefScript"
+Tx Submitted :b5db8f1e8398a8f88713bd52406acbac05bb88145a2c9ad176bf634ba903ee5b
+Withdraw with RefScript Tx submitted : b5db8f1e8398a8f88713bd52406acbac05bb88145a2c9ad176bf634ba903ee5b
+ExUnits     :  memory = 501374 cpu = 126915532
+Fee      :   270395
+Tx Bytes (ledger):   440
+Tx Bytes (api)   :   441
+Withdraw with RefScript Tx Confirmed: "b5db8f1e8398a8f88713bd52406acbac05bb88145a2c9ad176bf634ba903ee5b"
+3.7 ConfigurableMarketV2 Flow : "Buy"
+Tx Submitted :83990682f63ee516517668fa1413fd840deb17575c6acac7fc875bb5e7ba09cc
+Buy Tx submitted : 83990682f63ee516517668fa1413fd840deb17575c6acac7fc875bb5e7ba09cc
+ExUnits     :  memory = 1253917 cpu = 284846338
+Fee      :   434038
+Tx Bytes (ledger):   4121
+Tx Bytes (api)   :   4122
+Buy Tx Confirmed: "83990682f63ee516517668fa1413fd840deb17575c6acac7fc875bb5e7ba09cc"
+3.8 ConfigurableMarketV2 Flow : "Buy with RefScript"
+Tx Submitted :155949e4c5ef88ca98fbd7d91d820e0dc01c72557fd758e2f3fa5b75d375ed8e
+Buy with RefScript Tx submitted : 155949e4c5ef88ca98fbd7d91d820e0dc01c72557fd758e2f3fa5b75d375ed8e
+ExUnits     :  memory = 1322979 cpu = 303212370
+Fee      :   337861
+Tx Bytes (ledger):   607
+Tx Bytes (api)   :   608
+Buy with RefScript Tx Confirmed: "155949e4c5ef88ca98fbd7d91d820e0dc01c72557fd758e2f3fa5b75d375ed8e"
+4.1 ConfigurableMarketV2SuperLazy Flow : "Mint Native Asset"
+Tx Submitted :3b78caf185e43976cb4a9895f78fc8024a87820cc4aad011fead864fc651ce80
+Mint Native Asset Tx submitted : 3b78caf185e43976cb4a9895f78fc8024a87820cc4aad011fead864fc651ce80
+Fee      :   201097
+Tx Bytes (ledger):   938
+Tx Bytes (api)   :   939
+Mint Native Asset Tx Confirmed: "3b78caf185e43976cb4a9895f78fc8024a87820cc4aad011fead864fc651ce80"
+4.2 ConfigurableMarketV2SuperLazy Flow : "Create reference script UTxO"
+Tx Submitted :15dcb8a09dd142cbe0ceee7ced1fd64556d8fb47906acdd03ba8b865d91e5a27
+Create reference script UTxO Tx submitted : 15dcb8a09dd142cbe0ceee7ced1fd64556d8fb47906acdd03ba8b865d91e5a27
+Fee      :   313033
+Tx Bytes (ledger):   3482
+Tx Bytes (api)   :   3483
+Create reference script UTxO Tx Confirmed: "15dcb8a09dd142cbe0ceee7ced1fd64556d8fb47906acdd03ba8b865d91e5a27"
+4.3 ConfigurableMarketV2SuperLazy Flow : "Place on Sell"
+Tx Submitted :92a474285c4f6996009887b24adbc19f6fadc71bffec0e691c58c738d734675a
+Place on Sell Tx submitted : 92a474285c4f6996009887b24adbc19f6fadc71bffec0e691c58c738d734675a
+Fee      :   203341
+Tx Bytes (ledger):   989
+Tx Bytes (api)   :   990
+Place on Sell Tx Confirmed: "92a474285c4f6996009887b24adbc19f6fadc71bffec0e691c58c738d734675a"
+4.4 ConfigurableMarketV2SuperLazy Flow : "Create market configuration"
+Tx Submitted :9d6577755e3b39c98aa34d9a656c8c79fa5a47f3b590af792259c2b90ab59c5e
+Create market configuration Tx submitted : 9d6577755e3b39c98aa34d9a656c8c79fa5a47f3b590af792259c2b90ab59c5e
+Fee      :   179141
+Tx Bytes (ledger):   439
+Tx Bytes (api)   :   440
+Create market configuration Tx Confirmed: "9d6577755e3b39c98aa34d9a656c8c79fa5a47f3b590af792259c2b90ab59c5e"
+4.5 ConfigurableMarketV2SuperLazy Flow : "Withdraw"
+Tx Submitted :490fd457158e9454dfe874f3459bdb5ff1e14773b303d1bba06a543733638b26
+Withdraw Tx submitted : 490fd457158e9454dfe874f3459bdb5ff1e14773b303d1bba06a543733638b26
+ExUnits     :  memory = 665164 cpu = 153858569
+Fee      :   370163
+Tx Bytes (ledger):   3656
+Tx Bytes (api)   :   3657
+Withdraw Tx Confirmed: "490fd457158e9454dfe874f3459bdb5ff1e14773b303d1bba06a543733638b26"
+4.6 ConfigurableMarketV2SuperLazy Flow : "Withdraw with RefScript"
+Tx Submitted :0838d2be62611eaecbfbe5545652c607b61c5f3b60f51a7b8cbb454947372a31
+Withdraw with RefScript Tx submitted : 0838d2be62611eaecbfbe5545652c607b61c5f3b60f51a7b8cbb454947372a31
+ExUnits     :  memory = 622706 cpu = 143945340
+Fee      :   273614
+Tx Bytes (ledger):   440
+Tx Bytes (api)   :   441
+Withdraw with RefScript Tx Confirmed: "0838d2be62611eaecbfbe5545652c607b61c5f3b60f51a7b8cbb454947372a31"
+4.7 ConfigurableMarketV2SuperLazy Flow : "Buy"
+Tx Submitted :e7ef4ab22d78eb59b5e7ba646f8639e3662339055421a72981d65381944e169d
+Buy Tx submitted : e7ef4ab22d78eb59b5e7ba646f8639e3662339055421a72981d65381944e169d
+ExUnits     :  memory = 1606673 cpu = 349015095
+Fee      :   444323
+Tx Bytes (ledger):   3787
+Tx Bytes (api)   :   3788
+Buy Tx Confirmed: "e7ef4ab22d78eb59b5e7ba646f8639e3662339055421a72981d65381944e169d"
+4.8 ConfigurableMarketV2SuperLazy Flow : "Buy with RefScript"
+Tx Submitted :a2205427ac05c0422528854568b538152cae47de2fef076cecdffcf651a5b779
+Buy with RefScript Tx submitted : a2205427ac05c0422528854568b538152cae47de2fef076cecdffcf651a5b779
+ExUnits     :  memory = 1763351 cpu = 385204440
+Fee      :   364172
+Tx Bytes (ledger):   607
+Tx Bytes (api)   :   608
+Buy with RefScript Tx Confirmed: "a2205427ac05c0422528854568b538152cae47de2fef076cecdffcf651a5b779"
+5.1 ConfigurableMarketV3 Flow : "Mint Native Asset"
+Tx Submitted :5fd9567aadb68bd6a6781e5bc848b2012cab1d10eaf2ae8dfdba10d5e79b5aef
+Mint Native Asset Tx submitted : 5fd9567aadb68bd6a6781e5bc848b2012cab1d10eaf2ae8dfdba10d5e79b5aef
+Fee      :   201097
+Tx Bytes (ledger):   938
+Tx Bytes (api)   :   939
+Mint Native Asset Tx Confirmed: "5fd9567aadb68bd6a6781e5bc848b2012cab1d10eaf2ae8dfdba10d5e79b5aef"
+5.2 ConfigurableMarketV3 Flow : "Create reference script UTxO"
+Tx Submitted :2a91acba029bae0548d9cdc77fe189e3c4ebb49e95cfa7c1aed9d4f294d98108
+Create reference script UTxO Tx submitted : 2a91acba029bae0548d9cdc77fe189e3c4ebb49e95cfa7c1aed9d4f294d98108
+Fee      :   502189
+Tx Bytes (ledger):   7781
+Tx Bytes (api)   :   7782
+Create reference script UTxO Tx Confirmed: "2a91acba029bae0548d9cdc77fe189e3c4ebb49e95cfa7c1aed9d4f294d98108"
+5.3 ConfigurableMarketV3 Flow : "Place on Sell"
+Tx Submitted :b3341d76d1b5c49f7d167ef1f94689b9a9866735e86f1bf300bb5a8790e8c8dd
+Place on Sell Tx submitted : b3341d76d1b5c49f7d167ef1f94689b9a9866735e86f1bf300bb5a8790e8c8dd
+Fee      :   203341
+Tx Bytes (ledger):   989
+Tx Bytes (api)   :   990
+Place on Sell Tx Confirmed: "b3341d76d1b5c49f7d167ef1f94689b9a9866735e86f1bf300bb5a8790e8c8dd"
+5.4 ConfigurableMarketV3 Flow : "Create market configuration"
+Tx Submitted :e51e32d2711f39da73e0980b881d31bb73bf3933020bbecf663b1ff9679d6230
+Create market configuration Tx submitted : e51e32d2711f39da73e0980b881d31bb73bf3933020bbecf663b1ff9679d6230
+Fee      :   179141
+Tx Bytes (ledger):   439
+Tx Bytes (api)   :   440
+Create market configuration Tx Confirmed: "e51e32d2711f39da73e0980b881d31bb73bf3933020bbecf663b1ff9679d6230"
+5.5 ConfigurableMarketV3 Flow : "Withdraw"
+Tx Submitted :878aa3f7bd07a68d5f1c46dbf56c1da9bf1e4ed2f269fd8d61cf256e90f9a58f
+Withdraw Tx submitted : 878aa3f7bd07a68d5f1c46dbf56c1da9bf1e4ed2f269fd8d61cf256e90f9a58f
+ExUnits     :  memory = 952346 cpu = 218133460
+Fee      :   578939
+Tx Bytes (ledger):   7919
+Tx Bytes (api)   :   7920
+Withdraw Tx Confirmed: "878aa3f7bd07a68d5f1c46dbf56c1da9bf1e4ed2f269fd8d61cf256e90f9a58f"
+5.6 ConfigurableMarketV3 Flow : "Withdraw with RefScript"
+Tx Submitted :7f053848eeee85cc0656a3be822acb72b301712b291cd8767b4d354c00b5f171
+Withdraw with RefScript Tx submitted : 7f053848eeee85cc0656a3be822acb72b301712b291cd8767b4d354c00b5f171
+ExUnits     :  memory = 1096298 cpu = 251493766
+Fee      :   374444
+Tx Bytes (ledger):   481
+Tx Bytes (api)   :   482
+Withdraw with RefScript Tx Confirmed: "7f053848eeee85cc0656a3be822acb72b301712b291cd8767b4d354c00b5f171"
+5.7 ConfigurableMarketV3 Flow : "Buy"
+Tx Submitted :f08473ebdc3714a117c0853f839d99cf98bc54d61f134921dc846adc08c2238f
+Buy Tx submitted : f08473ebdc3714a117c0853f839d99cf98bc54d61f134921dc846adc08c2238f
+ExUnits     :  memory = 1884029 cpu = 410924947
+Fee      :   652362
+Tx Bytes (ledger):   8050
+Tx Bytes (api)   :   8051
+Buy Tx Confirmed: "f08473ebdc3714a117c0853f839d99cf98bc54d61f134921dc846adc08c2238f"
+5.8 ConfigurableMarketV3 Flow : "Buy with RefScript"
+Tx Submitted :7f6c5496c38dc59e3f3e6789dfaa30ece5f2ee495b08e584b9727685663c30e8
+Buy with RefScript Tx submitted : 7f6c5496c38dc59e3f3e6789dfaa30ece5f2ee495b08e584b9727685663c30e8
+ExUnits     :  memory = 2198385 cpu = 483436463
+Fee      :   461885
+Tx Bytes (ledger):   643
+Tx Bytes (api)   :   644
+Buy with RefScript Tx Confirmed: "7f6c5496c38dc59e3f3e6789dfaa30ece5f2ee495b08e584b9727685663c30e8"
+6.1 ConfigurableMarketV3Lazy Flow : "Mint Native Asset"
+Tx Submitted :9cfe20b20ef84b0d9c17c1dd36251a86eb9b8cb35500757c3b2fcfa5ae1beb86
+Mint Native Asset Tx submitted : 9cfe20b20ef84b0d9c17c1dd36251a86eb9b8cb35500757c3b2fcfa5ae1beb86
+Fee      :   196345
+Tx Bytes (ledger):   830
+Tx Bytes (api)   :   831
+Mint Native Asset Tx Confirmed: "9cfe20b20ef84b0d9c17c1dd36251a86eb9b8cb35500757c3b2fcfa5ae1beb86"
+6.2 ConfigurableMarketV3Lazy Flow : "Create reference script UTxO"
+Tx Submitted :4b0bc7b7c5c55057cdad7a006a9d1bfdb2968f8148ad155c59bb10bdc7fb3f65
+Create reference script UTxO Tx submitted : 4b0bc7b7c5c55057cdad7a006a9d1bfdb2968f8148ad155c59bb10bdc7fb3f65
+Fee      :   477989
+Tx Bytes (ledger):   7231
+Tx Bytes (api)   :   7232
+Create reference script UTxO Tx Confirmed: "4b0bc7b7c5c55057cdad7a006a9d1bfdb2968f8148ad155c59bb10bdc7fb3f65"
+6.3 ConfigurableMarketV3Lazy Flow : "Place on Sell"
+Tx Submitted :c82316818a11388c65e31c75fb4651a7022e76a9821ce0c1d488e2c417d06b4d
+Place on Sell Tx submitted : c82316818a11388c65e31c75fb4651a7022e76a9821ce0c1d488e2c417d06b4d
+Fee      :   203341
+Tx Bytes (ledger):   989
+Tx Bytes (api)   :   990
+Place on Sell Tx Confirmed: "c82316818a11388c65e31c75fb4651a7022e76a9821ce0c1d488e2c417d06b4d"
+6.4 ConfigurableMarketV3Lazy Flow : "Create market configuration"
+Tx Submitted :50bdd5c16396f8008daa0ff44e4ae974ff981fe573b427519a1e7e0784f39571
+Create market configuration Tx submitted : 50bdd5c16396f8008daa0ff44e4ae974ff981fe573b427519a1e7e0784f39571
+Fee      :   179141
+Tx Bytes (ledger):   439
+Tx Bytes (api)   :   440
+Create market configuration Tx Confirmed: "50bdd5c16396f8008daa0ff44e4ae974ff981fe573b427519a1e7e0784f39571"
+6.5 ConfigurableMarketV3Lazy Flow : "Withdraw"
+Tx Submitted :c409e91c7b7950cf64eda95033f2c8778f7bcdb57724fc0dfb7135be64eb2253
+Withdraw Tx submitted : c409e91c7b7950cf64eda95033f2c8778f7bcdb57724fc0dfb7135be64eb2253
+ExUnits     :  memory = 888774 cpu = 204284155
+Fee      :   550073
+Tx Bytes (ledger):   7369
+Tx Bytes (api)   :   7370
+Withdraw Tx Confirmed: "c409e91c7b7950cf64eda95033f2c8778f7bcdb57724fc0dfb7135be64eb2253"
+6.6 ConfigurableMarketV3Lazy Flow : "Withdraw with RefScript"
+Tx Submitted :45ebbd0202414b22c0a675eaec3b65d55b68583044ca3f91e19c7b64e4325081
+Withdraw with RefScript Tx submitted : 45ebbd0202414b22c0a675eaec3b65d55b68583044ca3f91e19c7b64e4325081
+ExUnits     :  memory = 1032726 cpu = 237644461
+Fee      :   361527
+Tx Bytes (ledger):   481
+Tx Bytes (api)   :   482
+Withdraw with RefScript Tx Confirmed: "45ebbd0202414b22c0a675eaec3b65d55b68583044ca3f91e19c7b64e4325081"
+6.7 ConfigurableMarketV3Lazy Flow : "Buy"
+Tx Submitted :32211e82c0e9a71402d2f51579bcc474dfa2e3b5e6c16782fa57b5045a4802db
+Buy Tx submitted : 32211e82c0e9a71402d2f51579bcc474dfa2e3b5e6c16782fa57b5045a4802db
+ExUnits     :  memory = 1820457 cpu = 397075642
+Fee      :   623495
+Tx Bytes (ledger):   7500
+Tx Bytes (api)   :   7501
+Buy Tx Confirmed: "32211e82c0e9a71402d2f51579bcc474dfa2e3b5e6c16782fa57b5045a4802db"
+6.8 ConfigurableMarketV3Lazy Flow : "Buy with RefScript"
+Tx Submitted :11b064eee3fdf203298ca7d727fdb5fa72c5b03287be1487ebf4570939851baa
+Buy with RefScript Tx submitted : 11b064eee3fdf203298ca7d727fdb5fa72c5b03287be1487ebf4570939851baa
+ExUnits     :  memory = 2134813 cpu = 469587158
+Fee      :   448968
+Tx Bytes (ledger):   643
+Tx Bytes (api)   :   644
+Buy with RefScript Tx Confirmed: "11b064eee3fdf203298ca7d727fdb5fa72c5b03287be1487ebf4570939851baa"
+7.1 ConfigurableMarketV3SuperLazy Flow : "Mint Native Asset"
+Tx Submitted :0ddca76dd03e01cff5c940759bb899f244fe1900b711101d48cd12d6c282045b
+Mint Native Asset Tx submitted : 0ddca76dd03e01cff5c940759bb899f244fe1900b711101d48cd12d6c282045b
+Fee      :   196345
+Tx Bytes (ledger):   830
+Tx Bytes (api)   :   831
+Mint Native Asset Tx Confirmed: "0ddca76dd03e01cff5c940759bb899f244fe1900b711101d48cd12d6c282045b"
+7.2 ConfigurableMarketV3SuperLazy Flow : "Create reference script UTxO"
+Tx Submitted :44b47465037801676d3d5fd75fb05a5917735209a6986b6c0e7f00ffe44bd0c5
+Create reference script UTxO Tx submitted : 44b47465037801676d3d5fd75fb05a5917735209a6986b6c0e7f00ffe44bd0c5
+Fee      :   311097
+Tx Bytes (ledger):   3438
+Tx Bytes (api)   :   3439
+Create reference script UTxO Tx Confirmed: "44b47465037801676d3d5fd75fb05a5917735209a6986b6c0e7f00ffe44bd0c5"
+7.3 ConfigurableMarketV3SuperLazy Flow : "Place on Sell"
+Tx Submitted :053993679a5875fdf570dfea5982e62eb75f7d53a18e86c08ec1ac17f8df18b9
+Place on Sell Tx submitted : 053993679a5875fdf570dfea5982e62eb75f7d53a18e86c08ec1ac17f8df18b9
+Fee      :   203341
+Tx Bytes (ledger):   989
+Tx Bytes (api)   :   990
+Place on Sell Tx Confirmed: "053993679a5875fdf570dfea5982e62eb75f7d53a18e86c08ec1ac17f8df18b9"
+7.4 ConfigurableMarketV3SuperLazy Flow : "Create market configuration"
+Tx Submitted :77c95a1b0ad421768288d89536f13317508945866860b17c1bd9eddbdfeff114
+Create market configuration Tx submitted : 77c95a1b0ad421768288d89536f13317508945866860b17c1bd9eddbdfeff114
+Fee      :   179141
+Tx Bytes (ledger):   439
+Tx Bytes (api)   :   440
+Create market configuration Tx Confirmed: "77c95a1b0ad421768288d89536f13317508945866860b17c1bd9eddbdfeff114"
+7.5 ConfigurableMarketV3SuperLazy Flow : "Withdraw"
+Tx Submitted :93702dbf41a0eefe053b972aa39f1b170c8121c1c075c4a4b6a56d61b48f237f
+Withdraw Tx submitted : 93702dbf41a0eefe053b972aa39f1b170c8121c1c075c4a4b6a56d61b48f237f
+ExUnits     :  memory = 648664 cpu = 150487240
+Fee      :   367032
+Tx Bytes (ledger):   3612
+Tx Bytes (api)   :   3613
+Withdraw Tx Confirmed: "93702dbf41a0eefe053b972aa39f1b170c8121c1c075c4a4b6a56d61b48f237f"
+7.6 ConfigurableMarketV3SuperLazy Flow : "Withdraw with RefScript"
+Tx Submitted :689b0935f792a64687311c3d92c0677701624b9e2d29d2c9665c8817af06ad14
+Withdraw with RefScript Tx submitted : 689b0935f792a64687311c3d92c0677701624b9e2d29d2c9665c8817af06ad14
+ExUnits     :  memory = 606206 cpu = 140574011
+Fee      :   271759
+Tx Bytes (ledger):   440
+Tx Bytes (api)   :   441
+Withdraw with RefScript Tx Confirmed: "689b0935f792a64687311c3d92c0677701624b9e2d29d2c9665c8817af06ad14"
+7.7 ConfigurableMarketV3SuperLazy Flow : "Buy"
+Tx Submitted :afeb50cfdb905946073e2546a9f48d5aa07440a8727e83754748e3dba3966dfd
+Buy Tx submitted : afeb50cfdb905946073e2546a9f48d5aa07440a8727e83754748e3dba3966dfd
+ExUnits     :  memory = 1579447 cpu = 343134727
+Fee      :   440392
+Tx Bytes (ledger):   3743
+Tx Bytes (api)   :   3744
+Buy Tx Confirmed: "afeb50cfdb905946073e2546a9f48d5aa07440a8727e83754748e3dba3966dfd"
+7.8 ConfigurableMarketV3SuperLazy Flow : "Buy with RefScript"
+Tx Submitted :c012c04436f3136ef3221a62264f25fc789737def9c0a13bd442eaa12ab4b869
+Buy with RefScript Tx submitted : c012c04436f3136ef3221a62264f25fc789737def9c0a13bd442eaa12ab4b869
+ExUnits     :  memory = 1725699 cpu = 376863033
+Fee      :   360738
+Tx Bytes (ledger):   607
+Tx Bytes (api)   :   608
+Buy with RefScript Tx Confirmed: "c012c04436f3136ef3221a62264f25fc789737def9c0a13bd442eaa12ab4b869"
