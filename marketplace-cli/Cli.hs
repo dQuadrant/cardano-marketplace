@@ -7,13 +7,11 @@
 
 module Cli where
 
-import Cardano.Api
-import Cardano.Api.Byron (Address (ByronAddress))
-import Cardano.Api.Shelley (Address (ShelleyAddress), AsType (AsAlonzoEra), ProtocolParameters, fromPlutusData, fromShelleyStakeReference, scriptDataToJsonDetailedSchema, shelleyPayAddrToPlutusPubKHash, toPlutusData, toShelleyStakeAddr, toShelleyStakeCredential)
-import qualified Cardano.Api.Shelley as Shelley
+import Cardano.Api hiding (parseAssetName, parseTxIn)
 import Cardano.Kuber.Api
 import Cardano.Kuber.Data.Parsers ( parseAssetNQuantity, parseScriptData, parseTxIn, parseValueText, scriptDataParser, parseAssetId, parseSignKey, parseAddress, parseAssetName)
 import Cardano.Kuber.Util hiding (toHexString)
+import Cardano.Marketplace.Artifacts
 import Cardano.Marketplace.Common.TextUtils
 import Cardano.Marketplace.Common.TransactionUtils
     ( getSignKey,
@@ -57,9 +55,11 @@ import PlutusLedgerApi.V2 (dataToBuiltinData, FromData (fromBuiltinData))
 import Cardano.Marketplace.Common.TransactionUtils (runBuildAndSubmit)
 import Cardano.Marketplace.Common.TransactionUtils
 import Cardano.Marketplace.SimpleMarketplace
+import Cardano.Marketplace.V1.Core (simpleMarketV1Helper)
 import Cardano.Marketplace.V2.Core (simpleMarketV2Helper)
 import Cardano.Marketplace.V3.Core (simpleMarketV3Helper)
 import Cardano.Marketplace.ConfigurableMarketplace (sellBuilder)
+import System.Process (callProcess)
 
 
 data Modes
@@ -106,6 +106,10 @@ data Modes
     {
       signingKeyFile :: String,
       address:: Maybe T.Text
+    }
+  | GenScripts
+    {
+      outputDir :: FilePath
     }
   deriving (Show, Data, Typeable, Eq)
 
@@ -163,22 +167,35 @@ runCli = do
               , address = def &= typ "WalletAddress" &= name "address"
             }
           &= help "Show funds of wallet."
+        , GenScripts
+            {
+              outputDir = defaultOutputDir &= typ "OutputDir" &= name "output-dir"
+            }
+          &= name "gen-scripts"
+          &= help "Generate all Plutus script artifacts into outputs/."
         ]
         &= program "market-cli"
         &= summary "Cardano Marketplace CLI \nVersion 1.0.0.0"
 
-  chainInfo <- chainInfoFromEnv
-  networkId <- evaluateKontract chainInfo kGetNetworkId >>= throwFrameworkError
-  let 
-      v2MarketAddr = plutusScriptAddr  (simpleMarketScript simpleMarketV2Helper)  networkId
-      v3MarketAddr =plutusScriptAddr  (simpleMarketScript simpleMarketV3Helper)  networkId
-      -- v3marketAddr version = 
   case op of
-    Ls version -> runKontract chainInfo $ do
-      let marketAddr = case version of 
+    GenScripts outDir -> do
+      callProcess "cabal" ["run", "script-artifacts-v1", "--", outDir]
+      callProcess "cabal" ["run", "script-artifacts-v2", "--", outDir]
+      callProcess "cabal" ["run", "script-artifacts-v3", "--", outDir]
+      putStrLn $ "Wrote script artifacts to " ++ outDir
+
+    Ls version -> withChainInfo $ \chainInfo networkId -> runKontract chainInfo $ do
+      let
+        v2MarketAddr :: AddressInEra ConwayEra
+        v2MarketAddr = plutusScriptAddr (simpleMarketScript simpleMarketV2Helper) networkId
+        v3MarketAddr :: AddressInEra ConwayEra
+        v3MarketAddr = plutusScriptAddr (simpleMarketScript simpleMarketV3Helper) networkId
+        marketAddr :: AddressInEra ConwayEra
+        marketAddr = case version of 
+              1 -> plutusScriptAddr (simpleMarketScript simpleMarketV1Helper) networkId
               2 -> v2MarketAddr
               3 -> v3MarketAddr
-              _ -> error "Expected version to be either 2 or 3"
+              _ -> error "Expected version to be 1, 2, or 3"
       (UTxO uMap) <- kQueryUtxoByAddress $ Set.singleton (addressInEraToAddressAny $ marketAddr)
       let vals = mapMaybe (\(txin, TxOut addr val datum _) -> 
             case datum of
@@ -204,15 +221,16 @@ runCli = do
                 (map (\(txin,cost,val :: TxOutValue ConwayEra )-> T.unpack (renderTxIn txin)  
                            ++ "\t [Cost " ++ show (fromInteger cost/1e6) ++ "Ada] " ++  showVal (txOutValueToValue val)) vals)
       where
-        showVal val= intercalate " +" $ map (\(AssetId pol (AssetName a),Quantity v) -> (if v>1 then show v ++ " " else "") ++ T.unpack (serialiseToRawBytesHexText pol) ++ "." ++ BS8.unpack a ) filtered
+        showVal val= intercalate " +" $ map (\(AssetId pol assetName,Quantity v) -> (if v>1 then show v ++ " " else "") ++ T.unpack (serialiseToRawBytesHexText pol) ++ "." ++ T.unpack (serialiseToRawBytesHexText assetName) ) filtered
           where
             filtered= filter (\(a,v)-> a /= AdaAssetId )  $ valueToList val
     Cat version -> do
-      let envelope = case version of 
-               2 -> serialiseToTextEnvelope (Just $   "SimpleMarketplaceV2")  V2.simpleMarketplacePlutusV2
-               3 -> serialiseToTextEnvelope (Just $   "SimpleMarketplaceV3")  V3.simpleMarketplacePlutusV3
-      T.putStrLn $ T.decodeUtf8 $ prettyPrintJSON  envelope
-    Sell version itemStr cost saddressMaybe sKeyFile-> do
+      case version of
+        1 -> loadSimpleMarketV1 >>= printEnvelope
+        2 -> loadSimpleMarketV2 >>= printEnvelope
+        3 -> loadSimpleMarketV3 >>= printEnvelope
+        _ -> error "Expected version to be 1, 2, or 3"
+    Sell version itemStr cost saddressMaybe sKeyFile-> withChainInfo $ \chainInfo networkId -> do
       sKey <- getSignKey sKeyFile
       sellVale <- parseAssetNQuantity itemStr
       sellerAddress <- case saddressMaybe of
@@ -220,16 +238,22 @@ runCli = do
         Just txt -> parseAddress txt
               
       runKontract chainInfo $ do 
+        let
+          v2MarketAddr :: AddressInEra ConwayEra
+          v2MarketAddr = plutusScriptAddr (simpleMarketScript simpleMarketV2Helper) networkId
+          v3MarketAddr :: AddressInEra ConwayEra
+          v3MarketAddr = plutusScriptAddr (simpleMarketScript simpleMarketV3Helper) networkId
         sellBuilder <- case version of 
           2 -> (sell simpleMarketV2Helper) v2MarketAddr  (valueFromList [sellVale]) cost  sellerAddress
           3 -> (sell simpleMarketV3Helper)  v3MarketAddr (valueFromList [sellVale]) cost  sellerAddress 
+          _ -> error "Expected version to be either 2 or 3"
         let builder = sellBuilder
               <> txWalletSignKey sKey
               <> txWalletAddress sellerAddress
         runBuildAndSubmit builder
 
         
-    Buy version txInText datumStr sKeyFile addrMaybe -> do
+    Buy version txInText datumStr sKeyFile addrMaybe -> withChainInfo $ \chainInfo networkId -> do
       sKey <- getSignKey sKeyFile
       tin <- parseTxIn txInText
       address <- getAddress networkId sKey addrMaybe
@@ -238,12 +262,13 @@ runCli = do
         buyBuilder <- case version of 
             2 -> buy simpleMarketV2Helper tin
             3 -> buy simpleMarketV3Helper tin
+            _ -> error "Expected version to be either 2 or 3"
         let builder = buyBuilder
                         <> txWalletSignKey sKey
                         <> txWalletAddress address
         runBuildAndSubmit builder
  
-    Withdraw version txInText datumStr sKeyFile mAddr-> do
+    Withdraw version txInText datumStr sKeyFile mAddr-> withChainInfo $ \chainInfo networkId -> do
       sKey <- getSignKey sKeyFile
       txIn <- parseTxIn txInText
       address <- getAddress networkId sKey mAddr
@@ -251,12 +276,13 @@ runCli = do
         withdrawBuilder <- case version of 
           2 -> withdraw simpleMarketV2Helper txIn 
           3 -> withdraw simpleMarketV3Helper txIn
+          _ -> error "Expected version to be either 2 or 3"
         let builder = withdrawBuilder
                         <> txWalletSignKey sKey
                         <> txWalletAddress address
         runBuildAndSubmit builder
 
-    Mint sKeyFile walletAddrStr tokenNameStr qty-> runKontract chainInfo $  do
+    Mint sKeyFile walletAddrStr tokenNameStr qty-> withChainInfo $ \chainInfo _ -> runKontract chainInfo $  do
       assetName <- kWrapParser $ parseAssetName tokenNameStr
       builderWallet <- if T.null walletAddrStr 
                 then  pure mempty
@@ -269,7 +295,7 @@ runCli = do
         <> builderWallet
         <> mintBuilder
 
-    CreateCollateral sKeyFile mAddr-> do
+    CreateCollateral sKeyFile mAddr-> withChainInfo $ \chainInfo networkId -> do
       skey <- getSignKey sKeyFile
       addrInEra <- getAddress networkId  skey mAddr
       let txOperations = txPayTo addrInEra (valueFromList [(AdaAssetId,Quantity 5_000_000)]) 
@@ -278,7 +304,7 @@ runCli = do
       runKontract chainInfo $ do 
         runBuildAndSubmit txOperations
  
-    Balance sKeyFile addrStr -> do
+    Balance sKeyFile addrStr -> withChainInfo $ \chainInfo networkId -> do
       walletAddr :: AddressInEra ConwayEra <- case addrStr of 
           Nothing ->  do 
             if null sKeyFile
@@ -307,3 +333,13 @@ runKontract api  c = do
      >>= \case
         Left e -> putStrLn $ show e
         _ -> pure ()
+
+withChainInfo :: (ChainConnectInfo -> NetworkId -> IO a) -> IO a
+withChainInfo action = do
+  chainInfo <- chainInfoFromEnv
+  networkId <- evaluateKontract chainInfo kGetNetworkId >>= throwFrameworkError
+  action chainInfo networkId
+
+printEnvelope :: HasTextEnvelope a => a -> IO ()
+printEnvelope script =
+  T.putStrLn $ T.decodeUtf8 $ prettyPrintJSON $ serialiseToTextEnvelope Nothing script

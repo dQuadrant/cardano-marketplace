@@ -7,12 +7,13 @@ module Test.TestStoryConfigurableMarket where
 import Test.Hspec
 import Test.Hspec.JUnit
 import Cardano.Kuber.Api
+import Cardano.Marketplace.Artifacts
 import System.Environment.Blank (getEnvDefault)
 import Cardano.Kuber.Data.Parsers
 import qualified Data.Text as T
 import System.Environment (getEnv)
 import Cardano.Marketplace.Common.TransactionUtils
-import Cardano.Api
+import Cardano.Api hiding (parseAssetName)
 import qualified Data.ByteString.Char8 as BS8
 import qualified Data.Set as Set
 import GHC.Conc
@@ -23,7 +24,6 @@ import qualified PlutusLedgerApi.V1.Scripts as P
 import qualified Debug.Trace as Debug
 import Test.Common
 import Plutus.Contracts.V2.MarketplaceConfig
-import Cardano.Api.Shelley (toShelleyAddr, toShelleyScriptHash, PlutusScript (..))
 import qualified PlutusTx.Builtins as BI
 import Data.Maybe (fromJust)
 import Cardano.Api (prettyPrintJSON)
@@ -53,11 +53,12 @@ makeConfigurableMarketSpecs testIdx tContext = do
   v3Vars <- makeVars
   v3VarsLazy <- makeVars
   v3VarsSuperLazy <- makeVars
-  addTagMetric tContext (TagMetric "Configurable Market" "V2" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ cmMarketScript v2Helper ))
-  addTagMetric tContext (TagMetric "Configurable Market" "V2 Super Lazy" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ cmMarketScript v2HelperSuperLazy ))
-  addTagMetric tContext (TagMetric "Configurable Market" "V3" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ cmMarketScript v3Helper ))
-  addTagMetric tContext (TagMetric "Configurable Market" "V3 Lazy" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ cmMarketScript v3HelperLazy ))
-  addTagMetric tContext (TagMetric "Configurable Market" "V3 Super Lazy" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ cmMarketScript v3HelperSuperLazy ))
+  let addMetric tag artifact = artifactScriptByteSize artifact >>= addTagMetric tContext . TagMetric "Configurable Market" tag "ScriptBytes" . show
+  addMetric "V2" ConfigurableMarketV2Artifact
+  addMetric "V2 Super Lazy" ConfigurableMarketV2SuperLazyArtifact
+  addMetric "V3" ConfigurableMarketV3Artifact
+  addMetric "V3 Lazy" ConfigurableMarketV3LazyArtifact
+  addMetric "V3 Super Lazy" ConfigurableMarketV3SuperLazyArtifact
 
   pure [
       afterAll
@@ -69,11 +70,11 @@ makeConfigurableMarketSpecs testIdx tContext = do
     , afterAll
         (\x -> collectReports  "Configurable Market" "V3" tContext)
         $ simpleMarketSpecs  (testIdx+2) "ConfigurableMarketV3 Flow" v3Helper tContext (pure  v3Vars)
-    , afterAll 
-        (\x -> collectReports  "Configurable Market" "V3 Lazy" tContext) 
+    , afterAll
+        (\x -> collectReports  "Configurable Market" "V3 Lazy" tContext)
         $ simpleMarketSpecs  (testIdx+3) "ConfigurableMarketV3Lazy Flow" v3HelperLazy tContext (pure  v3VarsLazy)
-    , afterAll 
-        (\x -> collectReports  "Configurable Market" "V3 Super Lazy" tContext) 
+    , afterAll
+        (\x -> collectReports  "Configurable Market" "V3 Super Lazy" tContext)
         $ simpleMarketSpecs  (testIdx+4) "ConfigurableMarketV3SuperLazy Flow" v3HelperSuperLazy tContext (pure  v3VarsSuperLazy)
     ]
 
@@ -84,7 +85,10 @@ simpleMarketSpecs testIndex scriptName marketHelper context@(TestContext chainIn
       treasuryAddr= walletAddr
 
       marketFee = 3_000_000
-      (mintedAsset,mintBuilder) = mintNativeAsset (getVerificationKey sKey) (AssetName $ BS8.pack "TestToken") 4
+      testTokenName = case (parseAssetName (T.pack "TestToken") :: Maybe AssetName) of
+        Just assetName -> assetName
+        Nothing -> error "Invalid test asset name"
+      (mintedAsset,mintBuilder) = mintNativeAsset (getVerificationKey sKey) testTokenName 4
       runTest_ index mRef str tb = do
         putStrLn $ (show testIndex ++ "." ++ show index ++" "++scriptName ++ " : " ++ show str)
         runTestContext_  context mRef str tb

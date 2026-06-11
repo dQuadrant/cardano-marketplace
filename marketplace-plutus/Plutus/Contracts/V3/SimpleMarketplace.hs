@@ -30,7 +30,7 @@ where
 
 import GHC.Generics (Generic)
 import PlutusTx.Prelude
-import Prelude(Show)
+import Prelude (Show)
 import qualified Prelude
 import  PlutusTx hiding( txOutDatum)
 import Data.Aeson (FromJSON, ToJSON)
@@ -39,7 +39,7 @@ import qualified Data.Bifunctor
 import qualified Data.ByteString.Short as SBS
 import qualified Data.ByteString.Lazy  as LBS
 import qualified PlutusTx.Builtins.Internal as BI
-import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV3)
+import Cardano.Api (PlutusScript (..), PlutusScriptV3, PlutusScriptVersion (PlutusScriptV3))
 import Codec.Serialise ( serialise )
 import PlutusLedgerApi.V3
 import PlutusLedgerApi.V1.Value
@@ -48,12 +48,18 @@ import PlutusLedgerApi.V3.Contexts
 
 {-# INLINABLE allScriptInputsCount #-}
 allScriptInputsCount:: [TxInInfo] ->Integer
-allScriptInputsCount inputs =
-    foldl (\c txOutTx-> c + countTxOut txOutTx) 0 inputs
+allScriptInputsCount [] = 0
+allScriptInputsCount (input:inputs) = countTxOut input + allScriptInputsCount inputs
   where
   countTxOut (TxInInfo _ (TxOut addr _ _ _)) = case addr of { Address cre m_sc -> case cre of
                                                               PubKeyCredential pkh -> 0
                                                               ScriptCredential vh -> 1  } 
+
+{-# INLINABLE memberPubKeyHash #-}
+memberPubKeyHash :: PubKeyHash -> [PubKeyHash] -> Bool
+memberPubKeyHash _ [] = False
+memberPubKeyHash needle (pkh:rest) =
+  if needle == pkh then True else memberPubKeyHash needle rest
 
 {-# INLINABLE constrArgs #-}
 constrArgs :: BuiltinData -> BI.BuiltinList BuiltinData
@@ -128,7 +134,7 @@ mkMarketSuperLazy ds@SimpleSale{sellerAddress,priceOfAsset} action allInputs all
     Just pkh -> case  action of
         Buy       -> traceIfFalse "Multiple script inputs" (allScriptInputsCount  allInputs == 1)  && 
                      traceIfFalse "Seller not paid" (assetClassValueOf   (valuePaidTo' pkh) adaAsset >= priceOfAsset)
-        Withdraw -> traceIfFalse "Seller Signature Missing" $ pkh `elem` signatures
+        Withdraw -> traceIfFalse "Seller Signature Missing" $ memberPubKeyHash pkh signatures
 
     where
       sellerPkh= case sellerAddress of 
@@ -138,13 +144,16 @@ mkMarketSuperLazy ds@SimpleSale{sellerAddress,priceOfAsset} action allInputs all
 
       adaAsset=AssetClass (adaSymbol,adaToken )
 
-      valuePaidTo' pkh' = foldMap(\(TxOut _ val _ _) -> val ) filteredOutputs
+      valuePaidTo' pkh' = sumValues filteredOutputs
         where
           filteredOutputs = mapMaybe (\x -> case x of 
             (TxOut addr _ _ _) -> case addr of 
               { Address cre m_sc -> case cre of
                 PubKeyCredential pkh -> if pkh == pkh' then Just x else Nothing
                 ScriptCredential vh -> Nothing }) allOutputs
+
+      sumValues [] = mempty
+      sumValues (TxOut _ val _ _ : rest) = val <> sumValues rest
 
 {-# INLINABLE mkWrappedMarket #-}
 mkWrappedMarket ::  BuiltinData -> BuiltinUnit

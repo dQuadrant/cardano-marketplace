@@ -2,6 +2,7 @@
 
 import Test.TestStorySimpleMarket (makeSimpleMarketSpecs)
 import Test.TestStoryConfigurableMarket  (makeConfigurableMarketSpecs)
+import Cardano.Marketplace.Artifacts (ensureArtifactsExist)
 import System.Environment (setEnv)
 import Test.Common (testContextFromEnv)
 import Test.Hspec (sequential)
@@ -33,9 +34,9 @@ main = do
     setEnv "JUNIT_OUTPUT_DIRECTORY" reportDir
     setEnv "JUNIT_SUITE_NAME" "Marketplace Scenario Test"
 
-
+    ensureArtifactsExist
     testContext <- testContextFromEnv
-    simpleMarketSpecs <-  makeSimpleMarketSpecs 1 testContext 
+    simpleMarketSpecs <-  makeSimpleMarketSpecs 1 testContext
     configurableMarketSpecs <- makeConfigurableMarketSpecs 3 testContext
 
     logFile <- openFile (reportDir ++ "/" ++ logFileName) WriteMode

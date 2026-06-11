@@ -11,8 +11,6 @@
 module Cardano.Marketplace.ConfigurableMarketplace where
 
 import Cardano.Api
-import Cardano.Api.Shelley (ProtocolParameters, ReferenceScript (ReferenceScriptNone), fromPlutusData, scriptDataToJsonDetailedSchema, toPlutusData, Address (ShelleyAddress))
-import qualified Cardano.Api.Shelley as Shelley
 import Cardano.Kuber.Api
 import Cardano.Kuber.Data.Parsers
 import Cardano.Kuber.Util
@@ -61,7 +59,7 @@ sellBuilder :: ConfigurableMarketHelper -> AddressInEra ConwayEra ->  Value -> I
 sellBuilder smHelper marketAddr saleItem cost  sellerAddr 
   = txPayToScriptWithData marketAddr saleItem (cmMakeSaleDatum smHelper sellerAddr cost)
 
-buyTokenBuilder ::  HasChainQueryAPI api => 
+buyTokenBuilder ::  (HasChainQueryAPI api, HasCardanoQueryApi api) => 
   ConfigurableMarketHelper ->
   Maybe TxIn -> 
   TxIn -> 
@@ -72,7 +70,7 @@ buyTokenBuilder mHelper refTxIn txin  feeInfo = do
   (tin, tout) <- resolveTxIn txin
   kWrapParser $ buyTokenBuilder' (cmMarketScript mHelper ) (cmBuyRedeemer mHelper )  netid refTxIn txin tout feeInfo
 
-withdrawTokenBuilder ::  HasChainQueryAPI api => ConfigurableMarketHelper -> Maybe TxIn -> TxIn  -> Kontract api w FrameworkError TxBuilder
+withdrawTokenBuilder ::  (HasChainQueryAPI api, HasCardanoQueryApi api) => ConfigurableMarketHelper -> Maybe TxIn -> TxIn  -> Kontract api w FrameworkError TxBuilder
 withdrawTokenBuilder mHelper refTxIn txin  = do
   netid<- kGetNetworkId
   (tin, tout) <- resolveTxIn txin

@@ -6,12 +6,13 @@ module Test.TestStorySimpleMarket(makeSimpleMarketSpecs) where
 import Test.Hspec
 import Test.Hspec.JUnit 
 import Cardano.Kuber.Api 
+import Cardano.Marketplace.Artifacts
 import System.Environment.Blank (getEnvDefault)
 import Cardano.Kuber.Data.Parsers
 import qualified Data.Text as T
 import System.Environment (getEnv)
 import Cardano.Marketplace.Common.TransactionUtils
-import Cardano.Api 
+import Cardano.Api hiding (parseAssetName)
 import qualified Data.ByteString.Char8 as BS8
 import qualified Data.Set as Set
 import GHC.Conc ( atomically, newTVarIO, readTVarIO, writeTVar, newTVar, TVar ) 
@@ -29,7 +30,7 @@ import qualified Data.Map as Map
 
 
 makeSimpleMarketSpecs :: Integer -> TestContext ChainConnectInfo -> IO [SpecWith ()]
-makeSimpleMarketSpecs start_index tContext = do 
+makeSimpleMarketSpecs start_index tContext = do
   let makeVars = do 
         saleVar <- newTVarIO Nothing
         refVar <- newTVarIO Nothing
@@ -42,27 +43,27 @@ makeSimpleMarketSpecs start_index tContext = do
   v3VarsLazy <- makeVars
   v3VarsSuperLazy <- makeVars
 
-
-  addTagMetric tContext (TagMetric "Simple Market" "V1" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ simpleMarketScript simpleMarketV1Helper ))
-  addTagMetric tContext (TagMetric "Simple Market" "V1 Super Lazy" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ simpleMarketScript simpleMarketV1HelperSuperLazy ))
-  addTagMetric tContext (TagMetric "Simple Market" "V2" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ simpleMarketScript simpleMarketV2Helper ))
-  addTagMetric tContext (TagMetric "Simple Market" "V2 Super Lazy" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ simpleMarketScript simpleMarketV2HelperSuperLazy ))
-  addTagMetric tContext (TagMetric "Simple Market" "V3" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ simpleMarketScript simpleMarketV3Helper ))
-  addTagMetric tContext (TagMetric "Simple Market" "V3 Lazy" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ simpleMarketScript simpleMarketV3HelperLazy ))
-  addTagMetric tContext (TagMetric "Simple Market" "V3 Super Lazy" "ScriptBytes" (show $ txScriptByteSize $ TxScriptPlutus $ simpleMarketScript simpleMarketV3HelperSuperLazy ))
+  let addMetric tag artifact = artifactScriptByteSize artifact >>= addTagMetric tContext . TagMetric "Simple Market" tag "ScriptBytes" . show
+  addMetric "V1" SimpleMarketV1Artifact
+  addMetric "V1 Super Lazy" SimpleMarketV1SuperLazyArtifact
+  addMetric "V2" SimpleMarketV2Artifact
+  addMetric "V2 Super Lazy" SimpleMarketV2SuperLazyArtifact
+  addMetric "V3" SimpleMarketV3Artifact
+  addMetric "V3 Lazy" SimpleMarketV3LazyArtifact
+  addMetric "V3 Super Lazy" SimpleMarketV3SuperLazyArtifact
 
   pure [
     afterAll
-        (\x -> collectReports  "Simple Market" "V1" tContext ) 
+        (\x -> collectReports  "Simple Market" "V1" tContext )
         $ simpleMarketSpecs "SimpleMarketV1 Flow" start_index simpleMarketV1Helper tContext (pure v1Vars)
     , afterAll
-        (\x -> collectReports  "Simple Market" "V1 Super Lazy" tContext ) 
+        (\x -> collectReports  "Simple Market" "V1 Super Lazy" tContext )
         $ simpleMarketSpecs "SimpleMarketV1SuperLazy Flow" (start_index + 1) simpleMarketV1HelperSuperLazy tContext (pure v1VarsSuperLazy)
     , afterAll
-        (\x -> collectReports  "Simple Market" "V2" tContext ) 
+        (\x -> collectReports  "Simple Market" "V2" tContext )
         $ simpleMarketSpecs "SimpleMarketV2 Flow" (start_index + 2) simpleMarketV2Helper tContext (pure v2Vars)
     , afterAll
-        (\x -> collectReports  "Simple Market" "V2 Super Lazy" tContext ) 
+        (\x -> collectReports  "Simple Market" "V2 Super Lazy" tContext )
         $ simpleMarketSpecs "SimpleMarketV2SuperLazy Flow" (start_index + 3) simpleMarketV2HelperSuperLazy tContext (pure v2VarsSuperLazy)
     , afterAll
         (\x -> collectReports  "Simple Market" "V3" tContext ) 
@@ -78,7 +79,10 @@ makeSimpleMarketSpecs start_index tContext = do
 simpleMarketSpecs:: String-> Integer -> SimpleMarketHelper ChainConnectInfo w -> TestContext ChainConnectInfo -> IO (TVar (Maybe TxId), TVar (Maybe TxId)) -> SpecWith ()
 simpleMarketSpecs scriptName testIndex marketHelper context@(TestContext chainInfo networkId sKey walletAddr _ _ _ )  ioAction =
   let 
-      (mintedAsset,mintBuilder) = mintNativeAsset (getVerificationKey sKey) (AssetName $ BS8.pack "TestToken") 4
+      testTokenName = case (parseAssetName (T.pack "TestToken") :: Maybe AssetName) of
+        Just assetName -> assetName
+        Nothing -> error "Invalid test asset name"
+      (mintedAsset,mintBuilder) = mintNativeAsset (getVerificationKey sKey) testTokenName 4
       runTest_ index mRef str tb = do 
         putStrLn $ (show testIndex ++ "." ++ show index ++" "++scriptName ++ " : " ++ show str)
         runTestContext_  context mRef str tb
@@ -142,4 +146,3 @@ simpleMarketSpecs scriptName testIndex marketHelper context@(TestContext chainIn
           let buyWithRefScriptBuilder = buyWithRefScript marketHelper
               buyTokenBuilder = buyWithRefScriptBuilder (TxIn saleTxId (TxIx 3)) (TxIn refUtxoId (TxIx 0))
           runTest_  7 Nothing "Buy with RefScript" buyTokenBuilder
-

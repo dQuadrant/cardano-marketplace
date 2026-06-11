@@ -11,7 +11,6 @@ import Statistics.Sample (mean, stdDev)
 import qualified Data.Vector as V
 import Cardano.Api
 import ParallelUtils
-import Cardano.Api.Shelley (Tx(ShelleyTx))
 import qualified Cardano.Ledger.Core as L
 import Control.Lens ( (^.) )
 import qualified Cardano.Ledger.Plutus as L
@@ -211,7 +210,7 @@ getTxMetrics tx = case tx of
     in TxMetrics {
           tmFee = L.unCoin $ ledgerTx ^. L.bodyTxL ^. L.feeTxBodyL
         , tmSize = fromIntegral $  BS.length  $ serialiseToCBOR tx
-        , tmSizeL =  ledgerTx ^. L.sizeTxF
+        , tmSizeL =  fromIntegral $ ledgerTx ^. L.sizeTxF
         , tmExUnit = eUnits
     }
 

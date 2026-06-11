@@ -38,7 +38,6 @@ import System.Environment (getEnv)
 import qualified Data.Aeson as A
 import qualified Data.Aeson.Text as A
 import Cardano.Api
-import Cardano.Api.Shelley (Address(..), toPlutusData)
 import qualified PlutusLedgerApi.V2 as PlutusV2
 import qualified PlutusLedgerApi.V3 as PlutusV3
 import Cardano.Kuber.Util (fromPlutusData, fromPlutusAddress)

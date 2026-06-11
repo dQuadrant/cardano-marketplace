@@ -3,12 +3,12 @@
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE NumericUnderscores #-}
 module Main where
-import Cardano.Api
+import Cardano.Api hiding (parseAssetName)
 import Cardano.Kuber.Api
 import System.Environment (getEnv, setEnv)
 import Cardano.Marketplace.Common.TransactionUtils (getSignKey, createReferenceScript, mintNativeAsset)
 import Cardano.Kuber.Util (skeyToAddrInEra, utxoSum, addressInEraToAddressAny)
-import Cardano.Kuber.Data.Parsers (parseAddress)
+import Cardano.Kuber.Data.Parsers (parseAddress, parseAssetName)
 import qualified System.Environment.Blank as Blank
 import qualified Data.Text as T
 import qualified Data.Set as Set
@@ -72,11 +72,9 @@ main= do
 
   chainInfo <- chainInfoFromEnv
   networkId <- evaluateKontract chainInfo  kGetNetworkId >>= throwFrameworkError
-  sKey <-  getEnv "SIGNKEY_FILE" >>= getSignKey
-  walletAddr <- Blank.getEnv "WALLET_ADDRESS" >>= (\case
-        Just addrStr -> parseAddress @ConwayEra $ T.pack addrStr
-        Nothing -> pure ( skeyToAddrInEra sKey networkId)
-      )
+  sKeyPath <- getEnv "SIGNKEY_FILE"
+  sKey <- getSignKey sKeyPath
+  walletAddr <- resolveWalletAddress networkId sKeyPath sKey
 
 
   let marketHelper = simpleMarketV2Helper
@@ -132,7 +130,7 @@ kWait results = do
 
 
 
-setupBenchBatch :: (HasChainQueryAPI api, HasKuberAPI api, HasSubmitApi api) => Integer -> SimpleMarketHelper api w -> TxIn  -> SigningKey PaymentKey ->
+setupBenchBatch :: (HasChainQueryAPI api, HasCardanoQueryApi api, HasKuberAPI api, HasSubmitApi api) => Integer -> SimpleMarketHelper api w -> TxIn  -> SigningKey PaymentKey ->
    AddressInEra ConwayEra -> Kontract api w FrameworkError (Kontract api w FrameworkError [Either FrameworkError BenchRun])
 setupBenchBatch  _batchNo marketHelper refScriptTxin sKey walletAddress   = do
   let walletCount ::Word32 = 10
@@ -145,7 +143,10 @@ setupBenchBatch  _batchNo marketHelper refScriptTxin sKey walletAddress   = do
       " buyers : " ++ show startIndex ++ "-" ++ show (startIndex + walletCount -1)
       ++ " sellers : " ++ show (startIndex + walletCount) ++ "-" ++ show (startIndex + walletCount * 2 -1)
   let
-      (mintedAsset, mintBuilder) = mintNativeAsset (getVerificationKey sKey) (AssetName $ BS8.pack "TestToken") (toInteger $  length sellers)
+      testTokenName = case (parseAssetName (T.pack "TestToken") :: Maybe AssetName) of
+        Just assetName -> assetName
+        Nothing -> error "Invalid test asset name"
+      (mintedAsset, mintBuilder) = mintNativeAsset (getVerificationKey sKey) testTokenName (toInteger $  length sellers)
 
   let fundWallet =
         createReferenceScript (simpleMarketScript marketHelper) (plutusScriptAddr  (simpleMarketScript marketHelper) networkId )
@@ -177,3 +178,9 @@ setupBenchBatch  _batchNo marketHelper refScriptTxin sKey walletAddress   = do
           pure result
       )
       (\e -> pure result)
+
+resolveWalletAddress :: NetworkId -> FilePath -> SigningKey PaymentKey -> IO (AddressInEra ConwayEra)
+resolveWalletAddress networkId sKeyPath sKey =
+  Blank.getEnv "WALLET_ADDRESS" >>= \case
+    Just addrStr -> parseAddress @ConwayEra $ T.pack addrStr
+    Nothing -> pure $ skeyToAddrInEra sKey networkId

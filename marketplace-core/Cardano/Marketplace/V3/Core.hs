@@ -10,11 +10,11 @@
 module Cardano.Marketplace.V3.Core where
 
 
+import Cardano.Marketplace.Artifacts
 import Cardano.Marketplace.SimpleMarketplace
 import Cardano.Api
-import Cardano.Api.Shelley
 import Cardano.Kuber.Api
-import Plutus.Contracts.V3.SimpleMarketplace (simpleMarketplacePlutusV3, simpleMarketplacePlutusV3Lazy, simpleMarketplacePlutusV3SuperLazy, SimpleSale (SimpleSale), MarketRedeemer (Withdraw, Buy))
+import Plutus.Contracts.V3.SimpleMarketplace (SimpleSale (SimpleSale), MarketRedeemer (Withdraw, Buy))
 import PlutusTx
 import Cardano.Kuber.Util (toPlutusAddress, addrInEraToPlutusAddress)
 import Cardano.Marketplace.ConfigurableMarketplace
@@ -23,6 +23,7 @@ import qualified Plutus.Contracts.V3.ConfigurableMarketplace as V3ConfigurableMa
 import qualified Plutus.Contracts.V3.MarketplaceConfig as V3MarketConfig
 import qualified PlutusLedgerApi.V3 as PlutusV3
 import Cardano.Marketplace.Common.TransactionUtils (resolveTxIn)
+import GHC.IO (unsafePerformIO)
 
 simpleMarketV3Helper' :: (HasChainQueryAPI api) => PlutusScript PlutusScriptV3 -> SimpleMarketHelper api w
 simpleMarketV3Helper' script = SimpleMarketHelper {
@@ -64,19 +65,19 @@ withdrawFromMarketWithRefScript withdrawTxIn refTxIn = do
   kWrapParser $ Right $ withdrawFromMarketWithRefScript' tin refTxIn tout withdrawRedeemer 
 
 simpleMarketV3Helper :: SimpleMarketHelper ChainConnectInfo w 
-simpleMarketV3Helper = simpleMarketV3Helper' simpleMarketplacePlutusV3
+simpleMarketV3Helper = unsafePerformIO $ simpleMarketV3Helper' <$> loadSimpleMarketV3
 
 simpleMarketV3HelperLazy :: SimpleMarketHelper ChainConnectInfo w 
-simpleMarketV3HelperLazy = simpleMarketV3Helper' simpleMarketplacePlutusV3Lazy
+simpleMarketV3HelperLazy = unsafePerformIO $ simpleMarketV3Helper' <$> loadSimpleMarketV3Lazy
 
 simpleMarketV3HelperSuperLazy :: SimpleMarketHelper ChainConnectInfo w 
-simpleMarketV3HelperSuperLazy = simpleMarketV3Helper' simpleMarketplacePlutusV3SuperLazy
+simpleMarketV3HelperSuperLazy = unsafePerformIO $ simpleMarketV3Helper' <$> loadSimpleMarketV3SuperLazy
 
 makeConfigurableMarketV3Helper' :: 
   AddressInEra era -> 
   Integer -> 
-  Script PlutusScriptV3 -> 
-  (V3ConfigurableMarketplace.MarketConstructor -> PlutusScript PlutusScriptV3) -> 
+  PlutusScript PlutusScriptV3 ->
+  PlutusScript PlutusScriptV3 ->
   ConfigurableMarketHelper
 makeConfigurableMarketV3Helper' operatorAddr fee marketConfigScript configurableMarketScript= 
   let operatorAddress = addrInEraToPlutusAddress operatorAddr
@@ -87,7 +88,7 @@ makeConfigurableMarketV3Helper' operatorAddr fee marketConfigScript configurable
       mConfigScript = toTxPlutusScript marketConfigScript
     in
     ConfigurableMarketHelper {
-        cmMarketScript = toTxPlutusScript $ configurableMarketScript marketConstructor 
+        cmMarketScript = toTxPlutusScript configurableMarketScript
       , cmConfigScript = mConfigScript
       , cmMakeSaleDatum = createV3SaleDatum
       , cmWithdrawRedeemer = unsafeHashableScriptData $ fromPlutusData$ toData V3ConfigurableMarketplace.Withdraw
@@ -97,21 +98,24 @@ makeConfigurableMarketV3Helper' operatorAddr fee marketConfigScript configurable
 
 makeConfigurableMarketV3Helper :: AddressInEra era -> Integer -> ConfigurableMarketHelper
 makeConfigurableMarketV3Helper operatorAddr fee = 
-  makeConfigurableMarketV3Helper' operatorAddr fee 
-  V3MarketConfig.marketConfigPlutusScript 
-  V3ConfigurableMarketplace.configurableMarketPlutusScript
+  unsafePerformIO $ do
+    configScript <- loadMarketConfigV3
+    marketScript <- loadConfigurableMarketV3
+    pure $ makeConfigurableMarketV3Helper' operatorAddr fee configScript marketScript
 
 makeConfigurableMarketV3HelperLazy :: AddressInEra era -> Integer -> ConfigurableMarketHelper
 makeConfigurableMarketV3HelperLazy operatorAddr fee = 
-  makeConfigurableMarketV3Helper' operatorAddr fee 
-  V3MarketConfig.marketConfigPlutusScriptLazy 
-  V3ConfigurableMarketplace.configurableMarketPlutusScriptLazy
+  unsafePerformIO $ do
+    configScript <- loadMarketConfigV3Lazy
+    marketScript <- loadConfigurableMarketV3Lazy
+    pure $ makeConfigurableMarketV3Helper' operatorAddr fee configScript marketScript
 
 makeConfigurableMarketV3HelperSuperLazy :: AddressInEra era -> Integer -> ConfigurableMarketHelper
 makeConfigurableMarketV3HelperSuperLazy operatorAddr fee = 
-  makeConfigurableMarketV3Helper' operatorAddr fee 
-  V3MarketConfig.marketConfigPlutusScriptSuperLazy 
-  V3ConfigurableMarketplace.configurableMarketPlutusScriptSuperLazy  
+  unsafePerformIO $ do
+    configScript <- loadMarketConfigV3SuperLazy
+    marketScript <- loadConfigurableMarketV3SuperLazy
+    pure $ makeConfigurableMarketV3Helper' operatorAddr fee configScript marketScript
 
 createV3SaleDatum :: AddressInEra ConwayEra -> Integer -> HashableScriptData
 createV3SaleDatum sellerAddr costOfAsset =

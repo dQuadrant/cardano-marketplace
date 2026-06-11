@@ -6,7 +6,6 @@
 module Test.Common where
 import Cardano.Kuber.Api
 import Cardano.Api
-import Cardano.Api.Shelley
 import qualified Cardano.Ledger.Shelley.Core as L
 import Control.Lens ((^.))
 import qualified Cardano.Ledger.Alonzo.TxWits as L
@@ -40,11 +39,9 @@ testContextFromEnv :: IO (TestContext ChainConnectInfo)
 testContextFromEnv = do
   chainInfo <- chainInfoFromEnv
   networkId <- evaluateKontract chainInfo  kGetNetworkId >>= throwFrameworkError
-  sKey <-  getEnv "SIGNKEY_FILE" >>= getSignKey
-  walletAddr <- Blank.getEnv "WALLET_ADDRESS" >>= (\case
-        Just addrStr -> parseAddress $ T.pack addrStr
-        Nothing -> pure ( skeyToAddrInEra sKey networkId)
-      )
+  sKeyPath <- getEnv "SIGNKEY_FILE"
+  sKey <- getSignKey sKeyPath
+  walletAddr <- resolveWalletAddress networkId sKey
 
   walletUtxo :: UTxO ConwayEra <- evaluateKontract chainInfo (kQueryUtxoByAddress $ Set.singleton (addressInEraToAddressAny walletAddr)) >>= throwFrameworkError
   putStrLn $ "WalletAddress  : " ++ T.unpack (serialiseAddress walletAddr)
@@ -62,6 +59,12 @@ testContextFromEnv = do
     , tcTempReport = tempreport
     , tcTagMetrics = tagMetrics
   }
+
+resolveWalletAddress :: NetworkId -> SigningKey PaymentKey -> IO (AddressInEra ConwayEra)
+resolveWalletAddress networkId sKey =
+  Blank.getEnv "WALLET_ADDRESS" >>= \case
+    Just addrStr -> parseAddress $ T.pack addrStr
+    Nothing -> pure $ skeyToAddrInEra sKey networkId
 
 readSaleAndRefScriptVar ::  (TVar (Maybe TxId),TVar (Maybe TxId)) -> IO  ( TxId,TxId)
 readSaleAndRefScriptVar (a,b) = do
@@ -148,12 +151,11 @@ performTransactionAndReport' action walletKontract builderKontract = do
     )
     errorHandler
 
-  let txEnvelope =  serialiseTxLedgerCddl ShelleyBasedEraConway tx
   liftIO $ do
-    putStrLn $ action ++ " Tx submitted : " ++ (BS8.unpack $  prettyPrintJSON txEnvelope)
+    putStrLn $ action ++ " Tx submitted : " ++ getTxIdFromTx tx
     reportExUnitsandFee tx
 
-  waitTxConfirmation tx 180
+  waitTxConfirmation tx 300
   liftIO $ do putStrLn $ action ++ " Tx Confirmed: " ++ (show $ getTxId (getTxBody tx))
   pure (tx)
 
@@ -197,12 +199,13 @@ waitTxConfirmation tx totalWaitSecs =
     let txId = getTxId$ getTxBody tx
     in waitTxId txId  totalWaitSecs
   where
+    txIns txId = Set.fromList [TxIn txId (TxIx ix) | ix <- [0 .. 20]]
     waitTxId txId remainingSecs =
       if remainingSecs < 0
         then kError TxSubmissionError $ "Transaction not confirmed after  " ++ show totalWaitSecs ++ " secs"
         else do
-          (UTxO uMap):: UTxO ConwayEra <- kQueryUtxoByTxin $  Set.singleton (TxIn txId (TxIx 0))
-          liftIO $ Control.threadDelay 0
+          (UTxO uMap):: UTxO ConwayEra <- kQueryUtxoByTxin $ txIns txId
+          liftIO $ Control.threadDelay 2_000_000
           case Map.toList uMap of
             [] -> waitTxId txId (remainingSecs - 2)
             _ -> pure ()

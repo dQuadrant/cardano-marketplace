@@ -2,7 +2,6 @@
 module Test.Reporting
 where
 import Cardano.Api
-import Cardano.Api.Shelley
 import Data.List (nub, groupBy)
 import GHC.Conc (readTVar, atomically, writeTVar, readTVarIO)
 import qualified Cardano.Ledger.Shelley.Core as L
@@ -16,6 +15,7 @@ import Test.TestContext
 import qualified Debug.Trace as Debug
 import Data.Map (Map)
 import Data.Foldable (find)
+import Control.Exception (SomeException, try, evaluate)
 
 collectReports:: String -> String -> TestContext a -> IO ()
 collectReports testGroup  partition  context =
@@ -30,10 +30,26 @@ collectReports testGroup  partition  context =
 
 addTagMetric :: TestContext a ->  TagMetric -> IO ()
 addTagMetric tc metric = do
+  safeMetric <- sanitizeTagMetric metric
   let metricVar = tcTagMetrics tc
   atomically $ do
     metrics <- readTVar metricVar
-    writeTVar metricVar (metrics ++ [metric])
+    writeTVar metricVar (metrics ++ [safeMetric])
+
+sanitizeTagMetric :: TagMetric -> IO TagMetric
+sanitizeTagMetric metric = do
+  rendered <- (try $ do
+    let value = tmMetric metric
+    _ <- evaluate (length value)
+    pure value
+    ) :: IO (Either SomeException String)
+  pure $ case rendered of
+    Right value -> metric { tmMetric = value }
+    Left err ->
+      metric
+        { tmMetric =
+            "unavailable (" ++ show err ++ ")"
+        }
 
 
 getTxMetrics :: Tx ConwayEra -> TxMetrics
@@ -51,7 +67,7 @@ getTxMetrics tx = case tx of
     in TxMetrics {
           tmFee = L.unCoin $ ledgerTx ^. L.bodyTxL ^. L.feeTxBodyL
         , tmSize = fromIntegral $  BS.length  $ serialiseToCBOR tx
-        , tmSizeL =  ledgerTx ^. L.sizeTxF
+        , tmSizeL =  fromIntegral $ ledgerTx ^. L.sizeTxF
         , tmExUnit = eUnits
     }
 
@@ -68,8 +84,22 @@ writeReports :: TestContext a -> FilePath -> IO ()
 writeReports context filePath = do
   reports <- readTVarIO (tcReports context)
   tagMetrics <- readTVarIO (tcTagMetrics context)
-  let reportLines = renderReports reports tagMetrics
-  writeFile filePath (unlines reportLines)
+  result <- (try $ do
+    let reportLines = renderReports reports tagMetrics
+    let rendered = unlines reportLines
+    _ <- evaluate (length rendered)
+    writeFile filePath rendered
+    pure ()
+      ) :: IO (Either SomeException ())
+  case result of
+    Right () -> pure ()
+    Left err ->
+      writeFile filePath $ unlines
+        [ "# Test Transaction Report"
+        , ""
+        , "Report generation failed:"
+        , show err
+        ]
 
 renderReports :: [TestReport] -> [TagMetric] -> [String]
 renderReports testReports tagMetrics=
@@ -125,7 +155,7 @@ renderGroupedReports groupName testReports =
 
    
       ["\n<table border=\"1\">"]
-      <> tableHeader (Debug.trace ("Tags:"<> show tags) tags)
+      <> tableHeader tags
       <>(
           concat $ map (\testName ->
             renderReportRow tags testName  (map testDetailMetric (lookupStrict  testName testsByName))
@@ -184,7 +214,7 @@ renderReportRow orderedTagList testName results =
       getReport' f  _  [] = []
       getReport' f Nothing  (tag:remainingTag) =
           case Map.lookup tag resultMap of
-              Nothing ->  Debug.trace ("Lookup " ++  tag ++" "++ show (Map.keys resultMap) ) ("<td>" ++  "-"  ++ "</td>") : getReport' f Nothing   remainingTag
+              Nothing ->  ("<td>" ++  "-"  ++ "</td>") : getReport' f Nothing   remainingTag
               Just metric->  let
                   value = f metric
                 in ("<td>" ++  showNum value  ++ "</td>") : getReport' f (Just value)  remainingTag

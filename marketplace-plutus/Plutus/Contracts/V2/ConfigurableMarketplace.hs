@@ -17,13 +17,13 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE ViewPatterns #-}
-{-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:target-version=1.0.0 #-}
+{-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:target-version=1.1.0 #-}
 
 module Plutus.Contracts.V2.ConfigurableMarketplace where
 
 import GHC.Generics (Generic)
 import PlutusTx.Prelude
-import Prelude(Show )
+import Prelude (Show)
 import qualified Prelude
 import  PlutusTx hiding( txOutDatum)
 import Data.Aeson (FromJSON, ToJSON)
@@ -31,41 +31,45 @@ import qualified PlutusTx.AssocMap as AssocMap
 import qualified Data.Bifunctor
 import qualified Data.ByteString.Short as SBS
 import qualified Data.ByteString.Lazy  as LBS
-import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV2)
+import Cardano.Api (PlutusScript (..), PlutusScriptV2, PlutusScriptVersion (PlutusScriptV2))
 import Codec.Serialise ( serialise )
 import Plutus.Contracts.V2.MarketplaceConfig (MarketConfig(..))
-import Cardano.Api (IsCardanoEra,BabbageEra,NetworkId, AddressInEra, ShelleyAddr, BabbageEra, Script (PlutusScript), PlutusScriptVersion (PlutusScriptV2), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress)
-import qualified Cardano.Api.Shelley
+import Cardano.Api (IsCardanoEra,BabbageEra,NetworkId, AddressInEra, ShelleyAddr, BabbageEra, Script (PlutusScript), PlutusScriptVersion (PlutusScriptV2), PlutusScript (PlutusScriptSerialised), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress)
 import qualified PlutusTx.Builtins.Internal as BI
 import PlutusTx.Builtins (decodeUtf8)
 import PlutusLedgerApi.V2
-import PlutusCore.Version (plcVersion100)
+import PlutusCore.Version (plcVersion110)
 import PlutusLedgerApi.V1.Value
 import PlutusLedgerApi.V2.Contexts
 import Cardano.Api (ShelleyBasedEra(ShelleyBasedEraConway))
 import Cardano.Api (ConwayEra)
 import PlutusTx.Prelude (BuiltinUnit)
-import Cardano.Ledger.Alonzo.TxBody (inputs', outputs')
 
 
 
 {-# INLINABLE allScriptInputsCount #-}
 allScriptInputsCount:: [TxInInfo] ->Integer
-allScriptInputsCount inputs =
-    foldl (\c txOutTx-> c + countTxOut txOutTx) 0 inputs
+allScriptInputsCount [] = 0
+allScriptInputsCount (input:inputs) = countTxOut input + allScriptInputsCount inputs
   where
   countTxOut (TxInInfo _ (TxOut addr _ _ _)) = case addr of { Address cre m_sc -> case cre of
                                                               PubKeyCredential pkh -> 0
                                                               ScriptCredential vh -> 1  }
+
+{-# INLINABLE memberPubKeyHash #-}
+memberPubKeyHash :: PubKeyHash -> [PubKeyHash] -> Bool
+memberPubKeyHash _ [] = False
+memberPubKeyHash needle (pkh:rest) =
+  if needle == pkh then True else memberPubKeyHash needle rest
 {-# INLINABLE getConfigFromInfo #-}
-getConfigFromInfo :: ScriptHash -> [TxInInfo]  -> MarketConfig
+getConfigFromInfo :: BuiltinByteString -> [TxInInfo]  -> MarketConfig
 getConfigFromInfo configScriptValHash refInputs = findRightDatum refInputs
   where
     findRightDatum [] =traceError "ConfigurableMarket: Missing referenceInput data"
     findRightDatum (TxInInfo _ (TxOut (Address cre m_sc) _ (OutputDatum (Datum d)) _):other) =
       case cre of
           PubKeyCredential pkh -> findRightDatum other
-          ScriptCredential vh ->  if  vh == configScriptValHash
+          ScriptCredential (ScriptHash vh) ->  if  vh == configScriptValHash
                                     then ( case fromBuiltinData  d of
                                             Just bData  -> bData
                                             _       -> traceError "ConfigurableMarket: Invalid reference configData"
@@ -90,9 +94,8 @@ data MarketRedeemer =  Buy | Withdraw
 PlutusTx.makeIsDataIndexed ''MarketRedeemer [('Buy, 0), ('Withdraw,1)]
 
 data MarketConstructor =MarketConstructor {
-  configValidatorytHash :: ScriptHash
+  configValidatorytHash :: BuiltinByteString
 }
-PlutusTx.makeLift  ''MarketConstructor
 
 data SimpleSale=SimpleSale{
     sellerAddress:: Address, -- The main seller Note that we are using address 
@@ -103,8 +106,8 @@ data SimpleSale=SimpleSale{
 PlutusTx.makeIsDataIndexed ''SimpleSale [('SimpleSale, 0)]
 
 {-# INLINABLE mkConfigurableMarket #-}
-mkConfigurableMarket   :: MarketConstructor -> SimpleSale   -> MarketRedeemer -> ScriptContext -> Bool
-mkConfigurableMarket  MarketConstructor{configValidatorytHash} ds@SimpleSale{sellerAddress,priceOfAsset}  action ctx =
+mkConfigurableMarket   :: BuiltinByteString -> SimpleSale   -> MarketRedeemer -> ScriptContext -> Bool
+mkConfigurableMarket  configValidatorytHash ds@SimpleSale{sellerAddress,priceOfAsset}  action ctx =
     case  action of
         Buy       -> traceIfFalse "ConfigurableMarket: Multiple script inputs" (allScriptInputsCount (txInfoInputs info) == 1)  &&
                      traceIfFalse "ConfigurableMarket: Seller not paid" (assetClassValueOf   (valuePaidTo info sellerPkh) adaAsset >= priceOfAsset) &&
@@ -122,7 +125,7 @@ mkConfigurableMarket  MarketConstructor{configValidatorytHash} ds@SimpleSale{sel
       adaAsset=AssetClass (adaSymbol,adaToken )
 
 {-# INLINABLE mkConfigurableMarketSuperLazy #-}
-mkConfigurableMarketSuperLazy :: MarketConstructor
+mkConfigurableMarketSuperLazy :: BuiltinByteString
   -> SimpleSale
   -> MarketRedeemer
   -> [TxInInfo]
@@ -131,7 +134,7 @@ mkConfigurableMarketSuperLazy :: MarketConstructor
   -> [PubKeyHash]
   -> Bool
 mkConfigurableMarketSuperLazy 
-  MarketConstructor{configValidatorytHash} 
+  configValidatorytHash 
   ds@SimpleSale{sellerAddress,priceOfAsset} 
   action 
   allInputs 
@@ -142,7 +145,7 @@ mkConfigurableMarketSuperLazy
         Buy       -> traceIfFalse "ConfigurableMarket: Multiple script inputs" (allScriptInputsCount allInputs == 1)  &&
                      traceIfFalse "ConfigurableMarket: Seller not paid" (assetClassValueOf   (valuePaidTo' sellerPkh) adaAsset >= priceOfAsset) &&
                      traceIfFalse "ConfigurableMarket: Market fee not paid" (assetClassValueOf (valuePaidTo' feePkh ) adaAsset >= fee )
-        Withdraw -> traceIfFalse "ConfigurableMarket: Seller Signature Missing" $ sellerPkh `elem` signatures
+        Withdraw -> traceIfFalse "ConfigurableMarket: Seller Signature Missing" $ memberPubKeyHash sellerPkh signatures
 
     where
       (MarketConfig _ feeAddr fee)  = getConfigFromInfo configValidatorytHash referenceInputs
@@ -152,7 +155,7 @@ mkConfigurableMarketSuperLazy
       sellerPkh = toPkh sellerAddress "ConfigurableMarket: Invalid sellerAddr"
       feePkh = toPkh feeAddr "ConfigurableMarket: Invalid operatorAddr"
       adaAsset=AssetClass (adaSymbol,adaToken )
-      valuePaidTo' pkh' = foldMap(\(TxOut _ val _ _) -> val ) filteredOutputs
+      valuePaidTo' pkh' = sumValues filteredOutputs
         where
           filteredOutputs = mapMaybe (\x -> case x of 
             (TxOut addr _ _ _) -> case addr of 
@@ -160,20 +163,23 @@ mkConfigurableMarketSuperLazy
                 PubKeyCredential pkh -> if pkh == pkh' then Just x else Nothing
                 ScriptCredential vh -> Nothing }) allOutputs
 
+      sumValues [] = mempty
+      sumValues (TxOut _ val _ _ : rest) = val <> sumValues rest
+
 {-# INLINABLE mkWrappedConfigurableMarket #-}
-mkWrappedConfigurableMarket :: MarketConstructor ->  BuiltinData -> BuiltinData -> BuiltinData -> BuiltinUnit
-mkWrappedConfigurableMarket constructor d r c = 
+mkWrappedConfigurableMarket :: BuiltinByteString ->  BuiltinData -> BuiltinData -> BuiltinData -> BuiltinUnit
+mkWrappedConfigurableMarket configValidatorytHash d r c = 
   check $ mkConfigurableMarket 
-  constructor 
+  configValidatorytHash
   (parseData d "ConfigurableMarket: Invalid data") 
   (parseData r "ConfigurableMarket: Invalid redeemer") 
   (unsafeFromBuiltinData c)
 
 {-# INLINABLE mkWrappedConfigurableMarketSuperLazy #-}
-mkWrappedConfigurableMarketSuperLazy :: MarketConstructor ->  BuiltinData -> BuiltinData -> BuiltinData -> BuiltinUnit
-mkWrappedConfigurableMarketSuperLazy constructor d r c = 
+mkWrappedConfigurableMarketSuperLazy :: BuiltinByteString ->  BuiltinData -> BuiltinData -> BuiltinData -> BuiltinUnit
+mkWrappedConfigurableMarketSuperLazy configValidatorytHash d r c = 
   check $ mkConfigurableMarketSuperLazy 
-    constructor 
+    configValidatorytHash
     (parseData d "ConfigurableMarket: Invalid data") 
     (parseData r "ConfigurableMarket: Invalid redeemer") 
     inputs
@@ -205,20 +211,20 @@ mkWrappedConfigurableMarketSuperLazy constructor d r c =
 
 configurableMarketValidator constructor = 
   $$(PlutusTx.compile [|| mkWrappedConfigurableMarket ||])
-    `unsafeApplyCode` PlutusTx.liftCode plcVersion100 constructor
+    `unsafeApplyCode` PlutusTx.liftCode plcVersion110 (configValidatorytHash constructor)
 
 configurableMarketValidatorSuperLazy constructor = 
   $$(PlutusTx.compile [|| mkWrappedConfigurableMarketSuperLazy ||])
-    `unsafeApplyCode` PlutusTx.liftCode plcVersion100 constructor
+    `unsafeApplyCode` PlutusTx.liftCode plcVersion110 (configValidatorytHash constructor)
 
 configurableMarketPlutusScript :: MarketConstructor -> PlutusScript PlutusScriptV2
 configurableMarketPlutusScript  constructor = 
-  Cardano.Api.Shelley.PlutusScriptSerialised $ 
+  PlutusScriptSerialised $
   serialiseCompiledCode $ 
   configurableMarketValidator constructor
 
 configurableMarketPlutusScriptSuperLazy :: MarketConstructor -> PlutusScript PlutusScriptV2
 configurableMarketPlutusScriptSuperLazy constructor = 
-  Cardano.Api.Shelley.PlutusScriptSerialised $ 
+  PlutusScriptSerialised $
   serialiseCompiledCode $ 
   configurableMarketValidatorSuperLazy constructor

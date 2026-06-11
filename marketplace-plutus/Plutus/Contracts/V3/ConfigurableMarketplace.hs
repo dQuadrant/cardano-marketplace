@@ -23,7 +23,7 @@ module Plutus.Contracts.V3.ConfigurableMarketplace where
 
 import GHC.Generics (Generic)
 import PlutusTx.Prelude
-import Prelude(Show )
+import Prelude (Show)
 import qualified Prelude
 import  PlutusTx hiding( txOutDatum)
 import Data.Aeson (FromJSON, ToJSON)
@@ -31,10 +31,9 @@ import qualified PlutusTx.AssocMap as AssocMap
 import qualified Data.Bifunctor
 import qualified Data.ByteString.Short as SBS
 import qualified Data.ByteString.Lazy  as LBS
-import Cardano.Api.Shelley (PlutusScript (..), PlutusScriptV3)
+import Cardano.Api (PlutusScript (..), PlutusScriptV3, PlutusScriptVersion (PlutusScriptV3))
 import Codec.Serialise ( serialise )
-import Cardano.Api (IsCardanoEra,BabbageEra,NetworkId, AddressInEra, ShelleyAddr, BabbageEra, Script (PlutusScript), PlutusScriptVersion (PlutusScriptV3), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress, ShelleyBasedEra (..))
-import qualified Cardano.Api.Shelley
+import Cardano.Api (IsCardanoEra,BabbageEra,NetworkId, AddressInEra, ShelleyAddr, BabbageEra, Script (PlutusScript), PlutusScriptVersion (PlutusScriptV3), PlutusScript (PlutusScriptSerialised), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress, ShelleyBasedEra (..))
 import PlutusTx.Builtins (decodeUtf8)
 import PlutusLedgerApi.V3
 import PlutusCore.Version (plcVersion110)
@@ -49,12 +48,18 @@ import Cardano.Api (ConwayEra)
 
 {-# INLINABLE allScriptInputsCount #-}
 allScriptInputsCount:: [TxInInfo] ->Integer
-allScriptInputsCount inputs =
-    foldl (\c txOutTx-> c + countTxOut txOutTx) 0 inputs
+allScriptInputsCount [] = 0
+allScriptInputsCount (input:inputs) = countTxOut input + allScriptInputsCount inputs
   where
   countTxOut (TxInInfo _ (TxOut addr _ _ _)) = case addr of { Address cre m_sc -> case cre of
                                                               PubKeyCredential pkh -> 0
                                                               ScriptCredential vh -> 1  }
+
+{-# INLINABLE memberPubKeyHash #-}
+memberPubKeyHash :: PubKeyHash -> [PubKeyHash] -> Bool
+memberPubKeyHash _ [] = False
+memberPubKeyHash needle (pkh:rest) =
+  if needle == pkh then True else memberPubKeyHash needle rest
 {-# INLINABLE getConfigFromInfo #-}
 getConfigFromInfo :: ScriptHash -> [TxInInfo]  -> MarketConfig
 getConfigFromInfo configScriptValHash refInputs = findRightDatum refInputs
@@ -164,7 +169,7 @@ mkConfigurableMarketSuperLazy MarketConstructor{configValidatorytHash} ds@Simple
         Buy       -> traceIfFalse "ConfigurableMarket: Multiple script inputs" (allScriptInputsCount  (allInputs) == 1)  &&
                      traceIfFalse "ConfigurableMarket: Seller not paid" (assetClassValueOf (valuePaidTo' sellerPkh) adaAsset >= priceOfAsset) &&
                      traceIfFalse "ConfigurableMarket: Market fee not paid" (assetClassValueOf (valuePaidTo' feePkh) adaAsset >= fee )
-        Withdraw -> traceIfFalse "ConfigurableMarket: Seller Signature Missing" $ (sellerPkh `elem` signatures)
+        Withdraw -> traceIfFalse "ConfigurableMarket: Seller Signature Missing" $ memberPubKeyHash sellerPkh signatures
 
     where
       (MarketConfig _ feeAddr fee)  = getConfigFromInfo configValidatorytHash referenceInputs
@@ -184,13 +189,16 @@ mkConfigurableMarketSuperLazy MarketConstructor{configValidatorytHash} ds@Simple
       
       adaAsset= AssetClass (adaSymbol,adaToken )
 
-      valuePaidTo' pkh' = foldMap(\(TxOut _ val _ _) -> val ) filteredOutputs
+      valuePaidTo' pkh' = sumValues filteredOutputs
         where
           filteredOutputs = mapMaybe (\x -> case x of 
             (TxOut addr _ _ _) -> case addr of 
               { Address cre m_sc -> case cre of
                 PubKeyCredential pkh -> if pkh == pkh' then Just x else Nothing
                 ScriptCredential vh -> Nothing }) allOutputs
+
+      sumValues [] = mempty
+      sumValues (TxOut _ val _ _ : rest) = val <> sumValues rest
 
 {-# INLINABLE mkWrappedConfigurableMarketLazy #-}
 mkWrappedConfigurableMarketLazy :: MarketConstructor -> BuiltinData -> BuiltinUnit
@@ -287,10 +295,10 @@ configurableMarketScriptLazy constructor  =  serialiseCompiledCode   $ configura
 configurableMarketScriptSuperLazy constructor = serialiseCompiledCode   $ configurableMarketValidatorSuperLazy constructor
 
 configurableMarketPlutusScript :: MarketConstructor -> PlutusScript PlutusScriptV3
-configurableMarketPlutusScript  constructor = Cardano.Api.Shelley.PlutusScriptSerialised $ (configurableMarketScript  constructor) 
+configurableMarketPlutusScript  constructor = PlutusScriptSerialised $ configurableMarketScript constructor
 
 configurableMarketPlutusScriptLazy :: MarketConstructor -> PlutusScript PlutusScriptV3
-configurableMarketPlutusScriptLazy  constructor = Cardano.Api.Shelley.PlutusScriptSerialised $ (configurableMarketScriptLazy  constructor) 
+configurableMarketPlutusScriptLazy  constructor = PlutusScriptSerialised $ configurableMarketScriptLazy constructor
 
 configurableMarketPlutusScriptSuperLazy :: MarketConstructor -> PlutusScript PlutusScriptV3
-configurableMarketPlutusScriptSuperLazy constructor = Cardano.Api.Shelley.PlutusScriptSerialised $ (configurableMarketScriptSuperLazy  constructor)
+configurableMarketPlutusScriptSuperLazy constructor = PlutusScriptSerialised $ configurableMarketScriptSuperLazy constructor

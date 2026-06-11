@@ -17,6 +17,7 @@
 {-# LANGUAGE ConstraintKinds #-}
 {-# LANGUAGE AllowAmbiguousTypes #-}
 {-# LANGUAGE ViewPatterns #-}
+{-# OPTIONS_GHC -fplugin-opt PlutusTx.Plugin:target-version=1.1.0 #-}
 module Plutus.Contracts.V2.MarketplaceConfig(
   marketConfigPlutusScript,
   marketConfigPlutusScriptSuperLazy,
@@ -27,7 +28,7 @@ where
 
 import GHC.Generics (Generic)
 import PlutusTx.Prelude
-import Prelude(Show)
+import Prelude (Show)
 import qualified Prelude
 import  PlutusTx hiding( txOutDatum)
 import Data.Aeson (FromJSON, ToJSON)
@@ -36,8 +37,7 @@ import qualified Data.Bifunctor
 import qualified Data.ByteString.Short as SBS
 import qualified Data.ByteString.Lazy  as LBS
 import Codec.Serialise ( serialise )
-import Cardano.Api (IsCardanoEra,BabbageEra,NetworkId, AddressInEra, ShelleyAddr, BabbageEra, Script (PlutusScript), PlutusScriptVersion (PlutusScriptV2), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress, ConwayEra)
-import qualified Cardano.Api.Shelley
+import Cardano.Api (IsCardanoEra,BabbageEra,NetworkId, AddressInEra, ShelleyAddr, BabbageEra, Script (PlutusScript), PlutusScriptV2, PlutusScriptVersion (PlutusScriptV2), PlutusScript (PlutusScriptSerialised), hashScript, PaymentCredential (PaymentCredentialByScript), StakeAddressReference (NoStakeAddress), makeShelleyAddressInEra, makeShelleyAddress, ConwayEra)
 import PlutusLedgerApi.V2
 import PlutusLedgerApi.V2.Contexts
 import qualified PlutusTx.Builtins.Internal as BI
@@ -60,6 +60,12 @@ parseData d s = case fromBuiltinData  d of
 constrArgs :: BuiltinData -> BI.BuiltinList BuiltinData
 constrArgs bd = BI.snd (BI.unsafeDataAsConstr bd)
 
+{-# INLINABLE memberPubKeyHash #-}
+memberPubKeyHash :: PubKeyHash -> [PubKeyHash] -> Bool
+memberPubKeyHash _ [] = False
+memberPubKeyHash needle (pkh:rest) =
+  if needle == pkh then True else memberPubKeyHash needle rest
+
 {-# INLINABLE marketConfigScriptBS #-}
 marketConfigScriptBS :: SerialisedScript -> SBS.ShortByteString
 marketConfigScriptBS  script =  SBS.toShort . LBS.toStrict $ serialise $ script
@@ -77,7 +83,7 @@ mkMarketConfig  MarketConfig{marketOwner}  ctx =
 mkMarketConfigSuperLazy :: MarketConfig -> [PubKeyHash] -> Bool
 mkMarketConfigSuperLazy MarketConfig{marketOwner} signatures = 
   case marketOwner of {Address cre m_sc -> case cre of
-    PubKeyCredential pkh ->traceIfFalse "Missing owner signature" (pkh `elem` signatures)
+    PubKeyCredential pkh ->traceIfFalse "Missing owner signature" (memberPubKeyHash pkh signatures)
     ScriptCredential vh -> traceError "NotOperator"  }
 
 {-# INLINABLE mkWrappedMarketConfig #-}
@@ -113,6 +119,6 @@ marketConfigValidatorSuperLazy =
 marketConfigScript  =  serialiseCompiledCode  marketConfigValidator
 marketConfigScriptSuperLazy = serialiseCompiledCode  marketConfigValidatorSuperLazy
 
-marketConfigPlutusScript  = PlutusScript PlutusScriptV2  $ Cardano.Api.Shelley.PlutusScriptSerialised $ marketConfigScriptBS marketConfigScript
+marketConfigPlutusScript  = PlutusScript PlutusScriptV2  $ PlutusScriptSerialised $ marketConfigScriptBS marketConfigScript
 
-marketConfigPlutusScriptSuperLazy  = PlutusScript PlutusScriptV2  $ Cardano.Api.Shelley.PlutusScriptSerialised $ marketConfigScriptBS marketConfigScriptSuperLazy
+marketConfigPlutusScriptSuperLazy  = PlutusScript PlutusScriptV2  $ PlutusScriptSerialised $ marketConfigScriptBS marketConfigScriptSuperLazy

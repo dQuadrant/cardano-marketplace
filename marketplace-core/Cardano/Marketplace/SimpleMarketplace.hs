@@ -10,8 +10,6 @@
 module Cardano.Marketplace.SimpleMarketplace where
 
 import Cardano.Api
-import Cardano.Api.Shelley (ProtocolParameters, ReferenceScript (ReferenceScriptNone), fromPlutusData, scriptDataToJsonDetailedSchema, toPlutusData, Address (ShelleyAddress))
-import qualified Cardano.Api.Shelley as Shelley
 import Cardano.Kuber.Api
 import Cardano.Kuber.Data.Parsers
 import Cardano.Kuber.Util

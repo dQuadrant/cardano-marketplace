@@ -10,11 +10,10 @@
 module Cardano.Marketplace.V1.Core where
 
 import Cardano.Api
-import Cardano.Api.Shelley (ProtocolParameters, ReferenceScript (ReferenceScriptNone), fromPlutusData, scriptDataToJsonDetailedSchema, toPlutusData, Address (ShelleyAddress))
-import qualified Cardano.Api.Shelley as Shelley
 import Cardano.Kuber.Api
 import Cardano.Kuber.Data.Parsers
 import Cardano.Kuber.Util
+import Cardano.Marketplace.Artifacts (loadSimpleMarketV1, loadSimpleMarketV1SuperLazy)
 import Cardano.Marketplace.Common.TextUtils ()
 import Cardano.Marketplace.Common.TransactionUtils
 import Codec.Serialise (serialise)
@@ -128,10 +127,10 @@ withdrawFromMarketWithRefScript withdrawTxIn refTxIn datum = do
     (sellerAddr, price) = parseAssetInfo (fromJust datum)
 
 simpleMarketV1Helper :: SimpleMarketHelper ChainConnectInfo w
-simpleMarketV1Helper = unsafePerformIO $ simpleMarketV1Helper' simpleMarketplacePlutusV1
+simpleMarketV1Helper = unsafePerformIO $ loadSimpleMarketV1 >>= simpleMarketV1Helper'
 
 simpleMarketV1HelperSuperLazy :: SimpleMarketHelper ChainConnectInfo w
-simpleMarketV1HelperSuperLazy = unsafePerformIO $ simpleMarketV1Helper' simpleMarketplacePlutusV1SuperLazy
+simpleMarketV1HelperSuperLazy = unsafePerformIO $ loadSimpleMarketV1SuperLazy >>= simpleMarketV1Helper'
 
 v1SaleDatumInline datum = (snd $ createV1SaleDatum (parseAssetInfo (fromJust datum)))
 

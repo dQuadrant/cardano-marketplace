@@ -49,6 +49,7 @@ library marketplace-plutus
 
 library marketplace-core
   exposed-modules:
+    Cardano.Marketplace.Artifacts
     Cardano.Marketplace.V1.Core
     Cardano.Marketplace.V2.Core
     Cardano.Marketplace.V3.Core
@@ -66,6 +67,7 @@ library marketplace-core
     , bytestring
     , containers
     , unordered-containers
+    , directory
     , filepath
     , serialise
     , http-types
@@ -93,6 +95,7 @@ executable  market-cli
     , bytestring
     , aeson
     , serialise
+    , process
     , cardano-ledger-shelley
     , cardano-ledger-core
     , cardano-ledger-alonzo
@@ -100,6 +103,44 @@ executable  market-cli
     , kuber
     , marketplace-plutus
     , marketplace-core
+
+executable script-artifacts-v1
+  main-is: Main.hs
+  hs-source-dirs: artifact-gen/v1
+  build-depends:
+      base -any
+    , directory
+    , filepath
+    , bytestring
+    , text
+    , cardano-api
+    , marketplace-plutus
+
+executable script-artifacts-v2
+  main-is: Main.hs
+  hs-source-dirs: artifact-gen/v2
+  build-depends:
+      base -any
+    , directory
+    , filepath
+    , bytestring
+    , text
+    , cardano-api
+    , plutus-ledger-api
+    , marketplace-plutus
+
+executable script-artifacts-v3
+  main-is: Main.hs
+  hs-source-dirs: artifact-gen/v3
+  build-depends:
+      base -any
+    , directory
+    , filepath
+    , bytestring
+    , text
+    , cardano-api
+    , plutus-ledger-api
+    , marketplace-plutus
 
 test-suite market-test
   default-language: Haskell2010

@@ -5,7 +5,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE ScopedTypeVariables #-}
 module Wallet where
-import Cardano.Api (SigningKey (..), AsType (..), serialiseToRawBytesHex, SerialiseAddress (serialiseAddress), AddressInEra)
+import Cardano.Api (SigningKey (..), AsType (..), serialiseToRawBytesHex, SerialiseAddress (serialiseAddress), AddressInEra, PaymentKey, StakeCredential (StakeCredentialByKey))
 import qualified Cardano.Address.Style.Shelley as Shelley 
 import Cardano.Mnemonic (Mnemonic, mkSomeMnemonic, SomeMnemonic (..), MkMnemonicError(..))
 import Data.ByteArray (convert, ScrubbedBytes)
@@ -18,7 +18,6 @@ import GHC.TypeNats (Nat)
 import Cardano.Address.Derivation (Depth(PaymentK, RootK))
 import Cardano.Address.Derivation
 import Cardano.Address.Style.Shelley (Role(..), deriveAccountPrivateKeyShelley, genMasterKeyFromMnemonicShelley, deriveAddressPrivateKeyShelley, liftXPub, delegationAddress)
-import Cardano.Api.Shelley (PaymentKey, StakeCredential (StakeCredentialByKey))
 import Cardano.Address.Style.Shelley (paymentAddress,Credential(..))
 import Cardano.Address (unAddress, bech32)
 import Cardano.Kuber.Util (toHexString)
@@ -29,7 +28,7 @@ import Cardano.Api (StakeKey, AddressInEra (AddressInEra), ShelleyBasedEra (Shel
 import Cardano.Ledger.Address (serialiseAddr)
 import GHC.Word (Word32)
 import Cardano.Address.Style.Shared (hashKey)
-import Cardano.Address.Script (KeyRole(..), KeyHash (KeyHash))
+import Cardano.Address.KeyHash (KeyRole(..), KeyHash (KeyHash))
 -- Replace these with your seed words
 seedWords :: [Text]
 seedWords =

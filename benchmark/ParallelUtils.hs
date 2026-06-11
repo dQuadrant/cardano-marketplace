@@ -180,7 +180,7 @@ monitoredSubmitTx  index txName wallet  txBuilder =
   )
 
 
-runOperations ::  (HasChainQueryAPI api, HasKuberAPI api, HasSubmitApi api) =>
+runOperations ::  (HasChainQueryAPI api, HasCardanoQueryApi api, HasKuberAPI api, HasSubmitApi api) =>
   Integer -> TxIn -> SimpleMarketHelper api w ->  AssetId -> (ShelleyWallet,ShelleyWallet) ->
   Kontract api w FrameworkError BenchRun
 runOperations index refScriptUtxo  marketHelper  sellAsset (sellerWallet,buyerWallet) = do
