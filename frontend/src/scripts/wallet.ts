@@ -3,7 +3,7 @@ import { kuberApiUrl } from '@/config';
 import {
     Address, AssetName,
     BaseAddress, BigNum, Ed25519KeyHash, EnterpriseAddress,
-    hash_auxiliary_data, MultiAsset, PointerAddress, ScriptHash, ScriptHashes, StakeCredential,
+    hash_auxiliary_data, MultiAsset, PointerAddress, ScriptHash, ScriptHashes,
     Transaction,
     TransactionBody, TransactionUnspentOutput, TransactionWitnessSet, Value, Vkeywitnesses
 } from '@emurgo/cardano-serialization-lib-asmjs';
@@ -18,6 +18,7 @@ import type {CIP30Instace} from "@/types";
 import {Buffer} from 'buffer'
 
 export async function signAndSubmit(provider: CIP30Instace, _tx: string) {
+    // console.log("Sign&&Submit reached: ", _tx)
     let tx:Transaction;
     try {
         const txArray=Uint8Array.from(Buffer.from(_tx, 'hex'))
@@ -114,7 +115,10 @@ export async function callKuberAndSubmit(provider: CIP30Instace, data: string) {
             mode: 'cors',
             method: 'POST',
             body: data,
-            headers: new Headers({'content-type': 'application/json'}),
+            headers: new Headers({
+                'content-type': 'application/json',
+                'api-key': `apivwmyKo9t6V5jJlyFa7iA12vumR6kgBOWyscv6XTEhSw5OsPxxbNe0E4Z7gvpa`
+                }),
         },
     ).catch(e => {
         console.error(`${kuberUrlByNetwork}/api/v1/tx`, e)
@@ -123,8 +127,10 @@ export async function callKuberAndSubmit(provider: CIP30Instace, data: string) {
         if (res.status === 200) {
             return res.json()
                 .then(json => {
-                    console.log(json)
-                    return signAndSubmit(provider, json.tx).catch(e => {
+                    console.log("Kuber API Response:", json)
+                    // console.log("hex type: ", typeof json.cborHex)
+
+                    return signAndSubmit(provider, json.cborHex).catch(e => {
                         if (e.info && e.code) {
                             throw Error(`Code : ${e.code} :: \n ${e.info}`)
                         } else throw e
@@ -139,6 +145,7 @@ export async function callKuberAndSubmit(provider: CIP30Instace, data: string) {
                     return Promise.reject(Error(`KubærApi [Status ${res.status}] : ${txt}`)
                     )
                 }
+                
                 if (json) {
                     return Promise.reject(Error(`KubærApi [Status ${res.status}] : ${json.message ? json.message : txt}`))
                 } else {
@@ -157,7 +164,7 @@ export async function calculatePolicyHash(script:any): Promise<string>{
             mode: 'cors',
             method: 'POST',
             body: JSON.stringify(script),
-            headers: new Headers({'content-type': 'application/json'}),
+            headers: new Headers({'content-type': 'application/json', 'api-key': 'apivwmyKo9t6V5jJlyFa7iA12vumR6kgBOWyscv6XTEhSw5OsPxxbNe0E4Z7gvpa'}),
         },
     ).catch(e => {
         console.error(`${kuberApiUrl}/api/v1/tx`, e)
